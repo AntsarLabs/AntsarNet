@@ -15,6 +15,7 @@ import { ChatPage } from './pages/ChatPage';
 import { ChatsListPage } from './pages/ChatsListPage';
 import { InboxSection } from './components/InboxSection';
 import { SendAnonymousMessagePage } from './pages/SendAnonymousMessagePage';
+import { AuthPage } from './pages/auth/AuthPage';
 import {
   Contact,
   Message,
@@ -505,8 +506,10 @@ function AppContent() {
   return (
     <Routes>
       <Route path="/inbox/:inboxId" element={<SendAnonymousMessagePage />} />
-      <Route path="/" element={<LandingPage onEnterApp={() => navigate('/discover')} />} />
+      <Route path="/" element={<LandingPage onEnterApp={() => navigate('/auth')} />} />
+      <Route path="/auth" element={<AuthPage onAuthSuccess={() => { setIsLoggedIn(true); navigate('/discover'); }} />} />
       <Route path="/discover" element={
+        !isLoggedIn ? <Navigate to="/auth" /> :
         <MainLayout>
           <div className="flex-1 w-full flex flex-col items-center relative bg-cover bg-center bg-no-repeat bg-fixed pb-20 md:pb-0"
             style={{ backgroundImage: 'url("https://cdn.magicpatterns.com/uploads/buFFB14RxN7rp2dVxCiLRi/64b6005b9b1c73650c503c0f921982ab.2-1-super.1.jpg")' }}>
@@ -522,6 +525,7 @@ function AppContent() {
         </MainLayout>
       } />
       <Route path="/confessions" element={
+        !isLoggedIn ? <Navigate to="/auth" /> :
         <MainLayout>
           <div className="flex-1 w-full relative bg-cover bg-center bg-no-repeat bg-fixed pb-20 md:pb-0"
             style={{ backgroundImage: 'url("https://cdn.magicpatterns.com/uploads/buFFB14RxN7rp2dVxCiLRi/64b6005b9b1c73650c503c0f921982ab.2-1-super.1.jpg")' }}>
@@ -541,6 +545,7 @@ function AppContent() {
         </MainLayout>
       } />
       <Route path="/messages/chats" element={
+        !isLoggedIn ? <Navigate to="/auth" /> :
         <MainLayout>
           <div className="flex-1 w-full relative bg-cover bg-center bg-no-repeat bg-fixed pb-20 md:pb-0 font-sans"
             style={{ backgroundImage: 'url("https://cdn.magicpatterns.com/uploads/buFFB14RxN7rp2dVxCiLRi/64b6005b9b1c73650c503c0f921982ab.2-1-super.1.jpg")' }}>
@@ -559,6 +564,7 @@ function AppContent() {
         </MainLayout>
       } />
       <Route path="/messages/inbox" element={
+        !isLoggedIn ? <Navigate to="/auth" /> :
         <MainLayout>
           <div className="flex-1 w-full relative bg-cover bg-center bg-no-repeat bg-fixed pb-20 md:pb-0 font-sans"
             style={{ backgroundImage: 'url("https://cdn.magicpatterns.com/uploads/buFFB14RxN7rp2dVxCiLRi/64b6005b9b1c73650c503c0f921982ab.2-1-super.1.jpg")' }}>
@@ -586,6 +592,7 @@ function AppContent() {
         </MainLayout>
       } />
       <Route path="/account" element={
+        !isLoggedIn ? <Navigate to="/auth" /> :
         <AccountPage
           currentUser={currentUser}
           contacts={MOCK_USERS}

@@ -166,7 +166,7 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
               
               Addis
             </span>
-            <span className="text-white">Friend</span>
+            <span className="text-white">Net</span>
           </motion.h1>
 
           <motion.p
@@ -281,7 +281,7 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
               Designed for <span className="text-pink-500">Privacy</span>
             </h2>
             <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-              We built AddisFriend from the ground up to protect your identity
+              We built AddisNet from the ground up to protect your identity
               while helping you make meaningful local connections.
             </p>
           </motion.div>
