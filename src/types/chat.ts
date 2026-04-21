@@ -71,8 +71,9 @@ export interface Reaction {
 
 export interface InboxMessage {
   id: string;
-  senderLabel: string;
-  content: string;
+  from: string;
+  subject: string;
+  message: string;
   createdAt: string;
   isRead: boolean;
   repliedAt?: string;

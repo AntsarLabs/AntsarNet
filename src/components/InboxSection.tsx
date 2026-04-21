@@ -5,286 +5,190 @@ import {
   Share2,
   Check,
   Inbox,
-  Send,
-  ChevronLeft,
-  Reply,
   ShieldCheck,
-  ExternalLink } from
-'lucide-react';
+  ChevronDown,
+  ChevronUp,
+  MessageSquare,
+  Sparkles,
+  Send
+} from 'lucide-react';
 import { InboxMessage } from '../types/chat';
+
 interface InboxSectionProps {
   inboxMessages: InboxMessage[];
   inboxUrl: string;
   onMarkRead: (id: string) => void;
-  onReply: (id: string, replyContent: string) => void;
+  hideList?: boolean;
 }
+
 export function InboxSection({
   inboxMessages,
   inboxUrl,
   onMarkRead,
-  onReply
+  hideList = false,
 }: InboxSectionProps) {
   const [copied, setCopied] = useState(false);
-  const [selectedMessageId, setSelectedMessageId] = useState<string | null>(
-    null
-  );
-  const [replyText, setReplyText] = useState('');
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
   const handleCopy = () => {
-    navigator.clipboard.writeText(inboxUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-  const selectedMessage = inboxMessages.find((m) => m.id === selectedMessageId);
-  const handleOpenMessage = (msg: InboxMessage) => {
-    if (!msg.isRead) {
-      onMarkRead(msg.id);
+    if (typeof navigator !== 'undefined') {
+      navigator.clipboard.writeText(inboxUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
-    setSelectedMessageId(msg.id);
   };
-  const handleSendReply = () => {
-    if (!replyText.trim() || !selectedMessageId) return;
-    onReply(selectedMessageId, replyText);
-    setReplyText('');
+
+  const toggleExpand = (id: string, isRead: boolean) => {
+    if (!isRead) {
+      onMarkRead(id);
+    }
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
   };
+
   return (
-    <div className="flex flex-col h-full relative">
-      {/* Shareable Link Card */}
-      <div className="p-4 sm:p-5 flex-shrink-0">
-        <div className="bg-gradient-to-br from-pink-500/10 to-purple-500/10 border border-pink-500/20 rounded-2xl p-4 sm:p-5 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
-
-          <div className="relative z-10">
-            <h3 className="text-lg font-bold text-white mb-1 flex items-center gap-2">
-              <Inbox size={20} className="text-pink-400" />
-              Anonymous Inbox Link
-            </h3>
-            <p className="text-sm text-slate-300 mb-3">
-              Share this link anywhere — anyone can send you a message through
-              it,{' '}
-              <span className="text-pink-400 font-medium">
-                no account needed
-              </span>
-              . Your identity stays completely hidden.
-            </p>
-
-            <div className="flex items-center gap-1.5 mb-4 px-3 py-2 bg-white/5 rounded-xl border border-white/5">
-              <ShieldCheck
-                size={14}
-                className="text-emerald-400 flex-shrink-0" />
-              
-              <p className="text-xs text-slate-400 leading-relaxed">
-                This link doesn't expose your code name, emoji, or any account
-                details. Visitors only see a simple text box to type a message.
-              </p>
+    <div className="flex flex-col h-full relative font-sans space-y-6">
+      {/* Sharing Header - matching confessions style */}
+      <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/20 shadow-xl">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+             <div className="flex items-center gap-2">
+                <Share2 size={18} className="text-pink-400" />
+                <h3 className="text-sm font-bold text-white tracking-tight">Share Your Link</h3>
+             </div>
+             {copied && (
+               <motion.span 
+                 initial={{ opacity: 0, scale: 0.9 }} 
+                 animate={{ opacity: 1, scale: 1 }} 
+                 className="text-[10px] font-bold bg-emerald-500 text-white px-2 py-0.5 rounded-full uppercase tracking-wider"
+               >
+                 Copied
+               </motion.span>
+             )}
+          </div>
+          
+          <div className="flex gap-2">
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                value={inboxUrl}
+                readOnly
+                className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-xs font-mono text-slate-300 focus:outline-none"
+              />
             </div>
-
-            <div className="flex items-center gap-2">
-              <div className="flex-1 bg-slate-950/50 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-slate-300 font-mono truncate select-all">
-                {inboxUrl}
-              </div>
-              <button
-                onClick={handleCopy}
-                className="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-colors border border-white/10 flex-shrink-0"
-                title="Copy Link">
-                
-                {copied ?
-                <Check size={18} className="text-green-400" /> :
-
-                <Copy size={18} />
-                }
-              </button>
-              <button
-                className="p-2.5 bg-[#D82B7D] hover:bg-[#C0266F] text-white rounded-xl transition-colors shadow-sm flex-shrink-0"
-                title="Share">
-                
-                <Share2 size={18} />
-              </button>
-            </div>
+            <button
+              onClick={handleCopy}
+              className="w-12 h-12 flex items-center justify-center bg-white text-slate-950 rounded-xl hover:bg-slate-100 transition-all active:scale-95 shadow-lg"
+            >
+              <Copy size={18} />
+            </button>
+            <button
+              className="w-12 h-12 flex items-center justify-center bg-pink-500 text-white rounded-xl hover:bg-pink-600 transition-all active:scale-95 border border-pink-400 shadow-lg shadow-pink-500/20"
+            >
+              <Send size={18} />
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Messages List */}
-      <div className="flex-1 overflow-y-auto px-4 pb-4">
-        <h4 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3 px-1">
-          Received Messages ({inboxMessages.length})
-        </h4>
-
-        {inboxMessages.length === 0 ?
-        <div className="text-center py-12 px-4">
-            <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-slate-800/50 border border-white/5 flex items-center justify-center shadow-inner">
-              <Inbox size={36} className="text-slate-500" />
-            </div>
-            <h3 className="text-lg font-semibold text-slate-200 mb-2">
-              No messages yet
-            </h3>
-            <p className="text-slate-400 text-sm max-w-xs mx-auto">
-              Share your inbox link on social media, with friends, or anywhere —
-              people can message you anonymously without creating an account.
-            </p>
-          </div> :
-
-        <div className="space-y-2">
-            {inboxMessages.map((msg) =>
-          <motion.button
-            key={msg.id}
-            initial={{
-              opacity: 0,
-              y: 10
-            }}
-            animate={{
-              opacity: 1,
-              y: 0
-            }}
-            onClick={() => handleOpenMessage(msg)}
-            className={`w-full flex flex-col gap-2 p-4 rounded-2xl transition-all text-left group relative border ${!msg.isRead ? 'bg-slate-800/60 border-pink-500/30 shadow-sm' : 'bg-slate-900/40 border-white/5 hover:bg-slate-800/40'}`}>
-            
-                <div className="flex items-center justify-between w-full">
-                  <div className="flex items-center gap-2">
-                    {!msg.isRead &&
-                <span className="w-2 h-2 rounded-full bg-pink-500 flex-shrink-0" />
-                }
-                    <span
-                  className={`font-semibold text-sm ${!msg.isRead ? 'text-white' : 'text-slate-300'}`}>
-                  
-                      {msg.senderLabel}
-                    </span>
-                    <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-slate-800 text-slate-400 border border-white/5">
-                      via link
-                    </span>
-                  </div>
-                  <span className="text-xs text-slate-500 font-medium">
-                    {msg.createdAt}
-                  </span>
-                </div>
-
-                <p
-              className={`text-sm line-clamp-2 ${!msg.isRead ? 'text-slate-200' : 'text-slate-400'}`}>
-              
-                  {msg.content}
-                </p>
-
-                {msg.repliedAt &&
-            <div className="flex items-center gap-1.5 mt-1 text-xs text-pink-400/80 font-medium">
-                    <Reply size={12} />
-                    Replied
-                  </div>
-            }
-              </motion.button>
-          )}
+      {inboxMessages.length === 0 ? (
+        <div className="text-center py-20 bg-white/5 backdrop-blur-md rounded-3xl border border-white/10">
+          <div className="w-20 h-20 mb-6 mx-auto rounded-full bg-white/10 flex items-center justify-center relative">
+            <Sparkles className="text-slate-400" size={32} />
           </div>
-        }
-      </div>
-
-      {/* Message Detail Overlay */}
-      <AnimatePresence>
-        {selectedMessage &&
-        <motion.div
-          initial={{
-            opacity: 0,
-            x: 20
-          }}
-          animate={{
-            opacity: 1,
-            x: 0
-          }}
-          exit={{
-            opacity: 0,
-            x: 20
-          }}
-          className="absolute inset-0 bg-slate-950 z-30 flex flex-col">
-          
-            <div className="h-14 flex items-center px-4 border-b border-white/5 bg-slate-900/50 backdrop-blur-md flex-shrink-0">
-              <button
-              onClick={() => setSelectedMessageId(null)}
-              className="p-2 -ml-2 text-slate-300 hover:text-white transition-colors rounded-full hover:bg-white/10">
+          <p className="text-white text-lg font-bold mb-1">Waiting for the first echo...</p>
+          <p className="text-slate-400 text-sm max-w-xs mx-auto">
+            When someone sends an anonymous whisper, it will appear here.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4 pb-32">
+          <AnimatePresence mode="popLayout">
+            {inboxMessages.map((msg, index) => {
+              const isExpanded = expandedIds.has(msg.id);
+              const isLong = msg.message.length > 180;
               
-                <ChevronLeft size={24} />
-              </button>
-              <h2 className="text-lg font-semibold ml-2 text-white">
-                Inbox Message
-              </h2>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-              <div className="max-w-2xl mx-auto">
-                {/* Source info */}
-                <div className="flex items-center gap-2 mb-4 px-1">
-                  <ExternalLink size={14} className="text-slate-500" />
-                  <span className="text-xs text-slate-500">
-                    Sent via your public inbox link — this person doesn't have
-                    an AddisFriend account
-                  </span>
-                </div>
-
-                <div className="bg-slate-900/80 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-sm mb-6">
-                  <div className="flex items-center justify-between mb-4 pb-4 border-b border-white/5">
+              return (
+                <motion.div
+                  key={msg.id}
+                  layoutId={`whisper-${msg.id}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className={`group relative flex flex-col gap-4 p-5 rounded-2xl transition-all duration-300 ${
+                    !msg.isRead 
+                      ? 'bg-white shadow-[0_8px_30px_rgba(216,43,125,0.1)] border-l-4 border-l-pink-500 border-y border-r border-white/60' 
+                      : 'bg-white/85 backdrop-blur-md border border-white/60 hover:bg-white transition-all shadow-sm'
+                  }`}
+                >
+                  <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-xl border border-white/5">
-                        🕵️
+                      <div className="relative">
+                        <span className="text-[10px] font-black font-mono text-pink-500 bg-pink-50 px-2.5 py-1.5 rounded-lg border border-pink-100 uppercase tracking-widest shadow-sm">
+                          #{msg.id.slice(-5).toUpperCase()}
+                        </span>
+                        {!msg.isRead && (
+                          <div className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-pink-500 border-2 border-white shadow-[0_0_8px_rgba(216,43,125,0.5)] z-10" />
+                        )}
                       </div>
-                      <div>
-                        <div className="font-semibold text-white text-sm">
-                          {selectedMessage.senderLabel}
-                        </div>
-                        <div className="text-xs text-slate-500">
-                          {selectedMessage.createdAt} · via inbox link
-                        </div>
-                      </div>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.15em] tabular-nums">
+                        {msg.createdAt}
+                      </span>
                     </div>
                   </div>
 
-                  <p className="text-slate-200 text-base sm:text-lg leading-relaxed whitespace-pre-wrap">
-                    {selectedMessage.content}
-                  </p>
-                </div>
-
-                <div className="bg-slate-900/40 border border-white/5 rounded-2xl p-4 sm:p-5">
-                  <h4 className="text-sm font-semibold text-white mb-2 flex items-center gap-2">
-                    <Reply size={16} className="text-pink-400" />
-                    Public Reply
-                  </h4>
-                  <p className="text-xs text-slate-400 mb-4 leading-relaxed">
-                    Since the sender used your public link and has no account,
-                    your reply will be posted on your inbox page. They can check
-                    back to see your response.
-                  </p>
-
-                  {selectedMessage.repliedAt ?
-                <div className="bg-white/5 rounded-xl p-4 border border-white/5">
-                      <div className="text-xs text-slate-500 mb-2">
-                        You replied on {selectedMessage.repliedAt}
-                      </div>
-                      <p className="text-sm text-slate-300">
-                        You have already replied to this message.
-                      </p>
-                    </div> :
-
-                <div className="flex flex-col gap-3">
-                      <textarea
-                    value={replyText}
-                    onChange={(e) => setReplyText(e.target.value)}
-                    placeholder="Write a public reply..."
-                    className="w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-pink-500/50 resize-none min-h-[100px]" />
-                  
-                      <div className="flex justify-end">
-                        <button
-                      onClick={handleSendReply}
-                      disabled={!replyText.trim()}
-                      className="px-5 py-2 bg-[#D82B7D] text-white rounded-xl font-medium hover:bg-[#C0266F] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 text-sm">
-                      
-                          <Send size={16} />
-                          Post Reply
-                        </button>
-                      </div>
-                    </div>
-                }
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        }
-      </AnimatePresence>
-    </div>);
-
+                  <div className="relative space-y-2">
+                    <h4 className="text-[15px] font-bold text-slate-800 tracking-tight">
+                      {msg.subject}
+                    </h4>
+                    <p 
+                      className={`text-[14px] leading-relaxed transition-all duration-300 text-slate-600 ${
+                        !isExpanded && isLong ? 'line-clamp-3' : ''
+                      }`}
+                    >
+                      {msg.message}
+                    </p>
+                    
+                    {isLong && (
+                      <button 
+                        onClick={() => toggleExpand(msg.id, msg.isRead)}
+                        className="mt-3 flex items-center gap-1.5 text-xs font-bold text-pink-600 hover:text-pink-700 transition-colors group/btn bg-pink-50 px-3 py-1.5 rounded-lg border border-pink-100 w-fit"
+                      >
+                        {isExpanded ? (
+                          <>
+                            Show less <ChevronUp size={14} className="transition-transform group-hover/btn:-translate-y-0.5" />
+                          </>
+                        ) : (
+                          <>
+                            Read full message <ChevronDown size={14} className="transition-transform group-hover/btn:translate-y-0.5" />
+                          </>
+                        )}
+                      </button>
+                    )}
+                    
+                    {!isLong && !msg.isRead && (
+                       <button 
+                        onClick={() => toggleExpand(msg.id, msg.isRead)}
+                        className="mt-3 text-[10px] font-bold text-slate-400 hover:text-pink-600 transition-colors uppercase tracking-[0.15em] flex items-center gap-1.5"
+                       >
+                         <Check size={12} />
+                         Mark as read
+                       </button>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </div>
+      )}
+    </div>
+  );
 }

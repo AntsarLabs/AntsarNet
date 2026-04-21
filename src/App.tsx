@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, useParams, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
 import { OnlineUsers } from './components/OnlineUsers';
 import { TopHeader } from './components/TopHeader';
 import { BottomNav } from './components/BottomNav';
@@ -11,6 +13,7 @@ import { ConfessionsFeed } from './components/ConfessionsFeed';
 import { ReactionType } from './components/ReactionBar';
 import { ChatPage } from './pages/ChatPage';
 import { ChatsListPage } from './pages/ChatsListPage';
+import { InboxSection } from './components/InboxSection';
 import {
   Contact,
   Message,
@@ -279,81 +282,109 @@ const MOCK_COMMENTS: Comment[] = [
 const MOCK_INBOX_MESSAGES: InboxMessage[] = [
 {
   id: 'i1',
-  senderLabel: '🕵️ Anonymous',
-  content: 'I saw you at the coffee shop today, your outfit was amazing!',
+  from: '🕵️ Anonymous',
+  subject: 'Your Style',
+  message: 'I saw you at the coffee shop today, your outfit was amazing! Especially that jacket.',
   createdAt: '2 hours ago',
   isRead: false
 },
 {
   id: 'i2',
-  senderLabel: 'Someone nearby',
-  content:
-  'Hey, I really liked your recent confession. Totally relate to it.',
+  from: 'Someone nearby',
+  subject: 'Liked your post',
+  message: 'Hey, I really liked your recent confession about the barista. Totally relate to it, I have the same problem at my local cafe!',
   createdAt: '1 day ago',
   isRead: true,
   repliedAt: '1 day ago'
 },
 {
   id: 'i3',
-  senderLabel: 'Secret Admirer',
-  content: 'You have a great smile 😊',
+  from: 'Secret Admirer',
+  subject: 'Compliment',
+  message: 'You have a great smile 😊 Just wanted to brighten your day a bit.',
   createdAt: '3 days ago',
+  isRead: true
+},
+{
+  id: 'i4',
+  from: 'Night Owl',
+  subject: 'Late night thoughts',
+  message: 'Do you ever feel like the city is more alive at 3 AM than at 3 PM? Just wondering if anyone else is awake right now.',
+  createdAt: '1 hour ago',
+  isRead: false
+},
+{
+  id: 'i5',
+  from: 'Coffee Enthusiast',
+  subject: 'Recommendation',
+  message: 'If you like that shop, you should try the one on 5th street. Their cold brew is actually life-changing.',
+  createdAt: '5 hours ago',
+  isRead: false
+},
+{
+  id: 'i6',
+  from: 'A Friend',
+  subject: 'Check-in',
+  message: "Hey, hope your week is going well. You've seemed a bit busy lately!",
+  createdAt: '2 days ago',
+  isRead: true
+},
+{
+  id: 'i7',
+  from: 'Anonymous',
+  subject: 'Quick question',
+  message: 'What was the name of that song you were humming earlier? It sounded so familiar but I couldn\'t place it.',
+  createdAt: '10 hours ago',
+  isRead: false
+},
+{
+  id: 'i8',
+  from: 'Neighbor',
+  subject: 'Plant advice',
+  message: 'Your balcony garden looks amazing! What do you use for your succulents? Mine always seem to struggle.',
+  createdAt: '4 days ago',
   isRead: true
 }];
 
-export function App() {
-  const [view, setView] = useState<
-    'landing' | 'main' | 'account' | 'confessions' | 'chats' | 'profile'>(
-    'landing');
+function AppContent() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [profileUserId, setProfileUserId] = useState<string | null>(null);
-  const [messages, setMessages] =
-  useState<Record<string, Message[]>>(MOCK_MESSAGES);
+  const [messages, setMessages] = useState<Record<string, Message[]>>(MOCK_MESSAGES);
   const [sessions, setSessions] = useState<ChatSession[]>(MOCK_SESSIONS);
   const [posts, setPosts] = useState<Post[]>(MOCK_POSTS);
   const [comments, setComments] = useState<Comment[]>(MOCK_COMMENTS);
-  const [inboxMessages, setInboxMessages] =
-  useState<InboxMessage[]>(MOCK_INBOX_MESSAGES);
+  const [inboxMessages, setInboxMessages] = useState<InboxMessage[]>(MOCK_INBOX_MESSAGES);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   const currentUser = {
     emoji: '😎',
     friendId: 'MyCodeName123'
   };
   const inboxUrl = `addisfriend.com/inbox/${currentUser.friendId}`;
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-  };
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-  };
+
+  const handleLogin = () => setIsLoggedIn(true);
+  const handleLogout = () => setIsLoggedIn(false);
+
   const handleSelect = (id: string) => {
     setSelectedId(id);
-    setView('main');
+    navigate('/discover');
   };
-  const handleViewProfile = (id: string) => {
-    setProfileUserId(id);
-    setView('profile');
-  };
+
   const handleSendMessage = (contactId: string, text: string) => {
     const newMessage: Message = {
       id: Date.now().toString(),
       senderId: 'me',
       text,
-      timestamp: new Date().toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit'
-      })
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
     setMessages((prev) => ({
       ...prev,
       [contactId]: [...(prev[contactId] || []), newMessage]
     }));
   };
-  const handleAddPost = (
-  content: string,
-  visibility: 'public' | 'anonymous_room',
-  tags: string[]) =>
-  {
+
+  const handleAddPost = (content: string, visibility: 'public' | 'anonymous_room', tags: string[]) => {
     const newPost: Post = {
       id: `p${Date.now()}`,
       userId: currentUser.friendId,
@@ -369,26 +400,15 @@ export function App() {
     };
     setPosts([newPost, ...posts]);
   };
+
   const handleEditPost = (postId: string, newContent: string) => {
-    setPosts(
-      posts.map((p) =>
-      p.id === postId ?
-      {
-        ...p,
-        content: newContent
-      } :
-      p
-      )
-    );
+    setPosts(prev => prev.map(p => p.id === postId ? { ...p, content: newContent } : p));
   };
   const handleDeletePost = (postId: string) => {
-    setPosts(posts.filter((p) => p.id !== postId));
+    setPosts(prev => prev.filter(p => p.id !== postId));
   };
-  const handleAddComment = (
-  postId: string,
-  content: string,
-  parentId?: string) =>
-  {
+
+  const handleAddComment = (postId: string, content: string, parentId?: string) => {
     const newComment: Comment = {
       id: `c${Date.now()}`,
       postId,
@@ -402,261 +422,187 @@ export function App() {
       reportCount: 0
     };
     setComments([...comments, newComment]);
-    setPosts(
-      posts.map((p) =>
-      p.id === postId ?
-      {
-        ...p,
-        commentCount: p.commentCount + 1
-      } :
-      p
-      )
-    );
+    setPosts(prev => prev.map(p => p.id === postId ? { ...p, commentCount: p.commentCount + 1 } : p));
   };
-  const handleReactPost = (postId: string, type: ReactionType) => {
-    setPosts(
-      posts.map((p) =>
-      p.id === postId ?
-      {
-        ...p,
-        reactionCount: p.reactionCount + 1
-      } :
-      p
-      )
-    );
+
+  const handleReactPost = (postId: string) => {
+    setPosts(prev => prev.map(p => p.id === postId ? { ...p, reactionCount: p.reactionCount + 1 } : p));
   };
-  const handleReactComment = (commentId: string, type: ReactionType) => {
-    setComments(
-      comments.map((c) =>
-      c.id === commentId ?
-      {
-        ...c,
-        reactionCount: c.reactionCount + 1
-      } :
-      c
-      )
-    );
+  const handleReactComment = (commentId: string) => {
+    setComments(prev => prev.map(c => c.id === commentId ? { ...c, reactionCount: c.reactionCount + 1 } : c));
   };
+
   const handleMarkInboxRead = (id: string) => {
-    setInboxMessages((prev) =>
-    prev.map((msg) =>
-    msg.id === id ?
-    {
-      ...msg,
-      isRead: true
-    } :
-    msg
-    )
-    );
+    setInboxMessages((prev) => prev.map((msg) => msg.id === id ? { ...msg, isRead: true } : msg));
   };
-  const handleReplyInbox = (id: string, text: string) => {
-    setInboxMessages((prev) =>
-    prev.map((msg) =>
-    msg.id === id ?
-    {
-      ...msg,
-      repliedAt: 'Just now'
-    } :
-    msg
-    )
-    );
-    // In a real app, this would also create a public post or update the user's profile
-  };
-  const selectedContact = MOCK_USERS.find((c) => c.id === selectedId);
-  if (view === 'landing') {
-    return <LandingPage onEnterApp={() => setView('main')} />;
-  }
-  if (view === 'account') {
+
+  const MainLayout = ({ children }: { children: React.ReactNode }) => {
+    const isChatWindowOpen = !!selectedId && location.pathname === '/discover';
     return (
-      <AccountPage
-        currentUser={currentUser}
-        contacts={MOCK_USERS}
-        sessions={sessions}
+      <div className="min-h-screen w-full flex flex-col text-foreground font-sans selection:bg-pink-500/30 overflow-x-hidden bg-slate-950">
+        <TopHeader
+          isLoggedIn={isLoggedIn}
+          currentUser={currentUser}
+          onLogin={handleLogin}
+          onLogout={handleLogout}
+          onAccountClick={() => navigate('/account')}
+        />
+
+        <main className="flex-1 w-full flex flex-col relative">
+          {children}
+
+          {/* Persistent Chat Window when selected */}
+          <AnimatePresence>
+            {isChatWindowOpen && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="h-screen w-full absolute inset-0 z-50"
+              >
+                {MOCK_USERS.find(c => c.id === selectedId) && (
+                  <ChatPage
+                    contact={MOCK_USERS.find(c => c.id === selectedId)!}
+                    messages={messages[selectedId!] || []}
+                    onBack={() => setSelectedId(null)}
+                    onSend={(text) => handleSendMessage(selectedId!, text)}
+                  />
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </main>
+
+        {!isChatWindowOpen && (
+          <BottomNav
+            onAccountClick={() => navigate('/account')}
+          />
+        )}
+        <Footer />
+      </div>
+    );
+  };
+
+  const ProfilePageRoute = () => {
+    const { id } = useParams();
+    const user = MOCK_USERS.find((c) => c.id === id);
+    if (!user) return <Navigate to="/discover" />;
+    return (
+      <UserProfilePage
+        user={user}
         posts={posts}
-        onBack={() => setView('main')}
-        onOpenChat={handleSelect}
-        onEditPost={handleEditPost}
-        onDeletePost={handleDeletePost} />);
+        onBack={() => navigate(-1)}
+        onMessage={(id) => {
+          handleSelect(id);
+        }}
+        onReactPost={handleReactPost}
+      />
+    );
+  };
 
-
-  }
-  if (view === 'profile' && profileUserId) {
-    const profileUser = MOCK_USERS.find((c) => c.id === profileUserId);
-    if (profileUser) {
-      return (
-        <UserProfilePage
-          user={profileUser}
-          posts={posts}
-          onBack={() => {
-            setProfileUserId(null);
-            setView('main');
-          }}
-          onMessage={(id) => {
-            setProfileUserId(null);
-            handleSelect(id);
-          }}
-          onReactPost={handleReactPost} />);
-
-
-    }
-  }
   return (
-    <div className="min-h-screen w-full flex flex-col text-foreground font-sans selection:bg-pink-500/30 overflow-x-hidden bg-slate-950">
-      <TopHeader
-        isLoggedIn={isLoggedIn}
-        currentUser={currentUser}
-        activeView={!selectedId ? view : undefined}
-        onLogin={handleLogin}
-        onLogout={handleLogout}
-        onAccountClick={() => setView('account')}
-        onViewChange={(v) => setView(v)} />
-      
-
-      <AnimatePresence mode="wait">
-        {view === 'confessions' ?
-        <motion.div
-          key="confessions"
-          initial={{
-            opacity: 0,
-            x: 20
-          }}
-          animate={{
-            opacity: 1,
-            x: 0
-          }}
-          exit={{
-            opacity: 0,
-            x: -20
-          }}
-          transition={{
-            duration: 0.2
-          }}
-          className="flex-1 w-full relative bg-cover bg-center bg-no-repeat bg-fixed pb-20 md:pb-0"
-          style={{
-            backgroundImage:
-            'url("https://cdn.magicpatterns.com/uploads/buFFB14RxN7rp2dVxCiLRi/64b6005b9b1c73650c503c0f921982ab.2-1-super.1.jpg")'
-          }}>
-          
-            <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] pointer-events-none" />
-            <div className="relative z-10">
-              <ConfessionsFeed
-              currentUser={currentUser}
-              posts={posts}
-              comments={comments}
-              onAddPost={handleAddPost}
-              onAddComment={handleAddComment}
-              onReactPost={handleReactPost}
-              onReactComment={handleReactComment} />
-            
-            </div>
-          </motion.div> :
-        view === 'chats' ?
-        <motion.div
-          key="chats"
-          initial={{
-            opacity: 0,
-            x: 20
-          }}
-          animate={{
-            opacity: 1,
-            x: 0
-          }}
-          exit={{
-            opacity: 0,
-            x: -20
-          }}
-          transition={{
-            duration: 0.2
-          }}
-          className="flex-1 w-full flex flex-col">
-          
-            <ChatsListPage
-            sessions={sessions}
-            contacts={MOCK_USERS}
-            messages={messages}
-            inboxMessages={inboxMessages}
-            inboxUrl={inboxUrl}
-            onOpenChat={handleSelect}
-            onSendMessage={handleSendMessage}
-            onMarkInboxRead={handleMarkInboxRead}
-            onReplyInbox={handleReplyInbox} />
-          
-          </motion.div> :
-        !selectedId ?
-        <motion.div
-          key="discover"
-          initial={{
-            opacity: 0,
-            x: -20
-          }}
-          animate={{
-            opacity: 1,
-            x: 0
-          }}
-          exit={{
-            opacity: 0,
-            x: -20
-          }}
-          transition={{
-            duration: 0.2
-          }}
-          className="flex-1 w-full flex flex-col items-center relative bg-cover bg-center bg-no-repeat bg-fixed pb-20 md:pb-0"
-          style={{
-            backgroundImage:
-            'url("https://cdn.magicpatterns.com/uploads/buFFB14RxN7rp2dVxCiLRi/64b6005b9b1c73650c503c0f921982ab.2-1-super.1.jpg")'
-          }}>
-          
+    <Routes>
+      <Route path="/" element={<LandingPage onEnterApp={() => navigate('/discover')} />} />
+      <Route path="/discover" element={
+        <MainLayout>
+          <div className="flex-1 w-full flex flex-col items-center relative bg-cover bg-center bg-no-repeat bg-fixed pb-20 md:pb-0"
+            style={{ backgroundImage: 'url("https://cdn.magicpatterns.com/uploads/buFFB14RxN7rp2dVxCiLRi/64b6005b9b1c73650c503c0f921982ab.2-1-super.1.jpg")' }}>
             <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] pointer-events-none" />
             <div className="w-full max-w-3xl mx-auto p-4 md:p-8 pt-8 md:pt-16 pb-[30vh] md:pb-[30vh] relative z-10">
               <OnlineUsers
-              contacts={MOCK_USERS}
-              onSelect={handleSelect}
-              onViewProfile={handleViewProfile} />
-            
+                contacts={MOCK_USERS}
+                onSelect={handleSelect}
+                onViewProfile={(id) => navigate(`/profile/${id}`)}
+              />
             </div>
-          </motion.div> :
+          </div>
+        </MainLayout>
+      } />
+      <Route path="/confessions" element={
+        <MainLayout>
+          <div className="flex-1 w-full relative bg-cover bg-center bg-no-repeat bg-fixed pb-20 md:pb-0"
+            style={{ backgroundImage: 'url("https://cdn.magicpatterns.com/uploads/buFFB14RxN7rp2dVxCiLRi/64b6005b9b1c73650c503c0f921982ab.2-1-super.1.jpg")' }}>
+            <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] pointer-events-none" />
+            <div className="relative z-10">
+              <ConfessionsFeed
+                currentUser={currentUser}
+                posts={posts}
+                comments={comments}
+                onAddPost={handleAddPost}
+                onAddComment={handleAddComment}
+                onReactPost={handleReactPost}
+                onReactComment={handleReactComment}
+              />
+            </div>
+          </div>
+        </MainLayout>
+      } />
+      <Route path="/messages/chats" element={
+        <MainLayout>
+          <div className="flex-1 w-full relative bg-cover bg-center bg-no-repeat bg-fixed pb-20 md:pb-0 font-sans"
+            style={{ backgroundImage: 'url("https://cdn.magicpatterns.com/uploads/buFFB14RxN7rp2dVxCiLRi/64b6005b9b1c73650c503c0f921982ab.2-1-super.1.jpg")' }}>
+            <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] pointer-events-none" />
+            
+            <div className="relative z-10 w-full h-full">
+              <ChatsListPage
+                sessions={sessions}
+                contacts={MOCK_USERS}
+                messages={messages}
+                onOpenChat={handleSelect}
+                onSendMessage={handleSendMessage}
+              />
+            </div>
+          </div>
+        </MainLayout>
+      } />
+      <Route path="/messages/inbox" element={
+        <MainLayout>
+          <div className="flex-1 w-full relative bg-cover bg-center bg-no-repeat bg-fixed pb-20 md:pb-0 font-sans"
+            style={{ backgroundImage: 'url("https://cdn.magicpatterns.com/uploads/buFFB14RxN7rp2dVxCiLRi/64b6005b9b1c73650c503c0f921982ab.2-1-super.1.jpg")' }}>
+            <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] pointer-events-none" />
+            
+            <div className="relative z-10 w-full max-w-3xl mx-auto px-4 py-6 md:py-8 min-h-screen">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                <div>
+                  <h2 className="text-3xl font-bold text-white mb-1 flex items-center gap-2">
+                    Anonymous Inbox <Sparkles className="text-pink-400" size={24} />
+                  </h2>
+                  <p className="text-slate-300 text-sm">
+                    Read your anonymous whispers securely.
+                  </p>
+                </div>
+              </div>
+              
+              <InboxSection
+                inboxMessages={inboxMessages}
+                inboxUrl={inboxUrl}
+                onMarkRead={handleMarkInboxRead}
+              />
+            </div>
+          </div>
+        </MainLayout>
+      } />
+      <Route path="/account" element={
+        <AccountPage
+          currentUser={currentUser}
+          contacts={MOCK_USERS}
+          sessions={sessions}
+          posts={posts}
+          onBack={() => navigate('/discover')}
+          onOpenChat={handleSelect}
+          onEditPost={handleEditPost}
+          onDeletePost={handleDeletePost}
+        />
+      } />
+      <Route path="/profile/:id" element={<ProfilePageRoute />} />
+    </Routes>
+  );
+}
 
-        <motion.div
-          key="chat"
-          initial={{
-            opacity: 0,
-            x: 20
-          }}
-          animate={{
-            opacity: 1,
-            x: 0
-          }}
-          exit={{
-            opacity: 0,
-            x: 20
-          }}
-          transition={{
-            duration: 0.2
-          }}
-          className="h-screen w-full absolute inset-0 z-20">
-          
-            {selectedContact &&
-          <ChatPage
-            contact={selectedContact}
-            messages={messages[selectedId] || []}
-            onBack={() => setSelectedId(null)}
-            onSend={(text) => handleSendMessage(selectedId, text)} />
-
-          }
-          </motion.div>
-        }
-      </AnimatePresence>
-
-      {!selectedId && (
-      view === 'main' || view === 'confessions' || view === 'chats') &&
-      <BottomNav
-        activeView={view}
-        onViewChange={(v) => setView(v)}
-        onAccountClick={() => setView('account')} />
-
-      }
-
-      <Footer />
-    </div>);
-
+export function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
+  );
 }
