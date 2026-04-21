@@ -14,337 +14,339 @@ import { ReactionType } from './components/ReactionBar';
 import { ChatPage } from './pages/ChatPage';
 import { ChatsListPage } from './pages/ChatsListPage';
 import { InboxSection } from './components/InboxSection';
+import { SendAnonymousMessagePage } from './pages/SendAnonymousMessagePage';
 import {
   Contact,
   Message,
   ChatSession,
   Post,
   Comment,
-  InboxMessage } from
-'./types/chat';
+  InboxMessage
+} from
+  './types/chat';
 const MOCK_USERS: Contact[] = [
-{
-  id: '1',
-  friendId: 'Ae1cf8ff45cF',
-  emoji: '🦊',
-  isOnline: true,
-  distance: '500m',
-  blockStatus: null,
-  mood: '😔 feeling low today… need someone to talk to'
-},
-{
-  id: '2',
-  friendId: 'B7d2e9a01bC3',
-  emoji: '🦉',
-  isOnline: true,
-  distance: '1.2km',
-  blockStatus: 'blocked_by_you',
-  mood: '🎧 vibing to lo-fi beats rn'
-},
-{
-  id: '3',
-  friendId: '4fE8c1d73aB6',
-  emoji: '🐯',
-  isOnline: true,
-  distance: '3.4km',
-  blockStatus: 'blocked_you',
-  mood: '💪 gym mode activated'
-},
-{
-  id: '4',
-  friendId: 'Dc5a92f0e8F1',
-  emoji: '🐻',
-  isOnline: true,
-  distance: '800m',
-  blockStatus: null,
-  mood: "☕ just woke up, don't talk to me yet lol"
-},
-{
-  id: '5',
-  friendId: '9bA3d7c46eE2',
-  emoji: '🐬',
-  isOnline: false,
-  distance: '12km',
-  blockStatus: null,
-  mood: '✨ manifesting good energy today'
-},
-{
-  id: '6',
-  friendId: 'F2e6b8a15dC0',
-  emoji: '🐺',
-  isOnline: true,
-  distance: '2.5km',
-  blockStatus: 'blocked_you',
-  mood: '🔥 on a winning streak fr'
-},
-{
-  id: '7',
-  friendId: '3cD1f4e97aB8',
-  emoji: '🐱',
-  isOnline: false,
-  distance: '5km',
-  blockStatus: 'blocked_by_you',
-  mood: '😴 nap time is every time'
-},
-{
-  id: '8',
-  friendId: 'E8a0c5d32fF7',
-  emoji: '🦅',
-  isOnline: true,
-  distance: '15km',
-  blockStatus: null,
-  mood: '🌅 chasing sunsets and good convos'
-}];
+  {
+    id: '1',
+    friendId: 'Ae1cf8ff45cF',
+    emoji: '🦊',
+    isOnline: true,
+    distance: '500m',
+    blockStatus: null,
+    mood: '😔 feeling low today… need someone to talk to'
+  },
+  {
+    id: '2',
+    friendId: 'B7d2e9a01bC3',
+    emoji: '🦉',
+    isOnline: true,
+    distance: '1.2km',
+    blockStatus: 'blocked_by_you',
+    mood: '🎧 vibing to lo-fi beats rn'
+  },
+  {
+    id: '3',
+    friendId: '4fE8c1d73aB6',
+    emoji: '🐯',
+    isOnline: true,
+    distance: '3.4km',
+    blockStatus: 'blocked_you',
+    mood: '💪 gym mode activated'
+  },
+  {
+    id: '4',
+    friendId: 'Dc5a92f0e8F1',
+    emoji: '🐻',
+    isOnline: true,
+    distance: '800m',
+    blockStatus: null,
+    mood: "☕ just woke up, don't talk to me yet lol"
+  },
+  {
+    id: '5',
+    friendId: '9bA3d7c46eE2',
+    emoji: '🐬',
+    isOnline: false,
+    distance: '12km',
+    blockStatus: null,
+    mood: '✨ manifesting good energy today'
+  },
+  {
+    id: '6',
+    friendId: 'F2e6b8a15dC0',
+    emoji: '🐺',
+    isOnline: true,
+    distance: '2.5km',
+    blockStatus: 'blocked_you',
+    mood: '🔥 on a winning streak fr'
+  },
+  {
+    id: '7',
+    friendId: '3cD1f4e97aB8',
+    emoji: '🐱',
+    isOnline: false,
+    distance: '5km',
+    blockStatus: 'blocked_by_you',
+    mood: '😴 nap time is every time'
+  },
+  {
+    id: '8',
+    friendId: 'E8a0c5d32fF7',
+    emoji: '🦅',
+    isOnline: true,
+    distance: '15km',
+    blockStatus: null,
+    mood: '🌅 chasing sunsets and good convos'
+  }];
 
 const MOCK_MESSAGES: Record<string, Message[]> = {
   '1': [
-  {
-    id: 'm1',
-    senderId: '1',
-    text: 'Are you in position?',
-    timestamp: '10:30 AM'
-  },
-  {
-    id: 'm2',
-    senderId: 'me',
-    text: 'Almost there. Give me 5 mins.',
-    timestamp: '10:32 AM'
-  }]
+    {
+      id: 'm1',
+      senderId: '1',
+      text: 'Are you in position?',
+      timestamp: '10:30 AM'
+    },
+    {
+      id: 'm2',
+      senderId: 'me',
+      text: 'Almost there. Give me 5 mins.',
+      timestamp: '10:32 AM'
+    }]
 
 };
 const MOCK_SESSIONS: ChatSession[] = [
-{
-  id: 's1',
-  contactId: '1',
-  startedAt: 'Apr 12, 2026 3:45 PM',
-  lastMessageAt: 'Apr 12, 2026 4:30 PM',
-  totalMessages: 42,
-  unrepliedCount: 0,
-  status: 'ended'
-},
-{
-  id: 's2',
-  contactId: '2',
-  startedAt: 'Apr 17, 2026 10:15 AM',
-  lastMessageAt: 'Apr 17, 2026 11:02 AM',
-  totalMessages: 15,
-  unrepliedCount: 3,
-  status: 'active'
-},
-{
-  id: 's3',
-  contactId: '6',
-  startedAt: 'Apr 10, 2026 8:00 PM',
-  lastMessageAt: 'Apr 11, 2026 2:15 PM',
-  totalMessages: 5,
-  unrepliedCount: 0,
-  status: 'ended'
-}];
+  {
+    id: 's1',
+    contactId: '1',
+    startedAt: 'Apr 12, 2026 3:45 PM',
+    lastMessageAt: 'Apr 12, 2026 4:30 PM',
+    totalMessages: 42,
+    unrepliedCount: 0,
+    status: 'ended'
+  },
+  {
+    id: 's2',
+    contactId: '2',
+    startedAt: 'Apr 17, 2026 10:15 AM',
+    lastMessageAt: 'Apr 17, 2026 11:02 AM',
+    totalMessages: 15,
+    unrepliedCount: 3,
+    status: 'active'
+  },
+  {
+    id: 's3',
+    contactId: '6',
+    startedAt: 'Apr 10, 2026 8:00 PM',
+    lastMessageAt: 'Apr 11, 2026 2:15 PM',
+    totalMessages: 5,
+    unrepliedCount: 0,
+    status: 'ended'
+  }];
 
 const MOCK_POSTS: Post[] = [
-{
-  id: 'p1',
-  userId: 'Ae1cf8ff45cF',
-  emoji: '🦊',
-  content:
-  "I've been going to the same coffee shop for 3 months just because the barista is cute. I don't even like coffee that much 😭",
-  tags: ['Crush', 'Funny', 'Secret'],
-  visibility: 'public',
-  createdAt: '2 hours ago',
-  status: 'active',
-  reactionCount: 45,
-  commentCount: 12,
-  reportCount: 0
-},
-{
-  id: 'p2',
-  userId: 'B7d2e9a01bC3',
-  emoji: '🦉',
-  content:
-  "Sometimes I pretend to be on a phone call when walking past people handing out flyers. I'm sorry, I just have social anxiety.",
-  tags: ['Vent', 'Mental Health'],
-  visibility: 'public',
-  createdAt: '5 hours ago',
-  status: 'active',
-  reactionCount: 128,
-  commentCount: 3,
-  reportCount: 0
-},
-{
-  id: 'p3',
-  userId: '4fE8c1d73aB6',
-  emoji: '🐯',
-  content:
-  "I accidentally liked my ex's new partner's Instagram post from 2021. I immediately deactivated my account. Moving to Nepal tomorrow.",
-  tags: ['Awkward', 'Relationship', 'Regret'],
-  visibility: 'public',
-  createdAt: '1 day ago',
-  status: 'active',
-  reactionCount: 342,
-  commentCount: 45,
-  reportCount: 0
-},
-{
-  id: 'p4',
-  userId: 'Dc5a92f0e8F1',
-  emoji: '🐻',
-  content:
-  "I'm 28 and I still sleep with a stuffed bear. It's the only thing keeping my mental health together.",
-  tags: ['Wholesome', 'Mental Health'],
-  visibility: 'anonymous_room',
-  createdAt: '2 days ago',
-  status: 'active',
-  reactionCount: 89,
-  commentCount: 15,
-  reportCount: 0
-},
-{
-  id: 'p5',
-  userId: 'MyCodeName123',
-  emoji: '😎',
-  content:
-  'I told my boss I was sick but I actually spent the whole day binge-watching a K-drama. No regrets, the finale was worth it 🍿',
-  tags: ['Funny', 'Secret', 'Regret'],
-  visibility: 'public',
-  createdAt: '3 hours ago',
-  status: 'active',
-  reactionCount: 67,
-  commentCount: 8,
-  reportCount: 0
-},
-{
-  id: 'p6',
-  userId: 'MyCodeName123',
-  emoji: '😎',
-  content:
-  "I've been learning to cook just to impress someone who doesn't even know I exist. My kitchen has seen things… burnt things 🔥😅",
-  tags: ['Crush', 'Funny'],
-  visibility: 'public',
-  createdAt: '1 day ago',
-  status: 'active',
-  reactionCount: 134,
-  commentCount: 22,
-  reportCount: 0
-},
-{
-  id: 'p7',
-  userId: 'MyCodeName123',
-  emoji: '😎',
-  content:
-  "Sometimes I walk around the city with earphones in but no music playing, just so I can eavesdrop on strangers' conversations. I'm basically a detective at this point 🕵️",
-  tags: ['Awkward', 'Secret'],
-  visibility: 'anonymous_room',
-  createdAt: '3 days ago',
-  status: 'active',
-  reactionCount: 201,
-  commentCount: 31,
-  reportCount: 0
-}];
+  {
+    id: 'p1',
+    userId: 'Ae1cf8ff45cF',
+    emoji: '🦊',
+    content:
+      "I've been going to the same coffee shop for 3 months just because the barista is cute. I don't even like coffee that much 😭",
+    tags: ['Crush', 'Funny', 'Secret'],
+    visibility: 'public',
+    createdAt: '2 hours ago',
+    status: 'active',
+    reactionCount: 45,
+    commentCount: 12,
+    reportCount: 0
+  },
+  {
+    id: 'p2',
+    userId: 'B7d2e9a01bC3',
+    emoji: '🦉',
+    content:
+      "Sometimes I pretend to be on a phone call when walking past people handing out flyers. I'm sorry, I just have social anxiety.",
+    tags: ['Vent', 'Mental Health'],
+    visibility: 'public',
+    createdAt: '5 hours ago',
+    status: 'active',
+    reactionCount: 128,
+    commentCount: 3,
+    reportCount: 0
+  },
+  {
+    id: 'p3',
+    userId: '4fE8c1d73aB6',
+    emoji: '🐯',
+    content:
+      "I accidentally liked my ex's new partner's Instagram post from 2021. I immediately deactivated my account. Moving to Nepal tomorrow.",
+    tags: ['Awkward', 'Relationship', 'Regret'],
+    visibility: 'public',
+    createdAt: '1 day ago',
+    status: 'active',
+    reactionCount: 342,
+    commentCount: 45,
+    reportCount: 0
+  },
+  {
+    id: 'p4',
+    userId: 'Dc5a92f0e8F1',
+    emoji: '🐻',
+    content:
+      "I'm 28 and I still sleep with a stuffed bear. It's the only thing keeping my mental health together.",
+    tags: ['Wholesome', 'Mental Health'],
+    visibility: 'anonymous_room',
+    createdAt: '2 days ago',
+    status: 'active',
+    reactionCount: 89,
+    commentCount: 15,
+    reportCount: 0
+  },
+  {
+    id: 'p5',
+    userId: 'MyCodeName123',
+    emoji: '😎',
+    content:
+      'I told my boss I was sick but I actually spent the whole day binge-watching a K-drama. No regrets, the finale was worth it 🍿',
+    tags: ['Funny', 'Secret', 'Regret'],
+    visibility: 'public',
+    createdAt: '3 hours ago',
+    status: 'active',
+    reactionCount: 67,
+    commentCount: 8,
+    reportCount: 0
+  },
+  {
+    id: 'p6',
+    userId: 'MyCodeName123',
+    emoji: '😎',
+    content:
+      "I've been learning to cook just to impress someone who doesn't even know I exist. My kitchen has seen things… burnt things 🔥😅",
+    tags: ['Crush', 'Funny'],
+    visibility: 'public',
+    createdAt: '1 day ago',
+    status: 'active',
+    reactionCount: 134,
+    commentCount: 22,
+    reportCount: 0
+  },
+  {
+    id: 'p7',
+    userId: 'MyCodeName123',
+    emoji: '😎',
+    content:
+      "Sometimes I walk around the city with earphones in but no music playing, just so I can eavesdrop on strangers' conversations. I'm basically a detective at this point 🕵️",
+    tags: ['Awkward', 'Secret'],
+    visibility: 'anonymous_room',
+    createdAt: '3 days ago',
+    status: 'active',
+    reactionCount: 201,
+    commentCount: 31,
+    reportCount: 0
+  }];
 
 const MOCK_COMMENTS: Comment[] = [
-{
-  id: 'c1',
-  postId: 'p1',
-  userId: '9bA3d7c46eE2',
-  emoji: '🐬',
-  content: 'Omg same! Have you talked to them yet?',
-  createdAt: '1 hour ago',
-  status: 'active',
-  reactionCount: 5,
-  reportCount: 0
-},
-{
-  id: 'c2',
-  postId: 'p1',
-  userId: 'F2e6b8a15dC0',
-  emoji: '🐺',
-  parentCommentId: 'c1',
-  content:
-  "Plot twist: they know and they're making your coffee extra weak on purpose.",
-  createdAt: '45 mins ago',
-  status: 'active',
-  reactionCount: 12,
-  reportCount: 0
-},
-{
-  id: 'c3',
-  postId: 'p3',
-  userId: '3cD1f4e97aB8',
-  emoji: '🐱',
-  content:
-  "RIP. We've all been there. The Nepal move is the only logical step.",
-  createdAt: '20 hours ago',
-  status: 'active',
-  reactionCount: 45,
-  reportCount: 0
-}];
+  {
+    id: 'c1',
+    postId: 'p1',
+    userId: '9bA3d7c46eE2',
+    emoji: '🐬',
+    content: 'Omg same! Have you talked to them yet?',
+    createdAt: '1 hour ago',
+    status: 'active',
+    reactionCount: 5,
+    reportCount: 0
+  },
+  {
+    id: 'c2',
+    postId: 'p1',
+    userId: 'F2e6b8a15dC0',
+    emoji: '🐺',
+    parentCommentId: 'c1',
+    content:
+      "Plot twist: they know and they're making your coffee extra weak on purpose.",
+    createdAt: '45 mins ago',
+    status: 'active',
+    reactionCount: 12,
+    reportCount: 0
+  },
+  {
+    id: 'c3',
+    postId: 'p3',
+    userId: '3cD1f4e97aB8',
+    emoji: '🐱',
+    content:
+      "RIP. We've all been there. The Nepal move is the only logical step.",
+    createdAt: '20 hours ago',
+    status: 'active',
+    reactionCount: 45,
+    reportCount: 0
+  }];
 
 const MOCK_INBOX_MESSAGES: InboxMessage[] = [
-{
-  id: 'i1',
-  from: '🕵️ Anonymous',
-  subject: 'Your Style',
-  message: 'I saw you at the coffee shop today, your outfit was amazing! Especially that jacket.',
-  createdAt: '2 hours ago',
-  isRead: false
-},
-{
-  id: 'i2',
-  from: 'Someone nearby',
-  subject: 'Liked your post',
-  message: 'Hey, I really liked your recent confession about the barista. Totally relate to it, I have the same problem at my local cafe!',
-  createdAt: '1 day ago',
-  isRead: true,
-  repliedAt: '1 day ago'
-},
-{
-  id: 'i3',
-  from: 'Secret Admirer',
-  subject: 'Compliment',
-  message: 'You have a great smile 😊 Just wanted to brighten your day a bit.',
-  createdAt: '3 days ago',
-  isRead: true
-},
-{
-  id: 'i4',
-  from: 'Night Owl',
-  subject: 'Late night thoughts',
-  message: 'Do you ever feel like the city is more alive at 3 AM than at 3 PM? Just wondering if anyone else is awake right now.',
-  createdAt: '1 hour ago',
-  isRead: false
-},
-{
-  id: 'i5',
-  from: 'Coffee Enthusiast',
-  subject: 'Recommendation',
-  message: 'If you like that shop, you should try the one on 5th street. Their cold brew is actually life-changing.',
-  createdAt: '5 hours ago',
-  isRead: false
-},
-{
-  id: 'i6',
-  from: 'A Friend',
-  subject: 'Check-in',
-  message: "Hey, hope your week is going well. You've seemed a bit busy lately!",
-  createdAt: '2 days ago',
-  isRead: true
-},
-{
-  id: 'i7',
-  from: 'Anonymous',
-  subject: 'Quick question',
-  message: 'What was the name of that song you were humming earlier? It sounded so familiar but I couldn\'t place it.',
-  createdAt: '10 hours ago',
-  isRead: false
-},
-{
-  id: 'i8',
-  from: 'Neighbor',
-  subject: 'Plant advice',
-  message: 'Your balcony garden looks amazing! What do you use for your succulents? Mine always seem to struggle.',
-  createdAt: '4 days ago',
-  isRead: true
-}];
+  {
+    id: 'i1',
+    from: '🕵️ Anonymous',
+    subject: 'Your Style',
+    message: 'I saw you at the coffee shop today, your outfit was amazing! Especially that jacket.',
+    createdAt: '2 hours ago',
+    isRead: false
+  },
+  {
+    id: 'i2',
+    from: 'Someone nearby',
+    subject: 'Liked your post',
+    message: 'Hey, I really liked your recent confession about the barista. Totally relate to it, I have the same problem at my local cafe!',
+    createdAt: '1 day ago',
+    isRead: true,
+    repliedAt: '1 day ago'
+  },
+  {
+    id: 'i3',
+    from: 'Secret Admirer',
+    subject: 'Compliment',
+    message: 'You have a great smile 😊 Just wanted to brighten your day a bit.',
+    createdAt: '3 days ago',
+    isRead: true
+  },
+  {
+    id: 'i4',
+    from: 'Night Owl',
+    subject: 'Late night thoughts',
+    message: 'Do you ever feel like the city is more alive at 3 AM than at 3 PM? Just wondering if anyone else is awake right now.',
+    createdAt: '1 hour ago',
+    isRead: false
+  },
+  {
+    id: 'i5',
+    from: 'Coffee Enthusiast',
+    subject: 'Recommendation',
+    message: 'If you like that shop, you should try the one on 5th street. Their cold brew is actually life-changing.',
+    createdAt: '5 hours ago',
+    isRead: false
+  },
+  {
+    id: 'i6',
+    from: 'A Friend',
+    subject: 'Check-in',
+    message: "Hey, hope your week is going well. You've seemed a bit busy lately!",
+    createdAt: '2 days ago',
+    isRead: true
+  },
+  {
+    id: 'i7',
+    from: 'Anonymous',
+    subject: 'Quick question',
+    message: 'What was the name of that song you were humming earlier? It sounded so familiar but I couldn\'t place it.',
+    createdAt: '10 hours ago',
+    isRead: false
+  },
+  {
+    id: 'i8',
+    from: 'Neighbor',
+    subject: 'Plant advice',
+    message: 'Your balcony garden looks amazing! What do you use for your succulents? Mine always seem to struggle.',
+    createdAt: '4 days ago',
+    isRead: true
+  }];
 
 function AppContent() {
   const navigate = useNavigate();
@@ -478,7 +480,7 @@ function AppContent() {
             onAccountClick={() => navigate('/account')}
           />
         )}
-        <Footer />
+        {!isChatWindowOpen && <Footer />}
       </div>
     );
   };
@@ -502,6 +504,7 @@ function AppContent() {
 
   return (
     <Routes>
+      <Route path="/inbox/:inboxId" element={<SendAnonymousMessagePage />} />
       <Route path="/" element={<LandingPage onEnterApp={() => navigate('/discover')} />} />
       <Route path="/discover" element={
         <MainLayout>
@@ -542,7 +545,7 @@ function AppContent() {
           <div className="flex-1 w-full relative bg-cover bg-center bg-no-repeat bg-fixed pb-20 md:pb-0 font-sans"
             style={{ backgroundImage: 'url("https://cdn.magicpatterns.com/uploads/buFFB14RxN7rp2dVxCiLRi/64b6005b9b1c73650c503c0f921982ab.2-1-super.1.jpg")' }}>
             <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] pointer-events-none" />
-            
+
             <div className="relative z-10 w-full h-full">
               <ChatsListPage
                 sessions={sessions}
@@ -560,7 +563,7 @@ function AppContent() {
           <div className="flex-1 w-full relative bg-cover bg-center bg-no-repeat bg-fixed pb-20 md:pb-0 font-sans"
             style={{ backgroundImage: 'url("https://cdn.magicpatterns.com/uploads/buFFB14RxN7rp2dVxCiLRi/64b6005b9b1c73650c503c0f921982ab.2-1-super.1.jpg")' }}>
             <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] pointer-events-none" />
-            
+
             <div className="relative z-10 w-full max-w-3xl mx-auto px-4 py-6 md:py-8 min-h-screen">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
@@ -572,7 +575,7 @@ function AppContent() {
                   </p>
                 </div>
               </div>
-              
+
               <InboxSection
                 inboxMessages={inboxMessages}
                 inboxUrl={inboxUrl}

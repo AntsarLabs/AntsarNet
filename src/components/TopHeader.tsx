@@ -49,7 +49,7 @@ export function TopHeader({
 
         {/* Center Tabs */}
         {showTabs &&
-        <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-8">
             <Link
               to="/discover"
               className={`text-sm font-medium transition-colors relative pb-0.5 ${activeView === 'main' ? 'text-white' : 'text-slate-400 hover:text-slate-200'}`}
@@ -63,7 +63,7 @@ export function TopHeader({
             </Link>
 
             {/* Messages Dropdown */}
-            <div 
+            <div
               className="relative"
               onMouseEnter={() => setIsMessagesOpen(true)}
               onMouseLeave={() => setIsMessagesOpen(false)}
@@ -93,9 +93,8 @@ export function TopHeader({
                       <Link
                         to="/messages/chats"
                         onClick={() => setIsMessagesOpen(false)}
-                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                          activeView === 'chats' ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/20' : 'text-slate-300 hover:bg-white/5 hover:text-white'
-                        }`}
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeView === 'chats' ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/20' : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                          }`}
                       >
                         <MessageSquare size={16} />
                         Private Chats
@@ -103,9 +102,8 @@ export function TopHeader({
                       <Link
                         to="/messages/inbox"
                         onClick={() => setIsMessagesOpen(false)}
-                        className={`w-full mt-1 flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                          activeView === 'inbox' ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/20' : 'text-slate-300 hover:bg-white/5 hover:text-white'
-                        }`}
+                        className={`w-full mt-1 flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeView === 'inbox' ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/20' : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                          }`}
                       >
                         <Inbox size={16} />
                         Anonymous Inbox
@@ -132,7 +130,7 @@ export function TopHeader({
 
         <div>
           {isLoggedIn && currentUser ?
-          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4">
               <button
                 onClick={onAccountClick}
                 className="flex items-center gap-2 bg-white/10 hover:bg-white/15 transition-colors rounded-full pl-1 pr-3 py-1 border border-white/10"
@@ -153,9 +151,9 @@ export function TopHeader({
               </button>
             </div> :
 
-          <button
-            onClick={onLogin}
-            className="flex items-center gap-2 bg-[#0088cc] hover:bg-[#0077b3] text-white px-4 py-1.5 rounded-full text-sm font-medium transition-colors shadow-sm">
+            <button
+              onClick={onLogin}
+              className="flex items-center gap-2 bg-[#0088cc] hover:bg-[#0077b3] text-white px-4 py-1.5 rounded-full text-sm font-medium transition-colors shadow-sm">
               <Send size={14} className="-ml-0.5" />
               Connect Telegram
             </button>

@@ -85,6 +85,7 @@ export function AccountPage({
   const [gender, setGender] = useState<'male' | 'female' | 'unspecified'>(
     'unspecified'
   );
+  const [inboxInstruction, setInboxInstruction] = useState('Tell me something you never had the courage to say in person... 💭');
   const [copied, setCopied] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [settings, setSettings] = useState({
@@ -248,12 +249,28 @@ export function AccountPage({
                 </label>
                 <span className="text-xs text-slate-400">{bio.length}/120</span>
               </div>
-              <textarea
+            <textarea
             value={bio}
             onChange={(e) => setBio(e.target.value.slice(0, 120))}
             rows={3}
             className="w-full bg-white border border-slate-200 rounded-lg px-4 py-2.5 text-slate-900 focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-all resize-none shadow-sm" />
           
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center">
+                <label className="text-sm font-medium text-slate-700">
+                  Inbox Instruction
+                </label>
+                <span className="text-xs text-slate-400">{inboxInstruction.length}/160</span>
+              </div>
+              <textarea
+                value={inboxInstruction}
+                onChange={(e) => setInboxInstruction(e.target.value.slice(0, 160))}
+                rows={2}
+                placeholder="Ex: Inbox me for this and that..."
+                className="w-full bg-slate-50/50 border border-slate-200 rounded-lg px-4 py-2.5 text-slate-900 focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-all resize-none shadow-sm italic text-sm" />
+              <p className="text-[10px] text-slate-400 font-medium">This will be shown to users before they send you an anonymous message.</p>
             </div>
 
             <div className="space-y-1.5">
