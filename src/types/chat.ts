@@ -4,6 +4,7 @@ export interface User {
   emoji: string;
   isOnline: boolean;
   distance?: string;
+  city?: string;
 }
 
 export interface Contact extends User {

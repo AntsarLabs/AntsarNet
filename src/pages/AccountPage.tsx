@@ -26,6 +26,7 @@ import {
   Pencil,
   X,
   Share2,
+  LogOut,
   Send } from
 'lucide-react';
 import { Contact, ChatSession, Post } from '../types/chat';
@@ -43,6 +44,7 @@ interface AccountPageProps {
   onOpenChat: (contactId: string) => void;
   onEditPost: (postId: string, newContent: string) => void;
   onDeletePost: (postId: string) => void;
+  onLogout: () => void;
 }
 type Tab = 'profile' | 'history' | 'confessions' | 'blocked' | 'settings';
 const EMOJI_OPTIONS = [
@@ -75,9 +77,10 @@ export function AccountPage({
   onBack,
   onOpenChat,
   onEditPost,
-  onDeletePost
+  onDeletePost,
+  onLogout
 }: AccountPageProps) {
-  const [activeTab, setActiveTab] = useState<Tab | null>('profile');
+  const [activeTab, setActiveTab] = useState<Tab | null>(null);
   const [emoji, setEmoji] = useState(currentUser.emoji);
   const [codeName, setCodeName] = useState(currentUser.friendId);
   const [bio, setBio] = useState(currentUser.bio || 'Just joined AddisFriend!');
@@ -813,6 +816,25 @@ export function AccountPage({
           </button>);
 
     })}
+
+    {/* Logout Button */}
+    <button
+      onClick={onLogout}
+      className="w-full flex items-center gap-3 px-4 py-3.5 transition-colors text-left group hover:bg-red-50/80"
+    >
+      <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-red-100 text-red-600 transition-colors group-hover:bg-red-500 group-hover:text-white">
+        <LogOut size={18} />
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className="text-sm font-semibold text-red-600 group-hover:text-red-700">Log Out</h3>
+        {variant === 'mobile' && (
+          <p className="text-xs text-red-400 mt-0.5">Securely exit your session</p>
+        )}
+      </div>
+      {variant === 'mobile' && (
+        <ChevronRight size={18} className="text-red-400/50 flex-shrink-0" />
+      )}
+    </button>
     </div>;
 
   return (

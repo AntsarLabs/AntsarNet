@@ -12,7 +12,8 @@ import {
   Search,
   MessageCircle,
   Shuffle,
-  Sparkles } from
+  Sparkles,
+  ChevronDown } from
 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Contact } from '../types/chat';
@@ -79,13 +80,36 @@ const CARD_COLORS = [
   glow: 'shadow-[0_0_30px_rgba(236,72,153,0.4)]'
 },
 {
-  border: 'border-orange-500',
-  bg: 'bg-orange-500/10',
-  cardBg: 'bg-orange-950/20',
-  idBg: 'bg-orange-950/60',
-  text: 'text-orange-500',
   glow: 'shadow-[0_0_30px_rgba(249,115,22,0.4)]'
 }];
+
+const ETHIOPIAN_CITIES = [
+  'All',
+  'Addis Ababa',
+  'Adama',
+  'Bahir Dar',
+  'Dire Dawa',
+  'Hawassa',
+  'Mekelle',
+  'Gondar',
+  'Jimma',
+  'Dessie',
+  'Jijiga'
+];
+
+const CITY_CODES: Record<string, string> = {
+  'Addis Ababa': 'AA',
+  'Adama': 'AD',
+  'Bahir Dar': 'BD',
+  'Dire Dawa': 'DD',
+  'Hawassa': 'HW',
+  'Mekelle': 'MK',
+  'Gondar': 'GD',
+  'Jimma': 'JM',
+  'Dessie': 'DS',
+  'Jijiga': 'JJ',
+  'All': 'ET'
+};
 
 export function OnlineUsers({
   contacts,
@@ -98,8 +122,10 @@ export function OnlineUsers({
   const [highlightIndex, setHighlightIndex] = useState<number | null>(null);
   const [winnerId, setWinnerId] = useState<string | null>(null);
   const [spinComplete, setSpinComplete] = useState(false);
+  const [selectedCity, setSelectedCity] = useState('All');
+  const [isCityMenuOpen, setIsCityMenuOpen] = useState(false);
   const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const onlineContacts = contacts.filter((c) => c.isOnline);
+  const onlineContacts = contacts.filter((c) => c.isOnline && (selectedCity === 'All' || c.city === selectedCity));
   // Parse distance string to numeric value in meters for sorting
   const parseDistance = (dist?: string): number => {
     if (!dist) return Infinity;
@@ -221,107 +247,114 @@ export function OnlineUsers({
       onClick={clearSelection}>
       
       {/* Single-row Controls */}
-      <div className="w-full max-w-2xl mx-auto px-2 md:px-0">
-        <div className="flex items-center gap-2">
-          {/* Friend ID Input */}
-          <form onSubmit={handleConnect} className="flex-1 relative">
-            <motion.div
-              animate={
-              error ?
-              {
-                x: [-10, 10, -10, 10, 0]
-              } :
-              {}
-              }
-              transition={{
-                duration: 0.4
-              }}
-              className="relative flex items-center shadow-sm">
-              
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-pink-500 pointer-events-none z-10" />
-              <input
-                type="text"
-                placeholder="Reconnect · Enter Friend ID..."
-                value={friendId}
-                onChange={(e) => {
-                  setFriendId(e.target.value);
-                  setError(false);
-                }}
-                disabled={isSpinning}
-                className={`w-full bg-white/90 backdrop-blur-md rounded-xl pl-10 pr-10 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 transition-all placeholder:text-slate-500 border min-h-[44px] ${error ? 'border-red-500/50 focus:ring-red-500/50' : 'border-white/50 focus:ring-pink-500/50'} disabled:opacity-50`} />
-              
+      <div className="w-full max-w-2xl mx-auto px-2 md:px-0 relative z-50">
+        <div className="flex items-center">
+          {/* Unified Location + Search Group */}
+          <div className="flex-1 flex items-center bg-white/90 backdrop-blur-md rounded-2xl border border-white/50 shadow-sm min-h-[46px]">
+            {/* Location Dropdown (Prefix) */}
+            <div className="relative border-r border-slate-100 flex-shrink-0 h-full">
               <button
-                type="submit"
-                disabled={!friendId.trim() || isSpinning}
-                className="absolute right-1.5 p-1.5 bg-pink-400/20 text-pink-600 rounded-lg hover:bg-pink-400/30 active:bg-pink-400/40 disabled:opacity-50 transition-colors">
-                
-                <Search className="w-4 h-4" />
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsCityMenuOpen(!isCityMenuOpen);
+                }}
+                className="h-full px-4 flex items-center justify-center gap-2 hover:bg-slate-50 active:bg-slate-100 text-slate-800 transition-colors font-bold text-sm min-w-[70px] rounded-l-2xl"
+                title="Filter by location">
+                <MapPin className="w-4 h-4 text-pink-500" />
+                <span className="font-bold">{CITY_CODES[selectedCity]}</span>
+                <ChevronDown size={14} className={`transition-transform duration-200 ${isCityMenuOpen ? 'rotate-180' : ''}`} />
               </button>
-            </motion.div>
-            <AnimatePresence>
-              {error &&
-              <motion.p
-                initial={{
-                  opacity: 0,
-                  y: -10
-                }}
-                animate={{
-                  opacity: 1,
-                  y: 0
-                }}
-                exit={{
-                  opacity: 0
-                }}
-                className="text-red-400 text-xs mt-1 pl-1 absolute">
-                
-                  Not found. Check ID.
-                </motion.p>
-              }
-            </AnimatePresence>
-          </form>
 
-          {/* Location Icon Button */}
-          <button
-            className="relative p-2.5 rounded-xl transition-all duration-300 min-h-[44px] min-w-[44px] flex items-center justify-center flex-shrink-0 bg-white/90 backdrop-blur-md hover:bg-white active:bg-white/80 text-slate-600 hover:text-slate-900 border border-white/50 shadow-sm"
-            title="Filter by location">
-            
-            <MapPin className="w-5 h-5" />
-          </button>
+              <AnimatePresence>
+                {isCityMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    className="absolute top-full left-0 mt-2 w-48 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden py-1.5 z-[100]"
+                  >
+                    <div className="max-h-60 overflow-y-auto hide-scrollbar">
+                      {ETHIOPIAN_CITIES.map((city) => (
+                        <button
+                          key={city}
+                          onClick={() => {
+                            setSelectedCity(city);
+                            setIsCityMenuOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-sm font-bold transition-all ${
+                            selectedCity === city 
+                              ? 'bg-pink-500 text-white' 
+                              : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                          }`}
+                        >
+                          {city}
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
-          {/* Random Pick Icon Button */}
+            {/* Friend ID Input (Main) */}
+            <form onSubmit={handleConnect} className="flex-1 relative h-full">
+              <motion.div
+                animate={error ? { x: [-10, 10, -10, 10, 0] } : {}}
+                transition={{ duration: 0.4 }}
+                className="relative flex items-center h-full">
+                <input
+                  type="text"
+                  placeholder="Find Friend ID..."
+                  value={friendId}
+                  onChange={(e) => {
+                    setFriendId(e.target.value);
+                    setError(false);
+                  }}
+                  disabled={isSpinning}
+                  className="w-full bg-transparent pl-4 pr-12 py-2.5 text-sm text-slate-900 focus:outline-none placeholder:text-slate-500 h-full" 
+                />
+                <button
+                  type="submit"
+                  disabled={!friendId.trim() || isSpinning}
+                  className="absolute right-2 p-2 text-pink-500 hover:bg-pink-50 active:bg-pink-100 rounded-xl disabled:opacity-50 transition-all">
+                  <Search className="w-5 h-5" />
+                </button>
+              </motion.div>
+              
+              <AnimatePresence>
+                {error && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="text-red-400 text-[10px] font-bold mt-1 pl-4 absolute bg-white/80 backdrop-blur-sm rounded-full px-2 py-0.5 border border-red-100 shadow-sm top-[-24px] left-2">
+                    Not found. Check ID.
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </form>
+          </div>
+
+          {/* Random Pick (Separate Action) */}
           <button
             onClick={handleRandomPick}
             disabled={isSpinning || sortedOnlineContacts.length === 0}
-            className={`p-2.5 rounded-xl font-medium transition-all duration-300 min-h-[44px] min-w-[44px] flex items-center justify-center flex-shrink-0 shadow-sm ${isSpinning ? 'bg-pink-50 text-pink-500 border border-pink-200' : 'bg-white/90 backdrop-blur-md hover:bg-white active:bg-white/80 text-slate-600 hover:text-slate-900 border border-white/50'} disabled:opacity-50 disabled:cursor-not-allowed`}
+            className={`ml-2 p-3 rounded-2xl font-medium transition-all duration-300 min-h-[46px] min-w-[46px] flex items-center justify-center flex-shrink-0 shadow-sm ${isSpinning ? 'bg-pink-50 text-pink-500 border border-pink-200' : 'bg-white/90 backdrop-blur-md hover:bg-white active:bg-white/80 text-slate-600 hover:text-slate-900 border border-white/50'} disabled:opacity-50 disabled:cursor-not-allowed`}
             title="Random Match">
-            
             <motion.div
-              animate={
-              isSpinning ?
-              {
-                rotate: 360
-              } :
-              {
-                rotate: 0
-              }
-              }
-              transition={{
-                duration: 0.5,
-                repeat: isSpinning ? Infinity : 0,
-                ease: 'linear'
-              }}>
-              
+              animate={isSpinning ? { rotate: 360 } : { rotate: 0 }}
+              transition={{ duration: 0.5, repeat: isSpinning ? Infinity : 0, ease: 'linear' }}>
               <Shuffle className="w-5 h-5" />
             </motion.div>
           </button>
         </div>
         <div className="flex items-center justify-center gap-2 mt-3 drop-shadow-md">
           <span className="text-white text-sm md:text-lg font-medium">
-            {sortedOnlineContacts.length} active nearby
+            {sortedOnlineContacts.length} active in
           </span>
-          <span className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-sm px-2.5 py-0.5 rounded-full text-sm md:text-lg text-white font-semibold">
-            <MapPin className="w-4 h-4 md:w-5 md:h-5 text-pink-400" />
-            Downtown
+          <span className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-sm px-3 py-1 rounded-full text-sm md:text-lg text-white font-bold">
+            <MapPin className="w-4 h-4 text-pink-400" />
+            {selectedCity}
           </span>
         </div>
       </div>
@@ -451,8 +484,8 @@ export function OnlineUsers({
                     </button>
                     <div className="flex-1 flex items-center justify-center gap-1 px-1.5 py-1.5 md:py-2 rounded-lg bg-white/90 border border-slate-200 shadow-sm">
                       <MapPin className="w-2.5 h-2.5 md:w-3 md:h-3 text-slate-500" />
-                      <span className="text-[9px] md:text-[11px] text-slate-600 font-medium whitespace-nowrap">
-                        {contact.distance}
+                      <span className="text-[9px] md:text-[11px] text-slate-600 font-bold whitespace-nowrap">
+                        {contact.city ? CITY_CODES[contact.city] || '??' : '??'}
                       </span>
                     </div>
                   </div>

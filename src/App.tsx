@@ -16,6 +16,7 @@ import { ChatsListPage } from './pages/ChatsListPage';
 import { InboxSection } from './components/InboxSection';
 import { SendAnonymousMessagePage } from './pages/SendAnonymousMessagePage';
 import { AuthPage } from './pages/auth/AuthPage';
+import { GlobalBackground } from './components/GlobalBackground';
 import {
   Contact,
   Message,
@@ -32,6 +33,7 @@ const MOCK_USERS: Contact[] = [
     emoji: '🦊',
     isOnline: true,
     distance: '500m',
+    city: 'Addis Ababa',
     blockStatus: null,
     mood: '😔 feeling low today… need someone to talk to'
   },
@@ -41,6 +43,7 @@ const MOCK_USERS: Contact[] = [
     emoji: '🦉',
     isOnline: true,
     distance: '1.2km',
+    city: 'Addis Ababa',
     blockStatus: 'blocked_by_you',
     mood: '🎧 vibing to lo-fi beats rn'
   },
@@ -50,6 +53,7 @@ const MOCK_USERS: Contact[] = [
     emoji: '🐯',
     isOnline: true,
     distance: '3.4km',
+    city: 'Adama',
     blockStatus: 'blocked_you',
     mood: '💪 gym mode activated'
   },
@@ -59,6 +63,7 @@ const MOCK_USERS: Contact[] = [
     emoji: '🐻',
     isOnline: true,
     distance: '800m',
+    city: 'Adama',
     blockStatus: null,
     mood: "☕ just woke up, don't talk to me yet lol"
   },
@@ -68,6 +73,7 @@ const MOCK_USERS: Contact[] = [
     emoji: '🐬',
     isOnline: false,
     distance: '12km',
+    city: 'Bahir Dar',
     blockStatus: null,
     mood: '✨ manifesting good energy today'
   },
@@ -77,6 +83,7 @@ const MOCK_USERS: Contact[] = [
     emoji: '🐺',
     isOnline: true,
     distance: '2.5km',
+    city: 'Dire Dawa',
     blockStatus: 'blocked_you',
     mood: '🔥 on a winning streak fr'
   },
@@ -86,6 +93,7 @@ const MOCK_USERS: Contact[] = [
     emoji: '🐱',
     isOnline: false,
     distance: '5km',
+    city: 'Hawassa',
     blockStatus: 'blocked_by_you',
     mood: '😴 nap time is every time'
   },
@@ -95,6 +103,7 @@ const MOCK_USERS: Contact[] = [
     emoji: '🦅',
     isOnline: true,
     distance: '15km',
+    city: 'Addis Ababa',
     blockStatus: null,
     mood: '🌅 chasing sunsets and good convos'
   }];
@@ -352,13 +361,13 @@ const MOCK_INBOX_MESSAGES: InboxMessage[] = [
 function AppContent() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+
   const [messages, setMessages] = useState<Record<string, Message[]>>(MOCK_MESSAGES);
   const [sessions, setSessions] = useState<ChatSession[]>(MOCK_SESSIONS);
   const [posts, setPosts] = useState<Post[]>(MOCK_POSTS);
   const [comments, setComments] = useState<Comment[]>(MOCK_COMMENTS);
   const [inboxMessages, setInboxMessages] = useState<InboxMessage[]>(MOCK_INBOX_MESSAGES);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   const currentUser = {
     emoji: '😎',
@@ -370,8 +379,7 @@ function AppContent() {
   const handleLogout = () => setIsLoggedIn(false);
 
   const handleSelect = (id: string) => {
-    setSelectedId(id);
-    navigate('/discover');
+    navigate(`/chat/${id}`);
   };
 
   const handleSendMessage = (contactId: string, text: string) => {
@@ -439,49 +447,48 @@ function AppContent() {
     setInboxMessages((prev) => prev.map((msg) => msg.id === id ? { ...msg, isRead: true } : msg));
   };
 
-  const MainLayout = ({ children }: { children: React.ReactNode }) => {
-    const isChatWindowOpen = !!selectedId && location.pathname === '/discover';
+  const MainLayout = ({ children, showBackground = true }: { children: React.ReactNode, showBackground?: boolean }) => {
     return (
-      <div className="min-h-screen w-full flex flex-col text-foreground font-sans selection:bg-pink-500/30 overflow-x-hidden bg-slate-950">
-        <TopHeader
-          isLoggedIn={isLoggedIn}
-          currentUser={currentUser}
-          onLogin={handleLogin}
-          onLogout={handleLogout}
-          onAccountClick={() => navigate('/account')}
-        />
+      <div className="min-h-screen w-full flex flex-col text-foreground font-sans selection:bg-pink-500/30 overflow-x-hidden relative">
+        {showBackground && <GlobalBackground />}
 
-        <main className="flex-1 w-full flex flex-col relative">
-          {children}
-
-          {/* Persistent Chat Window when selected */}
-          <AnimatePresence>
-            {isChatWindowOpen && (
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                className="h-screen w-full absolute inset-0 z-50"
-              >
-                {MOCK_USERS.find(c => c.id === selectedId) && (
-                  <ChatPage
-                    contact={MOCK_USERS.find(c => c.id === selectedId)!}
-                    messages={messages[selectedId!] || []}
-                    onBack={() => setSelectedId(null)}
-                    onSend={(text) => handleSendMessage(selectedId!, text)}
-                  />
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </main>
-
-        {!isChatWindowOpen && (
-          <BottomNav
+        <div className="relative z-10 flex flex-col min-h-screen">
+          <TopHeader
+            isLoggedIn={isLoggedIn}
+            currentUser={currentUser}
+            onLogin={handleLogin}
+            onLogout={handleLogout}
             onAccountClick={() => navigate('/account')}
           />
-        )}
-        {!isChatWindowOpen && <Footer />}
+
+          <main className="flex-1 w-full flex flex-col relative">
+            {children}
+
+
+          </main>
+
+          {<BottomNav onAccountClick={() => navigate('/account')} />}
+          {<Footer />}
+        </div>
+      </div>
+    );
+  };
+
+  const ChatPageRoute = () => {
+    const { id } = useParams();
+    if (!id) return <Navigate to="/discover" />;
+    
+    const contact = MOCK_USERS.find(c => c.id === id);
+    if (!contact) return <Navigate to="/discover" />;
+
+    return (
+      <div className="h-screen w-full bg-slate-950 flex flex-col">
+        <ChatPage
+          contact={contact}
+          messages={messages[id] || []}
+          onBack={() => navigate(-1)}
+          onSend={(text) => handleSendMessage(id, text)}
+        />
       </div>
     );
   };
@@ -504,17 +511,15 @@ function AppContent() {
   };
 
   return (
+    <>
     <Routes>
       <Route path="/inbox/:inboxId" element={<SendAnonymousMessagePage />} />
-      <Route path="/" element={<LandingPage onEnterApp={() => navigate('/auth')} />} />
+      <Route path="/" element={<LandingPage onEnterApp={() => navigate('/discover')} />} />
       <Route path="/auth" element={<AuthPage onAuthSuccess={() => { setIsLoggedIn(true); navigate('/discover'); }} />} />
       <Route path="/discover" element={
-        !isLoggedIn ? <Navigate to="/auth" /> :
         <MainLayout>
-          <div className="flex-1 w-full flex flex-col items-center relative bg-cover bg-center bg-no-repeat bg-fixed pb-20 md:pb-0"
-            style={{ backgroundImage: 'url("https://cdn.magicpatterns.com/uploads/buFFB14RxN7rp2dVxCiLRi/64b6005b9b1c73650c503c0f921982ab.2-1-super.1.jpg")' }}>
-            <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] pointer-events-none" />
-            <div className="w-full max-w-3xl mx-auto p-4 md:p-8 pt-8 md:pt-16 pb-[30vh] md:pb-[30vh] relative z-10">
+          <div className="flex-1 w-full flex flex-col items-center py-16 md:py-24 px-4 overflow-y-auto">
+            <div className="w-full max-w-3xl mx-auto relative z-10">
               <OnlineUsers
                 contacts={MOCK_USERS}
                 onSelect={handleSelect}
@@ -525,11 +530,8 @@ function AppContent() {
         </MainLayout>
       } />
       <Route path="/confessions" element={
-        !isLoggedIn ? <Navigate to="/auth" /> :
         <MainLayout>
-          <div className="flex-1 w-full relative bg-cover bg-center bg-no-repeat bg-fixed pb-20 md:pb-0"
-            style={{ backgroundImage: 'url("https://cdn.magicpatterns.com/uploads/buFFB14RxN7rp2dVxCiLRi/64b6005b9b1c73650c503c0f921982ab.2-1-super.1.jpg")' }}>
-            <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] pointer-events-none" />
+          <div className="flex-1 w-full relative pb-20 md:pb-0">
             <div className="relative z-10">
               <ConfessionsFeed
                 currentUser={currentUser}
@@ -545,12 +547,8 @@ function AppContent() {
         </MainLayout>
       } />
       <Route path="/messages/chats" element={
-        !isLoggedIn ? <Navigate to="/auth" /> :
         <MainLayout>
-          <div className="flex-1 w-full relative bg-cover bg-center bg-no-repeat bg-fixed pb-20 md:pb-0 font-sans"
-            style={{ backgroundImage: 'url("https://cdn.magicpatterns.com/uploads/buFFB14RxN7rp2dVxCiLRi/64b6005b9b1c73650c503c0f921982ab.2-1-super.1.jpg")' }}>
-            <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] pointer-events-none" />
-
+          <div className="flex-1 w-full relative pb-20 md:pb-0 font-sans">
             <div className="relative z-10 w-full h-full">
               <ChatsListPage
                 sessions={sessions}
@@ -564,13 +562,9 @@ function AppContent() {
         </MainLayout>
       } />
       <Route path="/messages/inbox" element={
-        !isLoggedIn ? <Navigate to="/auth" /> :
         <MainLayout>
-          <div className="flex-1 w-full relative bg-cover bg-center bg-no-repeat bg-fixed pb-20 md:pb-0 font-sans"
-            style={{ backgroundImage: 'url("https://cdn.magicpatterns.com/uploads/buFFB14RxN7rp2dVxCiLRi/64b6005b9b1c73650c503c0f921982ab.2-1-super.1.jpg")' }}>
-            <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] pointer-events-none" />
-
-            <div className="relative z-10 w-full max-w-3xl mx-auto px-4 py-6 md:py-8 min-h-screen">
+          <div className="flex-1 w-full relative pb-32 md:pb-40 font-sans">
+            <div className="relative z-10 w-full max-w-3xl mx-auto px-4 py-12 min-h-screen">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
                   <h2 className="text-3xl font-bold text-white mb-1 flex items-center gap-2">
@@ -592,7 +586,6 @@ function AppContent() {
         </MainLayout>
       } />
       <Route path="/account" element={
-        !isLoggedIn ? <Navigate to="/auth" /> :
         <AccountPage
           currentUser={currentUser}
           contacts={MOCK_USERS}
@@ -602,10 +595,13 @@ function AppContent() {
           onOpenChat={handleSelect}
           onEditPost={handleEditPost}
           onDeletePost={handleDeletePost}
+          onLogout={handleLogout}
         />
       } />
       <Route path="/profile/:id" element={<ProfilePageRoute />} />
+      <Route path="/chat/:id" element={<ChatPageRoute />} />
     </Routes>
+    </>
   );
 }
 
