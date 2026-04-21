@@ -1,0 +1,470 @@
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+  Children } from
+'react';
+import {
+  MapPin,
+  Radio,
+  Search,
+  MessageCircle,
+  Shuffle,
+  Sparkles } from
+'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Contact } from '../types/chat';
+interface OnlineUsersProps {
+  contacts: Contact[];
+  onSelect: (id: string) => void;
+  onViewProfile?: (id: string) => void;
+}
+const CARD_COLORS = [
+{
+  border: 'border-rose-500',
+  bg: 'bg-rose-500/10',
+  cardBg: 'bg-rose-950/20',
+  idBg: 'bg-rose-950/60',
+  text: 'text-rose-500',
+  glow: 'shadow-[0_0_30px_rgba(244,63,94,0.4)]'
+},
+{
+  border: 'border-amber-500',
+  bg: 'bg-amber-500/10',
+  cardBg: 'bg-amber-950/20',
+  idBg: 'bg-amber-950/60',
+  text: 'text-amber-500',
+  glow: 'shadow-[0_0_30px_rgba(245,158,11,0.4)]'
+},
+{
+  border: 'border-emerald-500',
+  bg: 'bg-emerald-500/10',
+  cardBg: 'bg-emerald-950/20',
+  idBg: 'bg-emerald-950/60',
+  text: 'text-emerald-500',
+  glow: 'shadow-[0_0_30px_rgba(16,185,129,0.4)]'
+},
+{
+  border: 'border-cyan-500',
+  bg: 'bg-cyan-500/10',
+  cardBg: 'bg-cyan-950/20',
+  idBg: 'bg-cyan-950/60',
+  text: 'text-cyan-500',
+  glow: 'shadow-[0_0_30px_rgba(6,182,212,0.4)]'
+},
+{
+  border: 'border-violet-500',
+  bg: 'bg-violet-500/10',
+  cardBg: 'bg-violet-950/20',
+  idBg: 'bg-violet-950/60',
+  text: 'text-violet-500',
+  glow: 'shadow-[0_0_30px_rgba(139,92,246,0.4)]'
+},
+{
+  border: 'border-blue-500',
+  bg: 'bg-blue-500/10',
+  cardBg: 'bg-blue-950/20',
+  idBg: 'bg-blue-950/60',
+  text: 'text-blue-500',
+  glow: 'shadow-[0_0_30px_rgba(59,130,246,0.4)]'
+},
+{
+  border: 'border-pink-500',
+  bg: 'bg-pink-500/10',
+  cardBg: 'bg-pink-950/20',
+  idBg: 'bg-pink-950/60',
+  text: 'text-pink-500',
+  glow: 'shadow-[0_0_30px_rgba(236,72,153,0.4)]'
+},
+{
+  border: 'border-orange-500',
+  bg: 'bg-orange-500/10',
+  cardBg: 'bg-orange-950/20',
+  idBg: 'bg-orange-950/60',
+  text: 'text-orange-500',
+  glow: 'shadow-[0_0_30px_rgba(249,115,22,0.4)]'
+}];
+
+export function OnlineUsers({
+  contacts,
+  onSelect,
+  onViewProfile
+}: OnlineUsersProps) {
+  const [friendId, setFriendId] = useState('');
+  const [error, setError] = useState(false);
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [highlightIndex, setHighlightIndex] = useState<number | null>(null);
+  const [winnerId, setWinnerId] = useState<string | null>(null);
+  const [spinComplete, setSpinComplete] = useState(false);
+  const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const onlineContacts = contacts.filter((c) => c.isOnline);
+  // Parse distance string to numeric value in meters for sorting
+  const parseDistance = (dist?: string): number => {
+    if (!dist) return Infinity;
+    const num = parseFloat(dist);
+    if (isNaN(num)) return Infinity;
+    if (dist.includes('km')) return num * 1000;
+    return num; // assume meters
+  };
+  // Sort online contacts by closeness to the selected location
+  const sortedOnlineContacts = useMemo(() => {
+    return [...onlineContacts].sort(
+      (a, b) => parseDistance(a.distance) - parseDistance(b.distance)
+    );
+  }, [onlineContacts]);
+  const clearSelection = useCallback(() => {
+    if (!isSpinning) {
+      setWinnerId(null);
+      setSpinComplete(false);
+      setHighlightIndex(null);
+    }
+  }, [isSpinning]);
+  const handleConnect = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!friendId.trim() || isSpinning) return;
+    const found = contacts.find(
+      (c) => c.friendId.toLowerCase() === friendId.trim().toLowerCase()
+    );
+    if (found) {
+      setError(false);
+      setFriendId('');
+      onSelect(found.id);
+    } else {
+      setError(true);
+      setTimeout(() => setError(false), 500);
+    }
+  };
+  const handleRandomPick = () => {
+    if (isSpinning || sortedOnlineContacts.length === 0) return;
+    setIsSpinning(true);
+    setWinnerId(null);
+    setSpinComplete(false);
+    const winnerIdx = Math.floor(Math.random() * sortedOnlineContacts.length);
+    const winner = sortedOnlineContacts[winnerIdx];
+    const minSpins = 4;
+    const totalSteps = minSpins * sortedOnlineContacts.length + winnerIdx;
+    let currentStep = 0;
+    let currentDelay = 50;
+    const spin = () => {
+      setHighlightIndex(currentStep % sortedOnlineContacts.length);
+      if (currentStep < totalSteps) {
+        currentStep++;
+        const progress = currentStep / totalSteps;
+        currentDelay = 50 + Math.pow(progress, 4) * 400;
+        setTimeout(spin, currentDelay);
+      } else {
+        setWinnerId(winner.id);
+        setSpinComplete(true);
+        setIsSpinning(false);
+      }
+    };
+    spin();
+  };
+  useEffect(() => {
+    if (highlightIndex !== null && sortedOnlineContacts[highlightIndex]) {
+      const contact = sortedOnlineContacts[highlightIndex];
+      const el = cardRefs.current[contact.id];
+      if (el) {
+        el.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'nearest'
+        });
+      }
+    }
+  }, [highlightIndex, sortedOnlineContacts]);
+  useEffect(() => {
+    if (winnerId) {
+      const el = cardRefs.current[winnerId];
+      if (el) {
+        setTimeout(() => {
+          el.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'nearest'
+          });
+        }, 100);
+      }
+    }
+  }, [winnerId]);
+  const containerVariants = {
+    hidden: {
+      opacity: 0
+    },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05
+      }
+    }
+  };
+  const itemVariants = {
+    hidden: {
+      opacity: 0,
+      y: 20
+    },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: 'spring',
+        stiffness: 300,
+        damping: 24
+      }
+    }
+  };
+  return (
+    <div
+      className="flex flex-col w-full space-y-5 md:space-y-8"
+      onClick={clearSelection}>
+      
+      {/* Single-row Controls */}
+      <div className="w-full max-w-2xl mx-auto px-2 md:px-0">
+        <div className="flex items-center gap-2">
+          {/* Friend ID Input */}
+          <form onSubmit={handleConnect} className="flex-1 relative">
+            <motion.div
+              animate={
+              error ?
+              {
+                x: [-10, 10, -10, 10, 0]
+              } :
+              {}
+              }
+              transition={{
+                duration: 0.4
+              }}
+              className="relative flex items-center shadow-sm">
+              
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-pink-500 pointer-events-none z-10" />
+              <input
+                type="text"
+                placeholder="Reconnect · Enter Friend ID..."
+                value={friendId}
+                onChange={(e) => {
+                  setFriendId(e.target.value);
+                  setError(false);
+                }}
+                disabled={isSpinning}
+                className={`w-full bg-white/90 backdrop-blur-md rounded-xl pl-10 pr-10 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 transition-all placeholder:text-slate-500 border min-h-[44px] ${error ? 'border-red-500/50 focus:ring-red-500/50' : 'border-white/50 focus:ring-pink-500/50'} disabled:opacity-50`} />
+              
+              <button
+                type="submit"
+                disabled={!friendId.trim() || isSpinning}
+                className="absolute right-1.5 p-1.5 bg-pink-400/20 text-pink-600 rounded-lg hover:bg-pink-400/30 active:bg-pink-400/40 disabled:opacity-50 transition-colors">
+                
+                <Search className="w-4 h-4" />
+              </button>
+            </motion.div>
+            <AnimatePresence>
+              {error &&
+              <motion.p
+                initial={{
+                  opacity: 0,
+                  y: -10
+                }}
+                animate={{
+                  opacity: 1,
+                  y: 0
+                }}
+                exit={{
+                  opacity: 0
+                }}
+                className="text-red-400 text-xs mt-1 pl-1 absolute">
+                
+                  Not found. Check ID.
+                </motion.p>
+              }
+            </AnimatePresence>
+          </form>
+
+          {/* Location Icon Button */}
+          <button
+            className="relative p-2.5 rounded-xl transition-all duration-300 min-h-[44px] min-w-[44px] flex items-center justify-center flex-shrink-0 bg-white/90 backdrop-blur-md hover:bg-white active:bg-white/80 text-slate-600 hover:text-slate-900 border border-white/50 shadow-sm"
+            title="Filter by location">
+            
+            <MapPin className="w-5 h-5" />
+          </button>
+
+          {/* Random Pick Icon Button */}
+          <button
+            onClick={handleRandomPick}
+            disabled={isSpinning || sortedOnlineContacts.length === 0}
+            className={`p-2.5 rounded-xl font-medium transition-all duration-300 min-h-[44px] min-w-[44px] flex items-center justify-center flex-shrink-0 shadow-sm ${isSpinning ? 'bg-pink-50 text-pink-500 border border-pink-200' : 'bg-white/90 backdrop-blur-md hover:bg-white active:bg-white/80 text-slate-600 hover:text-slate-900 border border-white/50'} disabled:opacity-50 disabled:cursor-not-allowed`}
+            title="Random Match">
+            
+            <motion.div
+              animate={
+              isSpinning ?
+              {
+                rotate: 360
+              } :
+              {
+                rotate: 0
+              }
+              }
+              transition={{
+                duration: 0.5,
+                repeat: isSpinning ? Infinity : 0,
+                ease: 'linear'
+              }}>
+              
+              <Shuffle className="w-5 h-5" />
+            </motion.div>
+          </button>
+        </div>
+        <div className="flex items-center justify-center gap-2 mt-3 drop-shadow-md">
+          <span className="text-white text-sm md:text-lg font-medium">
+            {sortedOnlineContacts.length} active nearby
+          </span>
+          <span className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-sm px-2.5 py-0.5 rounded-full text-sm md:text-lg text-white font-semibold">
+            <MapPin className="w-4 h-4 md:w-5 md:h-5 text-pink-400" />
+            Downtown
+          </span>
+        </div>
+      </div>
+
+      {/* Grid Section */}
+      <AnimatePresence mode="wait">
+        {sortedOnlineContacts.length === 0 ?
+        <motion.div
+          key="empty"
+          initial={{
+            opacity: 0
+          }}
+          animate={{
+            opacity: 1
+          }}
+          exit={{
+            opacity: 0
+          }}
+          className="flex flex-col items-center justify-center py-16 md:py-20 text-center space-y-3 md:space-y-4">
+          
+            <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
+              <Radio className="w-7 h-7 md:w-8 md:h-8 opacity-50" />
+            </div>
+            <div>
+              <h3 className="text-base md:text-lg font-medium text-foreground">
+                No friends nearby
+              </h3>
+              <p className="text-xs md:text-sm text-muted-foreground mt-1">
+                Check back soon for new connections.
+              </p>
+            </div>
+          </motion.div> :
+
+        <motion.div
+          key="grid"
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3 md:gap-4 relative">
+          
+            {sortedOnlineContacts.map((contact, index) => {
+            const colorConfig = CARD_COLORS[index % CARD_COLORS.length];
+            const isHighlighted = highlightIndex === index;
+            const isWinner = winnerId === contact.id;
+            const isDimmed =
+            (isSpinning || spinComplete) && !isHighlighted && !isWinner;
+            return (
+              <motion.div
+                key={contact.id}
+                ref={(el: HTMLDivElement | null) => {
+                  cardRefs.current[contact.id] = el;
+                }}
+                variants={itemVariants}
+                onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                whileHover={
+                !isSpinning && !spinComplete ?
+                {
+                  scale: 1.03,
+                  y: -4
+                } :
+                {}
+                }
+                animate={{
+                  scale: isWinner ? 1.05 : isHighlighted ? 1.02 : 1,
+                  y: 0,
+                  opacity: isDimmed ? 0.75 : 1,
+                  filter: isDimmed ?
+                  'grayscale(0.6) brightness(0.85)' :
+                  'grayscale(0) brightness(1)'
+                }}
+                transition={{
+                  duration: 0.15
+                }}
+                className={`group relative flex flex-col p-3.5 md:p-5 bg-white/85 backdrop-blur-md rounded-xl md:rounded-2xl border transition-all duration-200 shadow-sm overflow-visible ${isWinner || isHighlighted ? `${colorConfig.border} ${colorConfig.glow}` : 'border-white/60 hover:border-pink-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]'}`}
+                style={{
+                  zIndex: isWinner || isHighlighted ? 10 : 1
+                }}>
+                
+                  {/* Card Header: Circular Icon + Friend ID card */}
+                  <div
+                  className="flex items-center gap-2.5 w-full cursor-pointer group/header"
+                  onClick={() => {
+                    if (!isSpinning && onViewProfile) {
+                      onViewProfile(contact.id);
+                    }
+                  }}>
+                  
+                    <div className="relative flex-shrink-0">
+                      <div
+                      className={`w-11 h-11 md:w-13 md:h-13 rounded-full border flex items-center justify-center text-lg md:text-xl transition-colors bg-white shadow-sm group-hover/header:border-pink-400 ${isWinner || isHighlighted ? `${colorConfig.border}` : 'border-slate-200'}`}>
+                      
+                        {contact.emoji}
+                      </div>
+                      {contact.isOnline &&
+                    <span className="absolute bottom-0 right-0 w-3 h-3 md:w-3.5 md:h-3.5 rounded-full bg-green-500 border-2 border-white" />
+                    }
+                    </div>
+                    <div
+                    className={`flex-1 px-1.5 py-1 md:px-2 md:py-1.5 rounded-lg border font-mono text-[10px] md:text-xs font-semibold tracking-wider transition-colors whitespace-nowrap pt-[8px] pb-[8px] shadow-sm group-hover/header:border-pink-300 group-hover/header:text-pink-600 ${isWinner || isHighlighted ? `${colorConfig.border} bg-white ${colorConfig.text}` : 'border-slate-200 bg-white/90 text-slate-800'}`}>
+                    
+                      {contact.friendId}
+                    </div>
+                  </div>
+
+                  {/* Mood / Bio as speech bubble */}
+                  {contact.mood &&
+                <div className="relative mt-3 md:mt-4 w-full">
+                      {/* Bubble tail pointing up toward the ID */}
+                      <div className="absolute -top-[7px] left-3 md:left-4 w-3 h-3 bg-white/90 rotate-45 z-10 border-l border-t border-slate-200 [border-bottom:none] [border-right:none]" />
+                      <div className="relative px-3 py-2 md:px-4 md:py-2.5 rounded-xl bg-white/90 border border-slate-200 w-full rounded-tl-sm shadow-sm">
+                        <p className="text-[10px] md:text-xs text-slate-600 leading-relaxed line-clamp-2 text-left font-medium">
+                          {contact.mood}
+                        </p>
+                      </div>
+                    </div>
+                }
+
+                  {/* Card Footer: Connect button (80%) + Distance (20%) */}
+                  <div className="flex items-center gap-1.5 w-full mt-2 md:mt-3">
+                    <button
+                    onClick={() => !isSpinning && onSelect(contact.id)}
+                    disabled={isSpinning}
+                    className={`flex-[4] flex items-center justify-center gap-1.5 px-2 py-1.5 md:py-2 rounded-lg text-[10px] md:text-xs font-semibold transition-all shadow-sm ${isWinner || isHighlighted ? `${colorConfig.bg} ${colorConfig.text} border ${colorConfig.border}` : 'bg-[#D82B7D] text-white hover:bg-[#C0266F] active:bg-[#A82161]'} disabled:opacity-50`}>
+                    
+                      <MessageCircle className="w-3 h-3" />
+                      Message
+                    </button>
+                    <div className="flex-1 flex items-center justify-center gap-1 px-1.5 py-1.5 md:py-2 rounded-lg bg-white/90 border border-slate-200 shadow-sm">
+                      <MapPin className="w-2.5 h-2.5 md:w-3 md:h-3 text-slate-500" />
+                      <span className="text-[9px] md:text-[11px] text-slate-600 font-medium whitespace-nowrap">
+                        {contact.distance}
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>);
+
+          })}
+          </motion.div>
+        }
+      </AnimatePresence>
+
+      {/* 30% spacer between cards and footer */}
+      <div className="h-[30vh] md:h-[30vh]" />
+    </div>);
+
+}
