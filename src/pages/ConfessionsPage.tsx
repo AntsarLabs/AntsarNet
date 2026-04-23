@@ -2,27 +2,24 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Flame, Sparkles } from 'lucide-react';
 import { Post, Comment } from '../types/chat';
-import { PostCard } from './PostCard';
-import { CreatePostModal } from './CreatePostModal';
-import { PostDetail } from './PostDetail';
-import { ReactionType } from './ReactionBar';
-interface ConfessionsFeedProps {
+import { PostCard } from '../components/PostCard';
+import { CreatePostModal } from '../components/CreatePostModal';
+import { ReactionType } from '../components/ReactionBar';
+
+interface ConfessionsPageProps {
   currentUser: {
     emoji: string;
     friendId: string;
   };
   posts: Post[];
   comments: Comment[];
-  onAddPost: (
-  content: string,
-  visibility: 'public' | 'anonymous_room',
-  tags: string[])
-  => void;
+  onAddPost: (content: string, visibility: 'public' | 'anonymous_room', tags: string[]) => void;
   onAddComment: (postId: string, content: string, parentId?: string) => void;
   onReactPost: (postId: string, type: ReactionType) => void;
   onReactComment: (commentId: string, type: ReactionType) => void;
 }
-export function ConfessionsFeed({
+
+export function ConfessionsPage({
   currentUser,
   posts,
   comments,
@@ -30,22 +27,18 @@ export function ConfessionsFeed({
   onAddComment,
   onReactPost,
   onReactComment
-}: ConfessionsFeedProps) {
+}: ConfessionsPageProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [filter, setFilter] = useState<'latest' | 'hot'>('latest');
+  
   const activePosts = posts.filter((p) => p.status === 'active');
   const sortedPosts = [...activePosts].sort((a, b) => {
     if (filter === 'hot') {
-      return (
-        b.reactionCount + b.commentCount - (a.reactionCount + a.commentCount));
-
+      return (b.reactionCount + b.commentCount) - (a.reactionCount + a.commentCount);
     }
     // Simple mock sorting by ID for 'latest'
     return parseInt(b.id.replace('p', '')) - parseInt(a.id.replace('p', ''));
   });
-  const selectedPost = posts.find((p) => p.id === selectedPostId);
-  const postComments = comments.filter((c) => c.postId === selectedPostId);
   return (
     <div className="w-full max-w-3xl mx-auto px-4 py-6 md:py-8 relative min-h-screen">
       {/* Header & Filters */}
@@ -112,9 +105,11 @@ export function ConfessionsFeed({
             }}>
             
               <PostCard
-              post={post}
-              onReact={onReactPost}
-              onClick={(p) => setSelectedPostId(p.id)} />
+                post={post}
+                comments={comments.filter(c => c.postId === post.id)}
+                onReact={onReactPost} 
+                onAddComment={onAddComment}
+              />
             
             </motion.div>
           )}
@@ -135,21 +130,8 @@ export function ConfessionsFeed({
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
         onSubmit={onAddPost}
-        currentUser={currentUser} />
-      
-
-      <AnimatePresence>
-        {selectedPost &&
-        <PostDetail
-          post={selectedPost}
-          comments={postComments}
-          onBack={() => setSelectedPostId(null)}
-          onReactPost={onReactPost}
-          onReactComment={onReactComment}
-          onAddComment={onAddComment} />
-
-        }
-      </AnimatePresence>
-    </div>);
-
+        currentUser={currentUser} 
+      />
+    </div>
+  );
 }

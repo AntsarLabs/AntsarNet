@@ -9,7 +9,7 @@ import { Footer } from './components/Footer';
 import { AccountPage } from './pages/AccountPage';
 import { LandingPage } from './pages/LandingPage';
 import { UserProfilePage } from './pages/UserProfilePage';
-import { ConfessionsFeed } from './components/ConfessionsFeed';
+import { ConfessionsPage } from './pages/ConfessionsPage';
 import { ReactionType } from './components/ReactionBar';
 import { ChatPage } from './pages/ChatPage';
 import { ChatsListPage } from './pages/ChatsListPage';
@@ -533,7 +533,7 @@ function AppContent() {
           <MainLayout>
             <div className="flex-1 w-full relative pb-20 md:pb-0">
               <div className="relative z-10">
-                <ConfessionsFeed
+                <ConfessionsPage
                   currentUser={currentUser}
                   posts={posts}
                   comments={comments}
