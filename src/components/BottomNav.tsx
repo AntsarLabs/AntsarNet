@@ -42,7 +42,7 @@ export function BottomNav({
   ];
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-950/90 backdrop-blur-xl border-t border-slate-800 pb-safe">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-t border-slate-200/60 pb-safe shadow-[0_-1px_3px_rgba(0,0,0,0.04)]">
       {/* Sub-menu popover */}
       <AnimatePresence>
         {isSubMenuOpen && (
@@ -52,13 +52,12 @@ export function BottomNav({
             exit={{ opacity: 0, y: 20 }}
             className="absolute bottom-full left-0 right-0 p-4 pb-0 pointer-events-none"
           >
-            <div className="max-w-xs mx-auto bg-slate-900 border border-white/10 rounded-2xl shadow-2xl p-2 flex gap-2 pointer-events-auto">
+            <div className="max-w-xs mx-auto bg-white border border-slate-200 rounded-2xl shadow-xl p-2 flex gap-2 pointer-events-auto">
               <Link
                 to="/messages/chats"
                 onClick={() => setIsSubMenuOpen(false)}
-                className={`flex-1 flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all ${
-                  path === '/messages/chats' ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/20' : 'text-slate-400 bg-white/5'
-                }`}
+                className={`flex-1 flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all ${path === '/messages/chats' ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/20' : 'text-slate-500 bg-slate-50'
+                  }`}
               >
                 <MessageSquare size={18} />
                 <span className="text-[10px] font-bold">Chats</span>
@@ -66,9 +65,8 @@ export function BottomNav({
               <Link
                 to="/messages/inbox"
                 onClick={() => setIsSubMenuOpen(false)}
-                className={`flex-1 flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all ${
-                  path === '/messages/inbox' ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/20' : 'text-slate-400 bg-white/5'
-                }`}
+                className={`flex-1 flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all ${path === '/messages/inbox' ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/20' : 'text-slate-500 bg-slate-50'
+                  }`}
               >
                 <InboxIcon size={18} />
                 <span className="text-[10px] font-bold">Inbox</span>
@@ -112,7 +110,7 @@ export function BottomNav({
                 {isActive && (
                   <motion.div
                     layoutId="bottomNavIndicator"
-                    className="absolute inset-0 bg-pink-500/10 rounded-xl"
+                    className="absolute inset-0 bg-pink-500/8 rounded-xl"
                     transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
                   />
                 )}
@@ -136,7 +134,7 @@ export function BottomNav({
               {isActive && (
                 <motion.div
                   layoutId="bottomNavIndicator"
-                  className="absolute inset-0 bg-pink-500/10 rounded-xl"
+                  className="absolute inset-0 bg-pink-500/8 rounded-xl"
                   transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
                 />
               )}

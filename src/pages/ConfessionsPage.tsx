@@ -44,29 +44,29 @@ export function ConfessionsPage({
       {/* Header & Filters */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h2 className="text-3xl font-bold text-white mb-1 flex items-center gap-2">
-            Confessions <Sparkles className="text-pink-400" size={24} />
+          <h2 className="text-3xl font-bold text-slate-900 mb-1 flex items-center gap-2">
+            Confessions <Sparkles className="text-pink-500" size={24} />
           </h2>
-          <p className="text-slate-300 text-sm">
+          <p className="text-slate-500 text-sm">
             Share your secrets safely. Stay anonymous.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex bg-white/10 backdrop-blur-md rounded-xl p-1 border border-white/20">
+          <div className="flex bg-white/90 backdrop-blur-md rounded-xl p-1 border border-slate-200/60 shadow-sm">
             <button
               onClick={() => setFilter('latest')}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${filter === 'latest' ? 'bg-white/20 text-white shadow-sm' : 'text-slate-300 hover:text-white'}`}>
+              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${filter === 'latest' ? 'bg-white text-slate-900 shadow-sm border border-slate-200/40' : 'text-slate-500 hover:text-slate-700'}`}>
               
               Latest
             </button>
             <button
               onClick={() => setFilter('hot')}
-              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${filter === 'hot' ? 'bg-white/20 text-white shadow-sm' : 'text-slate-300 hover:text-white'}`}>
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${filter === 'hot' ? 'bg-white text-slate-900 shadow-sm border border-slate-200/40' : 'text-slate-500 hover:text-slate-700'}`}>
               
               <Flame
                 size={14}
-                className={filter === 'hot' ? 'text-orange-400' : ''} />
+                className={filter === 'hot' ? 'text-orange-500' : ''} />
               
               Hot
             </button>
@@ -116,9 +116,9 @@ export function ConfessionsPage({
         </AnimatePresence>
 
         {sortedPosts.length === 0 &&
-        <div className="text-center py-20 bg-white/5 backdrop-blur-md rounded-3xl border border-white/10">
-            <p className="text-slate-300 text-lg mb-2">It's quiet here...</p>
-            <p className="text-slate-400 text-sm">
+        <div className="text-center py-20 bg-white/85 backdrop-blur-md rounded-3xl border border-white/60 shadow-sm">
+            <p className="text-slate-700 text-lg mb-2">It's quiet here...</p>
+            <p className="text-slate-500 text-sm">
               Be the first to confess something.
             </p>
           </div>

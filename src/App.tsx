@@ -482,7 +482,7 @@ function AppContent() {
     if (!contact) return <Navigate to="/discover" />;
 
     return (
-      <div className="h-screen w-full bg-slate-950 flex flex-col">
+      <div className="h-screen w-full bg-slate-50 flex flex-col">
         <ChatPage
           contact={contact}
           messages={messages[id] || []}
@@ -567,10 +567,10 @@ function AppContent() {
               <div className="relative z-10 w-full max-w-3xl mx-auto px-4 py-12 min-h-screen">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                   <div>
-                    <h2 className="text-3xl font-bold text-white mb-1 flex items-center gap-2">
-                      Anonymous Inbox <Sparkles className="text-pink-400" size={24} />
+                    <h2 className="text-3xl font-bold text-slate-900 mb-1 flex items-center gap-2">
+                      Anonymous Inbox <Sparkles className="text-pink-500" size={24} />
                     </h2>
-                    <p className="text-slate-300 text-sm">
+                    <p className="text-slate-500 text-sm">
                       Read your anonymous whispers securely.
                     </p>
                   </div>

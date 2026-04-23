@@ -56,15 +56,15 @@ export function ChatsListPage({
     <>
       {filteredSessions.length === 0 ?
         <div className={`text-center ${compact ? 'py-12' : 'py-20'} px-4`}>
-          <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-slate-800/50 border border-white/5 flex items-center justify-center shadow-inner">
-            <MessageCircle size={36} className="text-slate-500" />
+          <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center shadow-sm">
+            <MessageCircle size={36} className="text-slate-400" />
           </div>
           <h3
-            className={`${compact ? 'text-lg' : 'text-xl'} font-semibold text-slate-200 mb-2`}>
+            className={`${compact ? 'text-lg' : 'text-xl'} font-semibold text-slate-700 mb-2`}>
 
             No conversations found
           </h3>
-          <p className="text-slate-400 text-sm max-w-xs mx-auto">
+          <p className="text-slate-500 text-sm max-w-xs mx-auto">
             {searchQuery ?
               "We couldn't find any chats matching your search." :
               'Discover someone nearby to start chatting!'}
@@ -147,10 +147,10 @@ export function ChatsListPage({
       <div className="md:hidden relative z-10 w-full max-w-3xl mx-auto flex flex-col h-full">
         <div className="px-4 pt-8 pb-4 sticky top-0 z-20">
           <div className="mb-6">
-            <h2 className="text-3xl font-bold text-white mb-1 flex items-center gap-2">
-               Portal <Sparkles className="text-pink-400" size={24} />
+            <h2 className="text-3xl font-bold text-slate-900 mb-1 flex items-center gap-2">
+               Portal <Sparkles className="text-pink-500" size={24} />
             </h2>
-            <p className="text-slate-300 text-sm">
+            <p className="text-slate-500 text-sm">
               Your private and secure conversations.
             </p>
           </div>
@@ -165,7 +165,7 @@ export function ChatsListPage({
               placeholder="Search conversations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl pl-11 pr-4 py-3 text-sm text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-pink-500/30 transition-all shadow-lg"
+              className="w-full bg-white/90 backdrop-blur-md border border-slate-200/60 rounded-2xl pl-11 pr-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-pink-500/30 transition-all shadow-sm"
             />
           </div>
         </div>
@@ -176,18 +176,18 @@ export function ChatsListPage({
       </div>
 
       {/* === DESKTOP LAYOUT === */}
-      <div className="hidden md:flex relative z-10 w-full h-full max-w-7xl mx-auto backdrop-blur-[2px]">
+      <div className="hidden md:flex relative z-10 w-full h-full max-w-7xl mx-auto">
         {/* Left Panel: Navigation & List */}
-        <div className="w-[340px] lg:w-[400px] flex-shrink-0 border-r border-white/10 flex flex-col h-[calc(100vh-57px)] bg-slate-950/20">
+        <div className="w-[340px] lg:w-[400px] flex-shrink-0 border-r border-slate-200/60 flex flex-col h-[calc(100vh-57px)] bg-white/40 backdrop-blur-sm">
           <div className="p-8 pb-4 flex-shrink-0">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-3xl font-bold text-white tracking-tight italic flex items-center gap-2 uppercase">
-                  Portal <Sparkles className="text-pink-400" size={20} />
+                <h2 className="text-3xl font-bold text-slate-900 tracking-tight italic flex items-center gap-2 uppercase">
+                  Portal <Sparkles className="text-pink-500" size={20} />
                 </h2>
-                <p className="text-slate-400 text-xs font-medium mt-1">Direct Messages</p>
+                <p className="text-slate-500 text-xs font-medium mt-1">Direct Messages</p>
               </div>
-              <button className="w-10 h-10 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-all hover:scale-105 active:scale-95">
+              <button className="w-10 h-10 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition-all hover:scale-105 active:scale-95">
                 <Edit3 size={18} />
               </button>
             </div>
@@ -202,7 +202,7 @@ export function ChatsListPage({
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-pink-500/30 transition-all"
+                className="w-full bg-white/90 border border-slate-200/60 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-pink-400 transition-all shadow-sm"
               />
             </div>
           </div>
@@ -213,7 +213,7 @@ export function ChatsListPage({
         </div>
 
         {/* Right Panel: Content Area */}
-        <div className="flex-1 flex flex-col h-[calc(100vh-57px)] min-w-0 bg-slate-950">
+        <div className="flex-1 flex flex-col h-[calc(100vh-57px)] min-w-0 bg-slate-50/50">
           <AnimatePresence mode="wait">
             {selectedContact && onSendMessage ? (
               <motion.div
@@ -237,16 +237,16 @@ export function ChatsListPage({
                 key="empty-chats"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="flex-1 flex flex-col items-center justify-center text-center space-y-5 bg-slate-900/20"
+                className="flex-1 flex flex-col items-center justify-center text-center space-y-5"
               >
-                <div className="w-24 h-24 rounded-full bg-slate-800/50 border border-white/5 flex items-center justify-center shadow-inner">
-                  <MessageCircle size={40} className="text-slate-500" />
+                <div className="w-24 h-24 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center shadow-sm">
+                  <MessageCircle size={40} className="text-slate-400" />
                 </div>
                 <div className="max-w-sm">
-                  <h3 className="text-xl font-semibold text-slate-200 mb-2">
+                  <h3 className="text-xl font-semibold text-slate-700 mb-2">
                     Your Messages
                   </h3>
-                  <p className="text-slate-400 text-sm leading-relaxed">
+                  <p className="text-slate-500 text-sm leading-relaxed">
                     Select a conversation from the list to start chatting. All
                     messages are anonymous and end-to-end encrypted.
                   </p>

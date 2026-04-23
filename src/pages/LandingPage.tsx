@@ -1,4 +1,4 @@
-import React, { Children } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import {
   Shield,
@@ -48,11 +48,10 @@ const staggerContainer = {
 
 export function LandingPage({ onEnterApp }: LandingPageProps) {
   return (
-    <div className="min-h-screen w-full bg-slate-950 text-slate-50 font-sans overflow-x-hidden selection:bg-pink-500/30">
+    <div className="min-h-screen w-full bg-[#FAF8F5] text-slate-800 font-sans overflow-x-hidden selection:bg-pink-500/20 selection:text-pink-700">
       {/* HERO SECTION */}
       <section className="relative min-h-screen flex items-center justify-center pt-20 pb-32 px-4">
         <GlobalBackground showFloatingEmojis={true} />
-
 
         <div className="relative z-10 max-w-4xl mx-auto text-center flex flex-col items-center">
           <motion.div
@@ -68,10 +67,10 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
               duration: 0.8,
               type: 'spring'
             }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-8">
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 border border-slate-200/60 backdrop-blur-md mb-8 shadow-sm">
 
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-sm font-medium text-slate-300">
+            <span className="text-sm font-medium text-slate-600">
               Now live in your city
             </span>
           </motion.div>
@@ -95,12 +94,12 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
               className="text-pink-500 relative"
               style={{
                 textShadow:
-                  '0 0 40px rgba(236,72,153,0.5), 0 0 80px rgba(236,72,153,0.2)'
+                  '0 0 40px rgba(236,72,153,0.2), 0 0 80px rgba(236,72,153,0.08)'
               }}>
 
               Addis
             </span>
-            <span className="text-white">Net</span>
+            <span className="text-slate-900">Net</span>
           </motion.h1>
 
           <motion.p
@@ -116,7 +115,7 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
               duration: 0.6,
               delay: 0.2
             }}
-            className="text-xl md:text-2xl text-slate-300 mb-4 max-w-2xl font-light leading-relaxed">
+            className="text-xl md:text-2xl text-slate-600 mb-4 max-w-2xl font-light leading-relaxed">
 
             Meet someone new. Stay anonymous. Stay safe.
           </motion.p>
@@ -134,7 +133,7 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
               duration: 0.6,
               delay: 0.3
             }}
-            className="text-sm md:text-base text-slate-400 mb-12 max-w-lg">
+            className="text-sm md:text-base text-slate-500 mb-12 max-w-lg">
 
             Discover anonymous friends in your neighborhood. No real names, no
             photos — just genuine conversations.
@@ -157,7 +156,7 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
 
             <button
               onClick={onEnterApp}
-              className="w-full sm:w-auto px-10 py-4 bg-[#D82B7D] hover:bg-[#C0266F] text-white rounded-xl font-semibold text-lg transition-all shadow-[0_0_30px_rgba(216,43,125,0.3)] hover:shadow-[0_0_40px_rgba(216,43,125,0.5)] flex items-center justify-center gap-2">
+              className="w-full sm:w-auto px-10 py-4 bg-[#D82B7D] hover:bg-[#C0266F] text-white rounded-xl font-semibold text-lg transition-all shadow-[0_0_30px_rgba(216,43,125,0.2)] hover:shadow-[0_0_40px_rgba(216,43,125,0.35)] flex items-center justify-center gap-2">
 
               <Sparkles size={20} />
               Discover Nearby Friends
@@ -177,7 +176,7 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
             delay: 1,
             duration: 1
           }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-500">
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-400">
 
           <span className="text-xs uppercase tracking-widest font-semibold">
             Scroll
@@ -191,7 +190,7 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
               repeat: Infinity,
               ease: 'easeInOut'
             }}
-            className="w-5 h-8 border-2 border-slate-600 rounded-full flex justify-center pt-1.5">
+            className="w-5 h-8 border-2 border-slate-300 rounded-full flex justify-center pt-1.5">
 
             <div className="w-1 h-1.5 bg-slate-400 rounded-full" />
           </motion.div>
@@ -199,7 +198,7 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
       </section>
 
       {/* FEATURES SECTION */}
-      <section className="py-24 md:py-32 px-4 bg-slate-950 relative z-10">
+      <section className="py-24 md:py-32 px-4 bg-white relative z-10">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial="hidden"
@@ -211,10 +210,10 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
             variants={fadeInUp}
             className="text-center mb-16 md:mb-24">
 
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 text-slate-900">
               Designed for <span className="text-pink-500">Privacy</span>
             </h2>
-            <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+            <p className="text-slate-500 text-lg max-w-2xl mx-auto">
               We built AddisNet from the ground up to protect your identity
               while helping you make meaningful local connections.
             </p>
@@ -250,15 +249,15 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
                 <motion.div
                   key={i}
                   variants={fadeInUp}
-                  className="bg-white/5 border border-white/10 backdrop-blur-md rounded-3xl p-8 hover:bg-white/[0.07] transition-colors group">
+                  className="bg-slate-50/80 border border-slate-200/60 backdrop-blur-md rounded-3xl p-8 hover:bg-white hover:shadow-lg transition-all group">
 
-                  <div className="w-14 h-14 rounded-2xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-500 mb-6 group-hover:scale-110 transition-transform">
+                  <div className="w-14 h-14 rounded-2xl bg-pink-50 border border-pink-100 flex items-center justify-center text-pink-500 mb-6 group-hover:scale-110 transition-transform">
                     <feature.icon size={28} />
                   </div>
-                  <h3 className="text-xl font-bold mb-3 text-slate-100">
+                  <h3 className="text-xl font-bold mb-3 text-slate-900">
                     {feature.title}
                   </h3>
-                  <p className="text-slate-400 leading-relaxed">{feature.desc}</p>
+                  <p className="text-slate-500 leading-relaxed">{feature.desc}</p>
                 </motion.div>
               )}
           </motion.div>
@@ -266,7 +265,7 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="py-24 md:py-32 px-4 bg-slate-900/50 border-y border-white/5 relative z-10">
+      <section className="py-24 md:py-32 px-4 bg-[#FAF8F5] border-y border-slate-200/40 relative z-10">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial="hidden"
@@ -278,17 +277,17 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
             variants={fadeInUp}
             className="text-center mb-16 md:mb-24">
 
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 text-slate-900">
               How It Works
             </h2>
-            <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+            <p className="text-slate-500 text-lg max-w-2xl mx-auto">
               Three simple steps to start meeting new people in your area.
             </p>
           </motion.div>
 
           <div className="relative">
             {/* Connecting Line */}
-            <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-pink-500/30 to-transparent -translate-y-1/2 z-0" />
+            <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-pink-300/40 to-transparent -translate-y-1/2 z-0" />
 
             <motion.div
               initial="hidden"
@@ -325,16 +324,16 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
                     variants={fadeInUp}
                     className="flex flex-col items-center text-center relative">
 
-                    <div className="w-20 h-20 rounded-full bg-slate-950 border-2 border-pink-500/30 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(236,72,153,0.15)] relative">
-                      <span className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-pink-500 text-white text-sm font-bold flex items-center justify-center border-4 border-slate-950">
+                    <div className="w-20 h-20 rounded-full bg-white border-2 border-pink-200/60 flex items-center justify-center mb-6 shadow-lg relative">
+                      <span className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-pink-500 text-white text-sm font-bold flex items-center justify-center border-4 border-[#FAF8F5]">
                         {item.step}
                       </span>
-                      <item.icon size={32} className="text-pink-400" />
+                      <item.icon size={32} className="text-pink-500" />
                     </div>
-                    <h3 className="text-xl font-bold mb-3 text-slate-100">
+                    <h3 className="text-xl font-bold mb-3 text-slate-900">
                       {item.title}
                     </h3>
-                    <p className="text-slate-400 leading-relaxed max-w-xs">
+                    <p className="text-slate-500 leading-relaxed max-w-xs">
                       {item.desc}
                     </p>
                   </motion.div>
@@ -345,7 +344,7 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
       </section>
 
       {/* SAFETY & TRUST */}
-      <section className="py-24 md:py-32 px-4 bg-slate-950 relative z-10">
+      <section className="py-24 md:py-32 px-4 bg-white relative z-10">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row gap-16 items-center">
             <motion.div
@@ -358,15 +357,15 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
               variants={fadeInUp}
               className="flex-1 space-y-6">
 
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-medium mb-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-sm font-medium mb-2">
                 <Shield size={16} />
                 Trust & Safety
               </div>
-              <h2 className="text-3xl md:text-5xl font-bold leading-tight">
+              <h2 className="text-3xl md:text-5xl font-bold leading-tight text-slate-900">
                 Your Safety, <br />
                 <span className="text-pink-500">Our Priority</span>
               </h2>
-              <p className="text-slate-400 text-lg leading-relaxed">
+              <p className="text-slate-500 text-lg leading-relaxed">
                 We believe you shouldn't have to compromise your safety to meet
                 new people. Our platform includes built-in protections to ensure
                 a positive experience for everyone.
@@ -378,8 +377,8 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
                   'No personal data stored on our servers',
                   'Strict community guidelines enforcement'].
                   map((item, i) =>
-                    <li key={i} className="flex items-start gap-3 text-slate-300">
-                      <div className="mt-1 w-5 h-5 rounded-full bg-pink-500/20 flex items-center justify-center flex-shrink-0">
+                    <li key={i} className="flex items-start gap-3 text-slate-600">
+                      <div className="mt-1 w-5 h-5 rounded-full bg-pink-50 flex items-center justify-center flex-shrink-0 border border-pink-100">
                         <div className="w-2 h-2 rounded-full bg-pink-500" />
                       </div>
                       {item}
@@ -402,43 +401,43 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
                 {
                   icon: Shield,
                   title: 'Content Filtering',
-                  color: 'text-blue-400',
-                  bg: 'bg-blue-400/10',
-                  border: 'border-blue-400/20'
+                  color: 'text-blue-500',
+                  bg: 'bg-blue-50',
+                  border: 'border-blue-100'
                 },
                 {
                   icon: Ban,
                   title: 'Block & Report',
-                  color: 'text-red-400',
-                  bg: 'bg-red-400/10',
-                  border: 'border-red-400/20'
+                  color: 'text-red-500',
+                  bg: 'bg-red-50',
+                  border: 'border-red-100'
                 },
                 {
                   icon: Trash2,
                   title: 'Auto-Delete',
-                  color: 'text-amber-400',
-                  bg: 'bg-amber-400/10',
-                  border: 'border-amber-400/20'
+                  color: 'text-amber-500',
+                  bg: 'bg-amber-50',
+                  border: 'border-amber-100'
                 },
                 {
                   icon: EyeOff,
                   title: 'No Real Names',
-                  color: 'text-emerald-400',
-                  bg: 'bg-emerald-400/10',
-                  border: 'border-emerald-400/20'
+                  color: 'text-emerald-500',
+                  bg: 'bg-emerald-50',
+                  border: 'border-emerald-100'
                 }].
                 map((card, i) =>
                   <motion.div
                     key={i}
                     variants={fadeInUp}
-                    className="bg-white/5 border border-white/10 backdrop-blur-md rounded-2xl p-6 flex flex-col items-center text-center gap-4 hover:bg-white/[0.07] transition-colors">
+                    className="bg-slate-50/80 border border-slate-200/60 backdrop-blur-md rounded-2xl p-6 flex flex-col items-center text-center gap-4 hover:bg-white hover:shadow-lg transition-all">
 
                     <div
                       className={`w-12 h-12 rounded-full ${card.bg} ${card.border} border flex items-center justify-center ${card.color}`}>
 
                       <card.icon size={24} />
                     </div>
-                    <h4 className="font-semibold text-slate-200">{card.title}</h4>
+                    <h4 className="font-semibold text-slate-800">{card.title}</h4>
                   </motion.div>
                 )}
             </motion.div>
@@ -447,7 +446,7 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
       </section>
 
       {/* STATS SECTION */}
-      <section className="py-20 bg-pink-950/20 border-y border-pink-500/10 relative z-10">
+      <section className="py-20 bg-pink-50/60 border-y border-pink-200/30 relative z-10">
         <div className="max-w-6xl mx-auto px-4">
           <motion.div
             initial="hidden"
@@ -456,7 +455,7 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
               once: true
             }}
             variants={staggerContainer}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-pink-500/20">
+            className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-pink-200/40">
 
             {[
               {
@@ -477,10 +476,10 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
                   variants={fadeInUp}
                   className="flex flex-col items-center justify-center py-6 md:py-0">
 
-                  <div className="text-4xl md:text-5xl font-bold text-white mb-2 font-mono">
+                  <div className="text-4xl md:text-5xl font-bold text-slate-900 mb-2 font-mono">
                     {stat.value}
                   </div>
-                  <div className="text-pink-400 font-medium tracking-wide uppercase text-sm">
+                  <div className="text-pink-500 font-medium tracking-wide uppercase text-sm">
                     {stat.label}
                   </div>
                 </motion.div>
@@ -490,7 +489,7 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
       </section>
 
       {/* BOTTOM CTA */}
-      <section className="py-32 px-4 bg-slate-950 relative z-10 text-center">
+      <section className="py-32 px-4 bg-white relative z-10 text-center">
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -500,18 +499,18 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
           variants={fadeInUp}
           className="max-w-3xl mx-auto flex flex-col items-center">
 
-          <h2 className="text-4xl md:text-6xl font-bold mb-8">
+          <h2 className="text-4xl md:text-6xl font-bold mb-8 text-slate-900">
             Ready to meet someone new?
           </h2>
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
             <button
               onClick={onEnterApp}
-              className="w-full sm:w-auto px-8 py-4 bg-[#D82B7D] hover:bg-[#C0266F] text-white rounded-xl font-semibold text-lg transition-all shadow-[0_0_30px_rgba(216,43,125,0.3)] hover:shadow-[0_0_40px_rgba(216,43,125,0.5)] flex items-center justify-center gap-2">
+              className="w-full sm:w-auto px-8 py-4 bg-[#D82B7D] hover:bg-[#C0266F] text-white rounded-xl font-semibold text-lg transition-all shadow-[0_0_30px_rgba(216,43,125,0.2)] hover:shadow-[0_0_40px_rgba(216,43,125,0.35)] flex items-center justify-center gap-2">
 
               <Sparkles size={20} />
               Start Discovering
             </button>
-            <button className="w-full sm:w-auto px-8 py-4 text-slate-300 hover:text-white font-semibold text-lg transition-colors flex items-center justify-center gap-2">
+            <button className="w-full sm:w-auto px-8 py-4 text-slate-600 hover:text-slate-900 font-semibold text-lg transition-colors flex items-center justify-center gap-2">
               Learn more about safety
               <ChevronRight size={18} />
             </button>

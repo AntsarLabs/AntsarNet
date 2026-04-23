@@ -348,12 +348,12 @@ export function OnlineUsers({
             </motion.div>
           </button>
         </div>
-        <div className="flex items-center justify-center gap-2 mt-3 drop-shadow-md">
-          <span className="text-white text-sm md:text-lg font-medium">
+        <div className="flex items-center justify-center gap-2 mt-3">
+          <span className="text-slate-600 text-sm md:text-lg font-medium">
             {sortedOnlineContacts.length} active in
           </span>
-          <span className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-sm px-3 py-1 rounded-full text-sm md:text-lg text-white font-bold">
-            <MapPin className="w-4 h-4 text-pink-400" />
+          <span className="inline-flex items-center gap-1.5 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full text-sm md:text-lg text-slate-800 font-bold border border-slate-200/60 shadow-sm">
+            <MapPin className="w-4 h-4 text-pink-500" />
             {selectedCity}
           </span>
         </div>

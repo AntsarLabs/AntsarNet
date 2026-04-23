@@ -55,13 +55,13 @@ export function InboxSection({
 
   return (
     <div className="flex flex-col h-full relative font-sans space-y-6">
-      {/* Sharing Header - matching confessions style */}
-      <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/20 shadow-xl">
+      {/* Sharing Header */}
+      <div className="bg-white/85 backdrop-blur-md rounded-3xl p-6 border border-white/60 shadow-sm">
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
              <div className="flex items-center gap-2">
-                <Share2 size={18} className="text-pink-400" />
-                <h3 className="text-sm font-bold text-white tracking-tight">Share Your Link</h3>
+                <Share2 size={18} className="text-pink-500" />
+                <h3 className="text-sm font-bold text-slate-800 tracking-tight">Share Your Link</h3>
              </div>
              {copied && (
                <motion.span 
@@ -80,12 +80,12 @@ export function InboxSection({
                 type="text"
                 value={inboxUrl}
                 readOnly
-                className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-xs font-mono text-slate-300 focus:outline-none"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-mono text-slate-600 focus:outline-none"
               />
             </div>
             <button
               onClick={handleCopy}
-              className="w-12 h-12 flex items-center justify-center bg-white text-slate-950 rounded-xl hover:bg-slate-100 transition-all active:scale-95 shadow-lg"
+              className="w-12 h-12 flex items-center justify-center bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-all active:scale-95 border border-slate-200 shadow-sm"
             >
               <Copy size={18} />
             </button>
@@ -99,12 +99,12 @@ export function InboxSection({
       </div>
 
       {inboxMessages.length === 0 ? (
-        <div className="text-center py-20 bg-white/5 backdrop-blur-md rounded-3xl border border-white/10">
-          <div className="w-20 h-20 mb-6 mx-auto rounded-full bg-white/10 flex items-center justify-center relative">
+        <div className="text-center py-20 bg-white/85 backdrop-blur-md rounded-3xl border border-white/60 shadow-sm">
+          <div className="w-20 h-20 mb-6 mx-auto rounded-full bg-slate-100 flex items-center justify-center relative border border-slate-200">
             <Sparkles className="text-slate-400" size={32} />
           </div>
-          <p className="text-white text-lg font-bold mb-1">Waiting for the first echo...</p>
-          <p className="text-slate-400 text-sm max-w-xs mx-auto">
+          <p className="text-slate-800 text-lg font-bold mb-1">Waiting for the first echo...</p>
+          <p className="text-slate-500 text-sm max-w-xs mx-auto">
             When someone sends an anonymous whisper, it will appear here.
           </p>
         </div>

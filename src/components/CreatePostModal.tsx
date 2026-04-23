@@ -71,7 +71,7 @@ export function CreatePostModal({
             opacity: 0
           }}
           onClick={onClose}
-          className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50" />
+          className="fixed inset-0 bg-slate-500/30 backdrop-blur-sm z-50" />
         
           <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 pointer-events-none">
             <motion.div

@@ -24,7 +24,7 @@ export function MessageBubble({ message, isMe }: MessageBubbleProps) {
       className={`flex w-full mb-1 ${isMe ? 'justify-end' : 'justify-start'}`}>
       
       <div
-        className={`max-w-[80%] md:max-w-[70%] px-4 py-2.5 shadow-sm relative group ${isMe ? 'bg-gradient-to-br from-[#D82B7D] to-[#B5246A] text-white rounded-2xl rounded-br-sm shadow-[0_2px_10px_rgba(216,43,125,0.2)]' : 'bg-white/10 backdrop-blur-md border border-white/10 text-slate-100 rounded-2xl rounded-bl-sm'}`}>
+        className={`max-w-[80%] md:max-w-[70%] px-4 py-2.5 shadow-sm relative group ${isMe ? 'bg-gradient-to-br from-[#D82B7D] to-[#B5246A] text-white rounded-2xl rounded-br-sm shadow-[0_2px_10px_rgba(216,43,125,0.2)]' : 'bg-white border border-slate-200/60 text-slate-800 rounded-2xl rounded-bl-sm'}`}>
         
         <p className="text-[15px] leading-relaxed break-words">
           {message.text}

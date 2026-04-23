@@ -59,26 +59,25 @@ export function SendAnonymousMessagePage() {
   );
 
   return (
-    <div className="min-h-screen w-full relative bg-slate-950 font-sans overflow-x-hidden flex flex-col">
+    <div className="min-h-screen w-full relative bg-[#FAF8F5] font-sans overflow-x-hidden flex flex-col">
       {/* BACKGROUND */}
-      <div 
-        className="fixed inset-0 bg-cover bg-center bg-no-repeat bg-fixed z-0"
-        style={{ backgroundImage: 'url("https://cdn.magicpatterns.com/uploads/buFFB14RxN7rp2dVxCiLRi/64b6005b9b1c73650c503c0f921982ab.2-1-super.1.jpg")' }} 
-      />
-      <div className="absolute inset-0 bg-slate-950/80 md:bg-slate-950/85 backdrop-blur-[2px] z-0" />
-      
+      <div className="absolute inset-0 pointer-events-none z-0">
+        <div className="absolute top-0 left-0 w-[60%] h-[50%] bg-gradient-to-br from-pink-100/40 via-transparent to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-[50%] h-[40%] bg-gradient-to-tl from-rose-50/50 via-transparent to-transparent rounded-full blur-3xl" />
+      </div>
+
       {/* MOBILE UI */}
       <div className="md:hidden relative z-20 flex flex-col min-h-screen">
         <div className="flex items-center justify-between px-4 py-6 shrink-0">
-          <button 
+          <button
             onClick={() => navigate('/')}
-            className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white"
+            className="w-10 h-10 rounded-full bg-white/80 backdrop-blur-md flex items-center justify-center text-slate-600 border border-slate-200/60 shadow-sm"
           >
             <ChevronLeft size={20} />
           </button>
           <div className="flex flex-col items-center">
-            <span className="text-[10px] font-black tracking-[0.3em] text-pink-400 uppercase">Whisper Portal</span>
-            <span className="text-white font-bold text-sm">#{inboxId?.toUpperCase()}</span>
+            <span className="text-[10px] font-black tracking-[0.3em] text-pink-500 uppercase">Whisper Portal</span>
+            <span className="text-slate-800 font-bold text-sm">#{inboxId?.toUpperCase()}</span>
           </div>
           <div className="w-10" />
         </div>
@@ -94,28 +93,28 @@ export function SendAnonymousMessagePage() {
                 className="flex-1 flex flex-col bg-white rounded-t-[2.5rem] shadow-2xl relative"
               >
                 <div className="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-6 mt-4 opacity-50" />
-                 <div className="px-6 pb-6">
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-tight">
-                      Send Your <br/>
-                      <span className="text-pink-500">Anonymous</span> Message
-                    </h1>
-                    
-                    {instruction && (
-                      <motion.div 
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="mt-4 p-4 bg-pink-50 border border-pink-100 rounded-2xl relative overflow-hidden"
-                      >
-                        <div className="absolute top-0 right-0 p-2 opacity-10">
-                          <MessageSquare size={40} className="text-pink-600" />
-                        </div>
-                        <span className="text-[9px] font-black uppercase tracking-widest text-pink-500 mb-1 block">Inbox Instruction</span>
-                        <p className="text-xs font-bold text-slate-700 leading-relaxed italic">
-                          "{instruction}"
-                        </p>
-                      </motion.div>
-                    )}
-                 </div>
+                <div className="px-6 pb-6">
+                  <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-tight">
+                    Send Your <br />
+                    <span className="text-pink-500">Anonymous</span> Message
+                  </h1>
+
+                  {instruction && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="mt-4 p-4 bg-pink-50 border border-pink-100 rounded-2xl relative overflow-hidden"
+                    >
+                      <div className="absolute top-0 right-0 p-2 opacity-10">
+                        <MessageSquare size={40} className="text-pink-600" />
+                      </div>
+                      <span className="text-[9px] font-black uppercase tracking-widest text-pink-500 mb-1 block">Inbox Instruction</span>
+                      <p className="text-xs font-bold text-slate-700 leading-relaxed italic">
+                        "{instruction}"
+                      </p>
+                    </motion.div>
+                  )}
+                </div>
 
                 <PromoCards />
 
@@ -158,8 +157,8 @@ export function SendAnonymousMessagePage() {
                         </div>
                       )}
                     </button>
-                    
-                    <div 
+
+                    <div
                       onClick={() => navigate('/')}
                       className="mt-6 flex items-center justify-center gap-2 group cursor-pointer"
                     >
@@ -177,11 +176,11 @@ export function SendAnonymousMessagePage() {
                 className="flex-1 flex flex-col bg-white rounded-t-[2.5rem] items-center justify-center p-8 text-center"
               >
                 <div className="w-24 h-24 rounded-3xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-6 shadow-sm relative">
-                   <Check size={40} className="text-emerald-500" />
+                  <Check size={40} className="text-emerald-500" />
                 </div>
                 <h2 className="text-3xl font-black text-slate-900 mb-2 tracking-tight">Whisper Sent!</h2>
                 <p className="text-slate-500 text-sm font-bold mb-10 max-w-[240px]">Your message has been delivered safely and anonymously.</p>
-                
+
                 <div className="w-full space-y-3">
                   <button
                     onClick={() => setIsSent(false)}
@@ -207,12 +206,12 @@ export function SendAnonymousMessagePage() {
       <div className="hidden md:flex relative z-10 flex-1 items-center justify-center px-8 py-20">
         <div className="w-full max-w-7xl grid grid-cols-[300px_1fr_300px] gap-12 items-start">
           <div className="flex flex-col gap-6">
-            <div className="bg-white/85 backdrop-blur-md border border-white/60 rounded-3xl p-8 shadow-sm transition-all hover:bg-white">
+            <div className="bg-white/85 backdrop-blur-md border border-white/60 rounded-3xl p-8 shadow-sm transition-all hover:bg-white hover:shadow-md">
               <EyeOff size={28} className="text-pink-500 mb-4" />
               <h3 className="text-slate-900 font-bold mb-2">100% Anonymous</h3>
               <p className="text-slate-500 text-sm leading-relaxed">No tracking, no IDs disclosed. Your privacy is our priority.</p>
             </div>
-            <div className="bg-white/85 backdrop-blur-md border border-white/60 rounded-3xl p-8 shadow-sm transition-all hover:bg-white">
+            <div className="bg-white/85 backdrop-blur-md border border-white/60 rounded-3xl p-8 shadow-sm transition-all hover:bg-white hover:shadow-md">
               <ShieldCheck size={28} className="text-blue-500 mb-4" />
               <h3 className="text-slate-900 font-bold mb-2">Encrypted</h3>
               <p className="text-slate-500 text-sm leading-relaxed">End-to-end encryption ensures only the receiver can read it.</p>
@@ -229,7 +228,7 @@ export function SendAnonymousMessagePage() {
             </div>
 
             {instruction && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-8 p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-center relative"
@@ -274,17 +273,17 @@ export function SendAnonymousMessagePage() {
           </div>
 
           <div className="flex flex-col gap-6">
-            <div className="bg-white/85 backdrop-blur-md border border-white/60 rounded-3xl p-8 shadow-sm transition-all hover:bg-white">
+            <div className="bg-white/85 backdrop-blur-md border border-white/60 rounded-3xl p-8 shadow-sm transition-all hover:bg-white hover:shadow-md">
               <Users size={28} className="text-emerald-500 mb-4" />
               <h3 className="text-slate-900 font-bold mb-2">Join the Club</h3>
               <p className="text-slate-500 text-sm leading-relaxed">Join 10k+ users in Addis sharing thoughts freely.</p>
             </div>
-            <div className="bg-white/85 backdrop-blur-md border border-white/60 rounded-3xl p-8 shadow-sm transition-all hover:bg-white">
+            <div className="bg-white/85 backdrop-blur-md border border-white/60 rounded-3xl p-8 shadow-sm transition-all hover:bg-white hover:shadow-md">
               <MapPin size={28} className="text-amber-500 mb-4" />
               <h3 className="text-slate-900 font-bold mb-2">Local & Safe</h3>
               <p className="text-slate-500 text-sm leading-relaxed">Connect with people in your neighborhood safely.</p>
             </div>
-            <button 
+            <button
               onClick={() => navigate('/')}
               className="w-full bg-[#D82B7D] text-white py-4 rounded-2xl font-bold uppercase tracking-widest text-xs shadow-lg shadow-pink-500/20"
             >
@@ -293,7 +292,7 @@ export function SendAnonymousMessagePage() {
           </div>
         </div>
       </div>
-      
+
     </div>
   );
 }

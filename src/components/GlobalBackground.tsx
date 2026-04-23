@@ -17,31 +17,21 @@ const FLOATING_EMOJIS = [
 export const GlobalBackground: React.FC<GlobalBackgroundProps> = ({ showFloatingEmojis = false }) => {
   return (
     <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-      {/* Base Dark Color */}
-      <div className="absolute inset-0 bg-slate-950" />
-      
-      {/* Background Image with Fixed Attachment */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat bg-fixed opacity-100"
-        style={{
-          backgroundImage: 'url("https://cdn.magicpatterns.com/uploads/buFFB14RxN7rp2dVxCiLRi/64b6005b9b1c73650c503c0f921982ab.2-1-super.1.jpg")',
-        }}
-      />
-      
-      {/* Overlay for Contrast and Blur */}
-      <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px]" />
-      
-      {/* Decorative Gradients for depth */}
+      {/* Base Warm Light Color */}
+      <div className="absolute inset-0 bg-[#FAF8F5]" />
+
+      {/* Soft Gradient Mesh */}
       <div className="absolute inset-0">
-        <div className="absolute top-0 left-0 w-full h-[50vh] bg-gradient-to-b from-slate-950/40 to-transparent" />
-        <div className="absolute bottom-0 left-0 w-full h-[50vh] bg-gradient-to-t from-slate-950/80 to-transparent" />
+        <div className="absolute top-0 left-0 w-[60%] h-[50%] bg-gradient-to-br from-pink-100/40 via-transparent to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-[50%] h-[40%] bg-gradient-to-tl from-rose-50/50 via-transparent to-transparent rounded-full blur-3xl" />
+        <div className="absolute top-1/3 right-1/4 w-[30%] h-[30%] bg-gradient-to-b from-amber-50/30 via-transparent to-transparent rounded-full blur-3xl" />
       </div>
 
       {/* Floating Emojis if requested */}
       {showFloatingEmojis && FLOATING_EMOJIS.map((item, i) => (
         <motion.div
           key={i}
-          className="absolute text-4xl md:text-5xl opacity-30 pointer-events-none z-10"
+          className="absolute text-4xl md:text-5xl opacity-15 pointer-events-none z-10"
           style={{
             top: item.top,
             left: item.left,
@@ -63,8 +53,8 @@ export const GlobalBackground: React.FC<GlobalBackgroundProps> = ({ showFloating
       ))}
 
       {/* Subtle Grain Overlay */}
-      <div 
-        className="absolute inset-0 opacity-[0.03] mix-blend-overlay"
+      <div
+        className="absolute inset-0 opacity-[0.02] mix-blend-multiply"
         style={{ backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")' }}
       />
     </div>

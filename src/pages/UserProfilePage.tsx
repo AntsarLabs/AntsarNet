@@ -8,8 +8,9 @@ import {
   MapPin,
   Calendar,
   Flame,
-  MessageSquare } from
-'lucide-react';
+  MessageSquare
+} from
+  'lucide-react';
 import { Contact, Post } from '../types/chat';
 import { PostCard } from '../components/PostCard';
 import { ReactionType } from '../components/ReactionBar';
@@ -37,23 +38,23 @@ export function UserProfilePage({
   }, [userPosts]);
   return (
     <div
-      className="min-h-screen w-full flex flex-col bg-cover bg-center bg-no-repeat bg-fixed relative"
-      style={{
-        backgroundImage:
-        'url("https://cdn.magicpatterns.com/uploads/buFFB14RxN7rp2dVxCiLRi/64b6005b9b1c73650c503c0f921982ab.2-1-super.1.jpg")'
-      }}>
-      
-      <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] pointer-events-none" />
+      className="min-h-screen w-full flex flex-col bg-[#FAF8F5] relative">
+
+      {/* Soft gradient background */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-0 w-[50%] h-[40%] bg-gradient-to-br from-pink-50/50 to-transparent rounded-full blur-3xl" />
+        <div className="absolute bottom-1/3 right-0 w-[30%] h-[25%] bg-gradient-to-tl from-rose-50/30 to-transparent rounded-full blur-3xl" />
+      </div>
 
       {/* Header */}
-      <div className="h-14 flex items-center px-4 sticky top-0 z-20 bg-slate-950/80 backdrop-blur-md border-b border-slate-800">
+      <div className="h-14 flex items-center px-4 sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
         <button
           onClick={onBack}
-          className="p-2 -ml-2 text-white/70 hover:text-white transition-colors rounded-full hover:bg-white/10">
-          
+          className="p-2 -ml-2 text-slate-500 hover:text-slate-800 transition-colors rounded-full hover:bg-slate-100">
+
           <ChevronLeft size={22} />
         </button>
-        <h1 className="text-lg font-semibold ml-2 text-white">Profile</h1>
+        <h1 className="text-lg font-semibold ml-2 text-slate-900">Profile</h1>
       </div>
 
       <div className="flex-1 w-full max-w-3xl mx-auto p-4 md:p-8 relative z-10 pb-32">
@@ -67,7 +68,7 @@ export function UserProfilePage({
             y: 0
           }}
           className="space-y-6">
-          
+
           {/* Hero Section */}
           <div className="bg-white/85 backdrop-blur-md border border-white/60 rounded-2xl md:rounded-3xl p-6 md:p-8 shadow-sm flex flex-col items-center text-center relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-pink-500/10 to-transparent pointer-events-none" />
@@ -77,7 +78,7 @@ export function UserProfilePage({
                 {user.emoji}
               </div>
               {user.isOnline &&
-              <span className="absolute bottom-1 right-1 w-5 h-5 rounded-full bg-green-500 border-4 border-white shadow-sm" />
+                <span className="absolute bottom-1 right-1 w-5 h-5 rounded-full bg-green-500 border-4 border-white shadow-sm" />
               }
             </div>
 
@@ -95,7 +96,7 @@ export function UserProfilePage({
             </div>
 
             {user.mood &&
-            <div className="relative w-full max-w-md">
+              <div className="relative w-full max-w-md">
                 <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white/90 rotate-45 border-l border-t border-slate-200" />
                 <div className="relative bg-white/90 border border-slate-200 rounded-xl p-4 shadow-sm">
                   <p className="text-sm md:text-base text-slate-700 font-medium italic">
@@ -139,26 +140,26 @@ export function UserProfilePage({
 
           {/* Recent Confessions */}
           <div className="space-y-4">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2 px-2">
+            <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2 px-2">
               Recent Confessions
             </h3>
 
             {userPosts.length === 0 ?
-            <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 text-center">
-                <p className="text-slate-400 text-sm">
+              <div className="bg-white/85 backdrop-blur-md border border-white/60 rounded-2xl p-8 text-center shadow-sm">
+                <p className="text-slate-500 text-sm">
                   No public confessions yet.
                 </p>
               </div> :
 
-            <div className="space-y-4">
+              <div className="space-y-4">
                 {userPosts.map((post) =>
-              <PostCard
-                key={post.id}
-                post={post}
-                onReact={onReactPost}
-                onClick={() => {}} />
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    onReact={onReactPost}
+                    onClick={() => { }} />
 
-              )}
+                )}
               </div>
             }
           </div>
@@ -166,25 +167,25 @@ export function UserProfilePage({
       </div>
 
       {/* Bottom Action Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-slate-950/80 backdrop-blur-lg border-t border-slate-800 p-4 z-30">
+      <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-slate-200/60 p-4 z-30 shadow-[0_-1px_3px_rgba(0,0,0,0.04)]">
         <div className="max-w-3xl mx-auto flex items-center gap-3">
           <button
             onClick={() => onMessage(user.id)}
             className="flex-1 flex items-center justify-center gap-2 bg-[#D82B7D] hover:bg-[#C0266F] active:bg-[#A82161] text-white py-3.5 rounded-xl font-semibold transition-colors shadow-sm">
-            
+
             <MessageCircle size={20} />
             Message
           </button>
           <button
-            className="p-3.5 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-colors border border-white/10"
+            className="p-3.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition-colors border border-slate-200"
             title="Block User">
-            
+
             <Ban size={20} />
           </button>
           <button
-            className="p-3.5 bg-white/10 hover:bg-white/20 text-red-400 rounded-xl transition-colors border border-white/10"
+            className="p-3.5 bg-slate-100 hover:bg-slate-200 text-red-500 rounded-xl transition-colors border border-slate-200"
             title="Report User">
-            
+
             <Flag size={20} />
           </button>
         </div>
