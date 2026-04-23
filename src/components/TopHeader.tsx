@@ -44,9 +44,6 @@ export function TopHeader({
         {/* MOBILE: PROFILE (Left) | DESKTOP: LOGO (Left) */}
         <div className="flex items-center w-32 md:w-auto">
           <Link to="/discover" className="hidden md:flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center shadow-lg shadow-pink-500/20 group-hover:scale-105 transition-transform">
-              <span className="text-white text-[10px] font-black italic">A</span>
-            </div>
             <span className="text-slate-900 font-black text-xl tracking-tighter uppercase italic">
               Addis<span className="text-pink-500">Net</span>
             </span>

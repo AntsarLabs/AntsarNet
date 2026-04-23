@@ -29,10 +29,19 @@ export function InboxSection({
 }: InboxSectionProps) {
   const [copied, setCopied] = useState(false);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [subject, setSubject] = useState('');
+  const [instruction, setInstruction] = useState('');
+
+  const queryParams = new URLSearchParams();
+  if (subject) queryParams.append('subject', subject);
+  if (instruction) queryParams.append('instruction', instruction);
+  const queryString = queryParams.toString();
+  const displayUrl = queryString ? `${inboxUrl}${inboxUrl.includes('?') ? '&' : '?'}${queryString}` : inboxUrl;
 
   const handleCopy = () => {
     if (typeof navigator !== 'undefined') {
-      navigator.clipboard.writeText(inboxUrl);
+      navigator.clipboard.writeText(displayUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -56,45 +65,78 @@ export function InboxSection({
   return (
     <div className="flex flex-col h-full relative font-sans space-y-6">
       {/* Sharing Header */}
-      <div className="bg-white/85 backdrop-blur-md rounded-3xl p-6 border border-white/60 shadow-sm">
+      <div className="bg-white/85 backdrop-blur-md rounded-3xl p-6 border border-white/60 shadow-sm transition-all duration-300">
         <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-             <div className="flex items-center gap-2">
-                <Share2 size={18} className="text-pink-500" />
-                <h3 className="text-sm font-bold text-slate-800 tracking-tight">Share Your Link</h3>
-             </div>
-             {copied && (
-               <motion.span 
-                 initial={{ opacity: 0, scale: 0.9 }} 
-                 animate={{ opacity: 1, scale: 1 }} 
-                 className="text-[10px] font-bold bg-emerald-500 text-white px-2 py-0.5 rounded-full uppercase tracking-wider"
-               >
-                 Copied
-               </motion.span>
-             )}
-          </div>
-          
-          <div className="flex gap-2">
-            <div className="flex-1 relative">
-              <input
-                type="text"
-                value={inboxUrl}
-                readOnly
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-mono text-slate-600 focus:outline-none"
-              />
+          <button
+            onClick={() => setIsShareOpen(!isShareOpen)}
+            className="flex items-center justify-between w-full group outline-none"
+          >
+            <div className="flex items-center gap-2">
+              <Share2 size={18} className={`transition-colors ${isShareOpen ? 'text-pink-500' : 'text-slate-400 group-hover:text-pink-500'}`} />
+              <h3 className={`text-sm font-bold tracking-tight transition-colors ${isShareOpen ? 'text-slate-800' : 'text-slate-600 group-hover:text-slate-800'}`}>Share Your Inbox Link</h3>
             </div>
-            <button
-              onClick={handleCopy}
-              className="w-12 h-12 flex items-center justify-center bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-all active:scale-95 border border-slate-200 shadow-sm"
-            >
-              <Copy size={18} />
-            </button>
-            <button
-              className="w-12 h-12 flex items-center justify-center bg-pink-500 text-white rounded-xl hover:bg-pink-600 transition-all active:scale-95 border border-pink-400 shadow-lg shadow-pink-500/20"
-            >
-              <Send size={18} />
-            </button>
-          </div>
+            <div className="flex items-center gap-3">
+              {copied && (
+                <motion.span
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-[10px] font-bold bg-emerald-500 text-white px-2 py-0.5 rounded-full uppercase tracking-wider"
+                >
+                  Copied
+                </motion.span>
+              )}
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isShareOpen ? 'bg-pink-50 text-pink-500' : 'bg-slate-50 text-slate-400 group-hover:bg-pink-50 group-hover:text-pink-500'}`}>
+                {isShareOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </div>
+            </div>
+          </button>
+
+          <AnimatePresence>
+            {isShareOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden"
+              >
+                <div className="flex flex-col gap-3 pt-2">
+                  <div className="flex flex-col gap-3 mb-1">
+                    <input
+                      type="text"
+                      placeholder="Custom Subject (e.g. Birthday Confessions)"
+                      value={subject}
+                      onChange={(e) => setSubject(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-700 focus:outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition-all placeholder:text-slate-400"
+                    />
+                    <textarea
+                      placeholder="Inbox Description / Bio (e.g. Send me your anonymous birthday wishes!)"
+                      value={instruction}
+                      onChange={(e) => setInstruction(e.target.value)}
+                      rows={2}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-700 focus:outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition-all placeholder:text-slate-400 resize-none"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="flex-1 relative">
+                      <input
+                        type="text"
+                        value={displayUrl}
+                        readOnly
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-mono text-slate-600 focus:outline-none"
+                      />
+                    </div>
+                    <button
+                      onClick={handleCopy}
+                      className="w-12 h-12 flex items-center justify-center bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-all active:scale-95 border border-slate-200 shadow-sm"
+                    >
+                      <Copy size={18} />
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
@@ -103,9 +145,9 @@ export function InboxSection({
           <div className="w-20 h-20 mb-6 mx-auto rounded-full bg-slate-100 flex items-center justify-center relative border border-slate-200">
             <Sparkles className="text-slate-400" size={32} />
           </div>
-          <p className="text-slate-800 text-lg font-bold mb-1">Waiting for the first echo...</p>
+          <p className="text-slate-800 text-lg font-bold mb-1">Waiting for the first message...</p>
           <p className="text-slate-500 text-sm max-w-xs mx-auto">
-            When someone sends an anonymous whisper, it will appear here.
+            When someone sends an anonymous message, feedback, or confession, it will appear here.
           </p>
         </div>
       ) : (
@@ -114,7 +156,7 @@ export function InboxSection({
             {inboxMessages.map((msg, index) => {
               const isExpanded = expandedIds.has(msg.id);
               const isLong = msg.message.length > 180;
-              
+
               return (
                 <motion.div
                   key={msg.id}
@@ -122,11 +164,10 @@ export function InboxSection({
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className={`group relative flex flex-col gap-4 p-5 rounded-2xl transition-all duration-300 ${
-                    !msg.isRead 
-                      ? 'bg-white shadow-[0_8px_30px_rgba(216,43,125,0.1)] border-l-4 border-l-pink-500 border-y border-r border-white/60' 
+                  className={`group relative flex flex-col gap-4 p-5 rounded-2xl transition-all duration-300 ${!msg.isRead
+                      ? 'bg-white shadow-[0_8px_30px_rgba(216,43,125,0.1)] border-l-4 border-l-pink-500 border-y border-r border-white/60'
                       : 'bg-white/85 backdrop-blur-md border border-white/60 hover:bg-white transition-all shadow-sm'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-3">
@@ -148,16 +189,15 @@ export function InboxSection({
                     <h4 className="text-[15px] font-bold text-slate-800 tracking-tight">
                       {msg.subject}
                     </h4>
-                    <p 
-                      className={`text-[14px] leading-relaxed transition-all duration-300 text-slate-600 ${
-                        !isExpanded && isLong ? 'line-clamp-3' : ''
-                      }`}
+                    <p
+                      className={`text-[14px] leading-relaxed transition-all duration-300 text-slate-600 ${!isExpanded && isLong ? 'line-clamp-3' : ''
+                        }`}
                     >
                       {msg.message}
                     </p>
-                    
+
                     {isLong && (
-                      <button 
+                      <button
                         onClick={() => toggleExpand(msg.id, msg.isRead)}
                         className="mt-3 flex items-center gap-1.5 text-xs font-bold text-pink-600 hover:text-pink-700 transition-colors group/btn bg-pink-50 px-3 py-1.5 rounded-lg border border-pink-100 w-fit"
                       >
@@ -172,15 +212,15 @@ export function InboxSection({
                         )}
                       </button>
                     )}
-                    
+
                     {!isLong && !msg.isRead && (
-                       <button 
+                      <button
                         onClick={() => toggleExpand(msg.id, msg.isRead)}
                         className="mt-3 text-[10px] font-bold text-slate-400 hover:text-pink-600 transition-colors uppercase tracking-[0.15em] flex items-center gap-1.5"
-                       >
-                         <Check size={12} />
-                         Mark as read
-                       </button>
+                      >
+                        <Check size={12} />
+                        Mark as read
+                      </button>
                     )}
                   </div>
                 </motion.div>

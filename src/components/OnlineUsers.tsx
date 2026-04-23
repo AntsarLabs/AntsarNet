@@ -17,71 +17,19 @@ import {
 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Contact } from '../types/chat';
+import { getEmojiName, getStableRandom } from '../utils/user';
 interface OnlineUsersProps {
   contacts: Contact[];
   onSelect: (id: string) => void;
   onViewProfile?: (id: string) => void;
 }
-const CARD_COLORS = [
-{
-  border: 'border-rose-500',
-  bg: 'bg-rose-500/10',
-  cardBg: 'bg-rose-950/20',
-  idBg: 'bg-rose-950/60',
-  text: 'text-rose-500',
-  glow: 'shadow-[0_0_30px_rgba(244,63,94,0.4)]'
-},
-{
-  border: 'border-amber-500',
-  bg: 'bg-amber-500/10',
-  cardBg: 'bg-amber-950/20',
-  idBg: 'bg-amber-950/60',
-  text: 'text-amber-500',
-  glow: 'shadow-[0_0_30px_rgba(245,158,11,0.4)]'
-},
-{
-  border: 'border-emerald-500',
-  bg: 'bg-emerald-500/10',
-  cardBg: 'bg-emerald-950/20',
-  idBg: 'bg-emerald-950/60',
-  text: 'text-emerald-500',
-  glow: 'shadow-[0_0_30px_rgba(16,185,129,0.4)]'
-},
-{
-  border: 'border-cyan-500',
-  bg: 'bg-cyan-500/10',
-  cardBg: 'bg-cyan-950/20',
-  idBg: 'bg-cyan-950/60',
-  text: 'text-cyan-500',
-  glow: 'shadow-[0_0_30px_rgba(6,182,212,0.4)]'
-},
-{
-  border: 'border-violet-500',
-  bg: 'bg-violet-500/10',
-  cardBg: 'bg-violet-950/20',
-  idBg: 'bg-violet-950/60',
-  text: 'text-violet-500',
-  glow: 'shadow-[0_0_30px_rgba(139,92,246,0.4)]'
-},
-{
-  border: 'border-blue-500',
-  bg: 'bg-blue-500/10',
-  cardBg: 'bg-blue-950/20',
-  idBg: 'bg-blue-950/60',
-  text: 'text-blue-500',
-  glow: 'shadow-[0_0_30px_rgba(59,130,246,0.4)]'
-},
-{
-  border: 'border-pink-500',
-  bg: 'bg-pink-500/10',
-  cardBg: 'bg-pink-950/20',
-  idBg: 'bg-pink-950/60',
-  text: 'text-pink-500',
-  glow: 'shadow-[0_0_30px_rgba(236,72,153,0.4)]'
-},
-{
-  glow: 'shadow-[0_0_30px_rgba(249,115,22,0.4)]'
-}];
+const MATCH_COLOR = {
+  border: 'border-pink-200',
+  bg: 'bg-pink-50',
+  cardBg: 'bg-pink-50/50',
+  text: 'text-pink-600',
+  glow: 'shadow-[0_0_20px_rgba(236,72,153,0.2)]'
+};
 
 const ETHIOPIAN_CITIES = [
   'All',
@@ -304,7 +252,7 @@ export function OnlineUsers({
                 className="relative flex items-center h-full">
                 <input
                   type="text"
-                  placeholder="Find Friend ID..."
+                  placeholder="Find by name or ID..."
                   value={friendId}
                   onChange={(e) => {
                     setFriendId(e.target.value);
@@ -396,7 +344,6 @@ export function OnlineUsers({
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3 md:gap-4 relative">
           
             {sortedOnlineContacts.map((contact, index) => {
-            const colorConfig = CARD_COLORS[index % CARD_COLORS.length];
             const isHighlighted = highlightIndex === index;
             const isWinner = winnerId === contact.id;
             const isDimmed =
@@ -428,14 +375,14 @@ export function OnlineUsers({
                 transition={{
                   duration: 0.15
                 }}
-                className={`group relative flex flex-col p-3.5 md:p-5 bg-white/85 backdrop-blur-md rounded-xl md:rounded-2xl border transition-all duration-200 shadow-sm overflow-visible ${isWinner || isHighlighted ? `${colorConfig.border} ${colorConfig.glow}` : 'border-white/60 hover:border-pink-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]'}`}
+                className={`group relative flex flex-col p-3.5 md:p-5 bg-white/85 backdrop-blur-md rounded-xl md:rounded-2xl border transition-all duration-200 shadow-sm overflow-visible ${isWinner || isHighlighted ? `${MATCH_COLOR.border} ${MATCH_COLOR.glow}` : 'border-white/60 hover:border-pink-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]'}`}
                 style={{
                   zIndex: isWinner || isHighlighted ? 10 : 1
                 }}>
                 
                   {/* Card Header: Circular Icon + Friend ID card */}
                   <div
-                  className="flex items-center gap-2.5 w-full cursor-pointer group/header"
+                  className="flex items-center gap-3 w-full cursor-pointer group/header"
                   onClick={() => {
                     if (!isSpinning && onViewProfile) {
                       onViewProfile(contact.id);
@@ -444,18 +391,20 @@ export function OnlineUsers({
                   
                     <div className="relative flex-shrink-0">
                       <div
-                      className={`w-11 h-11 md:w-13 md:h-13 rounded-full border flex items-center justify-center text-lg md:text-xl transition-colors bg-white shadow-sm group-hover/header:border-pink-400 ${isWinner || isHighlighted ? `${colorConfig.border}` : 'border-slate-200'}`}>
-                      
+                      className={`w-12 h-12 md:w-14 md:h-14 rounded-full border-2 flex items-center justify-center text-xl md:text-2xl transition-all shadow-sm group-hover/header:scale-105 ${isWinner || isHighlighted ? `${MATCH_COLOR.border} bg-white` : 'border-slate-100 bg-slate-50/50'}`}>
                         {contact.emoji}
                       </div>
-                      {contact.isOnline &&
-                    <span className="absolute bottom-0 right-0 w-3 h-3 md:w-3.5 md:h-3.5 rounded-full bg-green-500 border-2 border-white" />
-                    }
                     </div>
-                    <div
-                    className={`flex-1 px-1.5 py-1 md:px-2 md:py-1.5 rounded-lg border font-mono text-[10px] md:text-xs font-semibold tracking-wider transition-colors whitespace-nowrap pt-[8px] pb-[8px] shadow-sm group-hover/header:border-pink-300 group-hover/header:text-pink-600 ${isWinner || isHighlighted ? `${colorConfig.border} bg-white ${colorConfig.text}` : 'border-slate-200 bg-white/90 text-slate-800'}`}>
                     
-                      {contact.friendId}
+                    <div className="flex flex-col min-w-0">
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="font-bold text-slate-900 text-sm md:text-base truncate">
+                          @{getEmojiName(contact.emoji)}_{getStableRandom(contact.friendId)}
+                        </span>
+                      </div>
+                      <span className="text-[10px] md:text-[11px] text-slate-500 font-medium flex items-center gap-1">
+                        {contact.isOnline ? 'online' : 'last seen 1h ago'}
+                      </span>
                     </div>
                   </div>
 
@@ -477,12 +426,12 @@ export function OnlineUsers({
                     <button
                     onClick={() => !isSpinning && onSelect(contact.id)}
                     disabled={isSpinning}
-                    className={`flex-[4] flex items-center justify-center gap-1.5 px-2 py-1.5 md:py-2 rounded-lg text-[10px] md:text-xs font-semibold transition-all shadow-sm ${isWinner || isHighlighted ? `${colorConfig.bg} ${colorConfig.text} border ${colorConfig.border}` : 'bg-[#D82B7D] text-white hover:bg-[#C0266F] active:bg-[#A82161]'} disabled:opacity-50`}>
+                    className={`flex-[4] flex items-center justify-center gap-1.5 px-2 py-1.5 md:py-2 rounded-lg text-[10px] md:text-xs font-semibold transition-all shadow-sm ${isWinner || isHighlighted ? `${MATCH_COLOR.bg} ${MATCH_COLOR.text} border ${MATCH_COLOR.border}` : 'bg-[#D82B7D] text-white hover:bg-[#C0266F] active:bg-[#A82161]'} disabled:opacity-50`}>
                     
                       <MessageCircle className="w-3 h-3" />
                       Message
                     </button>
-                    <div className="flex-1 flex items-center justify-center gap-1 px-1.5 py-1.5 md:py-2 rounded-lg bg-white/90 border border-slate-200 shadow-sm">
+                    <div className="flex-1 flex items-center justify-center gap-1 px-1.5 py-1.5 md:py-2 rounded-lg bg-slate-50 shadow-inner">
                       <MapPin className="w-2.5 h-2.5 md:w-3 md:h-3 text-slate-500" />
                       <span className="text-[9px] md:text-[11px] text-slate-600 font-bold whitespace-nowrap">
                         {contact.city ? CITY_CODES[contact.city] || '??' : '??'}

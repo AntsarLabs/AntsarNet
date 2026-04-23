@@ -76,8 +76,7 @@ export const AuthPage = ({ onAuthSuccess }: { onAuthSuccess: () => void }) => {
   };
 
   return (
-    <div className="min-h-screen w-full relative flex flex-col font-sans overflow-x-hidden selection:text-pink-600 selection:bg-pink-100 bg-[#FAF8F5]">
-      <GlobalBackground showFloatingEmojis={true} />
+    <div className="min-h-screen w-full relative flex flex-col font-sans overflow-x-hidden selection:text-pink-600 selection:bg-pink-100 bg-transparent">
 
       {/* MOBILE UI HEADER */}
       <div className="md:hidden relative z-50 flex items-center justify-between px-4 py-6 shrink-0">

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Globe, Lock, ShieldAlert, Tag } from 'lucide-react';
 const AVAILABLE_TAGS = [
@@ -56,7 +57,7 @@ export function CreatePostModal({
     setSelectedTags([]);
     onClose();
   };
-  return (
+  return typeof document !== 'undefined' ? createPortal(
     <AnimatePresence>
       {isOpen &&
       <>
@@ -71,28 +72,30 @@ export function CreatePostModal({
             opacity: 0
           }}
           onClick={onClose}
-          className="fixed inset-0 bg-slate-500/30 backdrop-blur-sm z-50" />
+          className="fixed inset-0 bg-slate-500/30 backdrop-blur-sm z-[100]" />
         
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 pointer-events-none">
+          <div className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center p-0 sm:p-4 pointer-events-none">
             <motion.div
             initial={{
               opacity: 0,
-              scale: 0.95,
-              y: 20
+              y: '100%'
             }}
             animate={{
               opacity: 1,
-              scale: 1,
               y: 0
             }}
             exit={{
               opacity: 0,
-              scale: 0.95,
-              y: 20
+              y: '100%'
+            }}
+            transition={{ 
+              type: "spring", 
+              damping: 25, 
+              stiffness: 300 
             }}
             className="w-full max-w-lg pointer-events-auto max-h-[90vh] flex flex-col">
             
-              <div className="bg-white/95 backdrop-blur-xl border border-white/60 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+              <div className="bg-white/95 backdrop-blur-xl border border-white/60 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
                 <div className="flex items-center justify-between p-3 sm:p-4 border-b border-slate-100 flex-shrink-0">
                   <h2 className="text-base sm:text-lg font-bold text-slate-800">
                     New Confession
@@ -172,21 +175,6 @@ export function CreatePostModal({
                 </div>
 
                 <div className="p-3 sm:p-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 flex-shrink-0">
-                  <div className="flex bg-white rounded-lg p-1 border border-slate-200 shadow-sm self-start">
-                    <button
-                    onClick={() => setVisibility('public')}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${visibility === 'public' ? 'bg-slate-100 text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
-                    
-                      <Globe size={14} /> Public
-                    </button>
-                    <button
-                    onClick={() => setVisibility('anonymous_room')}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${visibility === 'anonymous_room' ? 'bg-slate-100 text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
-                    
-                      <Lock size={14} /> Room Only
-                    </button>
-                  </div>
-
                   <button
                   onClick={handleSubmit}
                   disabled={!content.trim() || selectedTags.length === 0}
@@ -200,6 +188,7 @@ export function CreatePostModal({
           </div>
         </>
       }
-    </AnimatePresence>);
-
+    </AnimatePresence>,
+    document.body
+  ) : null;
 }

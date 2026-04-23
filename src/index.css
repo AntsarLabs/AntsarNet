@@ -82,3 +82,10 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .dot-grid {
+    background-size: 24px 24px;
+    background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
+  }
+}

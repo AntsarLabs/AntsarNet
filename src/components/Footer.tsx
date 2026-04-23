@@ -5,7 +5,7 @@ export function Footer() {
     <footer className="relative z-10 bg-white/80 backdrop-blur-md border-t border-slate-200/60 py-8 w-full">
       <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6 text-sm">
         <div className="flex items-center gap-3">
-          <span className="font-bold text-slate-800 text-lg">AddisFriend</span>
+          <span className="font-bold text-slate-800 text-lg">AddisNet</span>
           <span className="text-slate-300">|</span>
           <span className="text-slate-400">v1.0</span>
         </div>

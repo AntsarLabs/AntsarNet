@@ -14,6 +14,7 @@ import {
 import { Contact, Post } from '../types/chat';
 import { PostCard } from '../components/PostCard';
 import { ReactionType } from '../components/ReactionBar';
+import { getFullUsername } from '../utils/user';
 interface UserProfilePageProps {
   user: Contact;
   posts: Post[];
@@ -38,13 +39,7 @@ export function UserProfilePage({
   }, [userPosts]);
   return (
     <div
-      className="min-h-screen w-full flex flex-col bg-[#FAF8F5] relative">
-
-      {/* Soft gradient background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-0 w-[50%] h-[40%] bg-gradient-to-br from-pink-50/50 to-transparent rounded-full blur-3xl" />
-        <div className="absolute bottom-1/3 right-0 w-[30%] h-[25%] bg-gradient-to-tl from-rose-50/30 to-transparent rounded-full blur-3xl" />
-      </div>
+      className="min-h-screen w-full flex flex-col bg-transparent relative">
 
       {/* Header */}
       <div className="h-14 flex items-center px-4 sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
@@ -77,19 +72,20 @@ export function UserProfilePage({
               <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-white border-4 border-white flex items-center justify-center text-5xl md:text-6xl shadow-md">
                 {user.emoji}
               </div>
-              {user.isOnline &&
-                <span className="absolute bottom-1 right-1 w-5 h-5 rounded-full bg-green-500 border-4 border-white shadow-sm" />
-              }
             </div>
 
-            <h2 className="text-2xl md:text-3xl font-mono font-bold text-slate-900 mb-2">
-              {user.friendId}
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
+              {getFullUsername(user.emoji, user.friendId)}
             </h2>
 
             <div className="flex items-center gap-2 mb-6">
               <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/80 border border-slate-200 shadow-sm">
                 <MapPin size={14} className="text-slate-500" />
-                <span className="text-xs font-medium text-slate-600">
+                <span className="text-xs font-semibold text-pink-500 uppercase tracking-wider">
+                  {user.isOnline ? 'online' : 'last seen 1h ago'}
+                </span>
+                <span className="text-slate-300">|</span>
+                <span className="text-xs font-medium text-slate-500">
                   {user.distance} away
                 </span>
               </div>

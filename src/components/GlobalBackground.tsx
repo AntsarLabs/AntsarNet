@@ -20,6 +20,9 @@ export const GlobalBackground: React.FC<GlobalBackgroundProps> = ({ showFloating
       {/* Base Warm Light Color */}
       <div className="absolute inset-0 bg-[#FAF8F5]" />
 
+      {/* Dot Grid Pattern */}
+      <div className="absolute inset-0 dot-grid opacity-60" />
+
       {/* Soft Gradient Mesh */}
       <div className="absolute inset-0">
         <div className="absolute top-0 left-0 w-[60%] h-[50%] bg-gradient-to-br from-pink-100/40 via-transparent to-transparent rounded-full blur-3xl" />

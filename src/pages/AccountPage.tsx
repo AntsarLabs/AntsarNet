@@ -84,7 +84,7 @@ export function AccountPage({
   const [activeTab, setActiveTab] = useState<Tab | null>(null);
   const [emoji, setEmoji] = useState(currentUser.emoji);
   const [codeName, setCodeName] = useState(currentUser.friendId);
-  const [bio, setBio] = useState(currentUser.bio || 'Just joined AddisFriend!');
+  const [bio, setBio] = useState(currentUser.bio || 'Just joined AddisNet!');
   const [location, setLocation] = useState(currentUser.location || 'Downtown');
   const [gender, setGender] = useState<'male' | 'female' | 'unspecified'>(
     'unspecified'
@@ -840,13 +840,7 @@ export function AccountPage({
 
   return (
     <div
-      className="min-h-screen w-full flex flex-col bg-[#FAF8F5] relative">
-
-      {/* Soft gradient background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-[40%] h-[30%] bg-gradient-to-bl from-pink-50/60 to-transparent rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-[30%] h-[20%] bg-gradient-to-tr from-rose-50/40 to-transparent rounded-full blur-3xl" />
-      </div>
+      className="min-h-screen w-full flex flex-col bg-transparent relative">
 
       {/* Header */}
       <div className="h-14 flex items-center px-4 sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">

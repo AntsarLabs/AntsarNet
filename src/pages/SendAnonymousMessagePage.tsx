@@ -59,12 +59,8 @@ export function SendAnonymousMessagePage() {
   );
 
   return (
-    <div className="min-h-screen w-full relative bg-[#FAF8F5] font-sans overflow-x-hidden flex flex-col">
-      {/* BACKGROUND */}
-      <div className="absolute inset-0 pointer-events-none z-0">
-        <div className="absolute top-0 left-0 w-[60%] h-[50%] bg-gradient-to-br from-pink-100/40 via-transparent to-transparent rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-[50%] h-[40%] bg-gradient-to-tl from-rose-50/50 via-transparent to-transparent rounded-full blur-3xl" />
-      </div>
+    <div className="min-h-screen w-full relative bg-transparent font-sans overflow-x-hidden flex flex-col">
+      {/* BACKGROUND REMOVED - using GlobalBackground instead */}
 
       {/* MOBILE UI */}
       <div className="md:hidden relative z-20 flex flex-col min-h-screen">

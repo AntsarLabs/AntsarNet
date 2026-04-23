@@ -142,7 +142,7 @@ export function ChatsListPage({
     </>;
 
   return (
-    <div className="flex-1 w-full relative pb-20 md:pb-0 h-full">
+    <div className="flex-1 w-full relative pb-20 md:pb-0 h-full bg-transparent">
 
       <div className="md:hidden relative z-10 w-full max-w-3xl mx-auto flex flex-col h-full">
         <div className="px-4 pt-8 pb-4 sticky top-0 z-20">
@@ -213,7 +213,7 @@ export function ChatsListPage({
         </div>
 
         {/* Right Panel: Content Area */}
-        <div className="flex-1 flex flex-col h-[calc(100vh-57px)] min-w-0 bg-slate-50/50">
+        <div className="flex-1 flex flex-col h-[calc(100vh-57px)] min-w-0 bg-transparent">
           <AnimatePresence mode="wait">
             {selectedContact && onSendMessage ? (
               <motion.div

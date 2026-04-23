@@ -121,27 +121,6 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
         ))}
 
         <div className="relative z-10 max-w-4xl mx-auto text-center flex flex-col items-center">
-          <motion.div
-            initial={{
-              opacity: 0,
-              scale: 0.9,
-            }}
-            animate={{
-              opacity: 1,
-              scale: 1,
-            }}
-            transition={{
-              duration: 0.8,
-              type: 'spring',
-            }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/40 border border-white/10 backdrop-blur-md mb-8"
-          >
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-sm font-medium text-slate-100">
-              Now live in your city
-            </span>
-          </motion.div>
-
           <motion.h1
             initial={{
               opacity: 0,
@@ -155,8 +134,9 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
               duration: 0.6,
               delay: 0.1,
             }}
-            className="text-5xl sm:text-7xl md:text-8xl font-bold tracking-tight mb-6 flex flex-wrap justify-center items-baseline gap-2 md:gap-4"
+            className="text-5xl sm:text-7xl md:text-8xl font-bold tracking-tight mb-6 flex flex-wrap justify-center items-baseline"
           >
+            <span className="text-white">Addis</span>
             <span
               className="text-pink-500 relative"
               style={{
@@ -164,9 +144,8 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
                   '0 0 40px rgba(236,72,153,0.5), 0 0 80px rgba(236,72,153,0.2)',
               }}
             >
-              Addis
+              Net
             </span>
-            <span className="text-white">Friend</span>
           </motion.h1>
 
           <motion.p
@@ -281,7 +260,7 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
               Designed for <span className="text-primary">Privacy</span>
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              We built AddisFriend from the ground up to protect your identity
+              We built AddisNet from the ground up to protect your identity
               while helping you make meaningful local connections.
             </p>
           </motion.div>
