@@ -12,8 +12,8 @@ import {
   Info
 } from
   'lucide-react';
-import { Contact, Message } from '../types/chat';
-import { MessageBubble } from '../components/MessageBubble';
+import { Contact, Message } from '@/types/chat';
+import { MessageBubble } from '@/components/MessageBubble';
 interface ChatPageProps {
   contact: Contact;
   messages: Message[];

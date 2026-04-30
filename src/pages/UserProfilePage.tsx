@@ -11,10 +11,10 @@ import {
   MessageSquare
 } from
   'lucide-react';
-import { Contact, Post } from '../types/chat';
-import { PostCard } from '../components/PostCard';
-import { ReactionType } from '../components/ReactionBar';
-import { getFullUsername } from '../utils/user';
+import { Contact, Post } from '@/types/chat';
+import { PostCard } from '@/components/PostCard';
+import { ReactionType } from '@/components/ReactionBar';
+import { getFullUsername } from '@/utils/user';
 interface UserProfilePageProps {
   user: Contact;
   posts: Post[];

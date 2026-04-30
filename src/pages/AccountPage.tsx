@@ -30,7 +30,7 @@ import {
   Send
 } from
   'lucide-react';
-import { Contact, ChatSession, Post } from '../types/chat';
+import { Contact, ChatSession, Post } from '@/types/chat';
 interface AccountPageProps {
   currentUser: {
     emoji: string;

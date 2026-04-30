@@ -1,22 +1,20 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, useParams, Navigate } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
-import { OnlineUsers } from './components/OnlineUsers';
-import { TopHeader } from './components/TopHeader';
-import { BottomNav } from './components/BottomNav';
-import { Footer } from './components/Footer';
-import { AccountPage } from './pages/AccountPage';
-import { LandingPage } from './pages/LandingPage';
-import { UserProfilePage } from './pages/UserProfilePage';
-import { ConfessionsPage } from './pages/ConfessionsPage';
-import { ReactionType } from './components/ReactionBar';
-import { ChatPage } from './pages/ChatPage';
-import { ChatsListPage } from './pages/ChatsListPage';
-import { InboxSection } from './components/InboxSection';
-import { SendAnonymousMessagePage } from './pages/SendAnonymousMessagePage';
-import { AuthPage } from './pages/AuthPage';
-import { GlobalBackground } from './components/GlobalBackground';
+import { OnlineUsers } from '@/components/OnlineUsers';
+import { TopHeader } from '@/components/TopHeader';
+import { BottomNav } from '@/components/BottomNav';
+import { Footer } from '@/components/Footer';
+import { AccountPage } from '@/pages/AccountPage';
+import { LandingPage } from '@/pages/LandingPage';
+import { UserProfilePage } from '@/pages/UserProfilePage';
+import { ConfessionsPage } from '@/pages/ConfessionsPage';
+import { ChatPage } from '@/pages/ChatPage';
+import { ChatsListPage } from '@/pages/ChatsListPage';
+import { InboxSection } from '@/components/InboxSection';
+import { SendAnonymousMessagePage } from '@/pages/SendAnonymousMessagePage';
+import { AuthPage } from '@/features/auth/page';
+import { GlobalBackground } from '@/components/GlobalBackground';
 import {
   Contact,
   Message,
@@ -25,7 +23,7 @@ import {
   Comment,
   InboxMessage
 } from
-  './types/chat';
+  '@/types/chat';
 const MOCK_USERS: Contact[] = [
   {
     id: '1',

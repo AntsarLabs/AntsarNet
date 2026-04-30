@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Flame, Sparkles } from 'lucide-react';
-import { Post, Comment } from '../types/chat';
-import { PostCard } from '../components/PostCard';
-import { CreatePostModal } from '../components/CreatePostModal';
-import { ReactionType } from '../components/ReactionBar';
+import { Post, Comment } from '@/types/chat';
+import { PostCard } from '@/components/PostCard';
+import { CreatePostModal } from '@/components/CreatePostModal';
+import { ReactionType } from '@/components/ReactionBar';
 
 interface ConfessionsPageProps {
   currentUser: {
