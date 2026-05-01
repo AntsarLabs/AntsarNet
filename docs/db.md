@@ -7,7 +7,7 @@ List of tables and their relationships based on the AddisNet application structu
 ## Users
 The core entity representing an account on AddisNet.
 *   `id`: Primary key (UUID/String)
-*   `public_id`: 
+*   `public_key`: 
 *   `username`: <avater_name>_<random_number>
 *   `emoji`: Current avatar emoji.
 *   `is_online`: Boolean status.
