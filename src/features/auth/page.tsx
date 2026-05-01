@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AuthHeader, AuthHero, LoginForm, RegisterForm } from '@/features/auth/components';
+import { AuthPageProps } from './types';
 
-export const AuthPage = ({ onAuthSuccess }: { onAuthSuccess: () => void }) => {
+export const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
   const [isLogin, setIsLogin] = useState(true);
 
   return (

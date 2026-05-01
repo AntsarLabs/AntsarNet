@@ -40,7 +40,7 @@ app.post("/auth", async (req: Request, res: Response) => {
   // Handle CORS for Express
   res.set(corsHeaders);
 
-  const { hash, message, exp_time, signature, key,nonce } = req.body;
+  const { hash, message, exp_time, signature, key, nonce } = req.body;
 
   // 1. Validation
   if (!hash || !message || !exp_time || !signature || !key || !nonce) {
@@ -53,7 +53,7 @@ app.post("/auth", async (req: Request, res: Response) => {
 
   try {
     // 2. Verify Payload
-    authService.validatePayload(hash, message, exp_time, signature, key,nonce);
+    authService.validatePayload(hash, message, exp_time, signature, key, nonce);
 
     // 4. Get or Create Public User Profile
     const user = await authService.getOrCreateUserProfile(key);

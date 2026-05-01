@@ -1,10 +1,7 @@
 import { motion } from 'framer-motion';
 import { Download, AlertTriangle } from 'lucide-react';
 import { E2EE } from '@/utils/e2ee';
-
-interface RegisterFormProps {
-  onSwitchToLogin: () => void;
-}
+import { RegisterFormProps } from '../types';
 
 
 
