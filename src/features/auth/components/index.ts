@@ -1,3 +1,4 @@
 export * from './AuthHeader';
 export * from './AuthHero';
-export * from './AuthActions';
+export * from './LoginForm';
+export * from './RegisterForm';

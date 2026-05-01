@@ -1,7 +1,10 @@
-import { motion } from 'framer-motion';
-import { AuthHeader, AuthHero, AuthActions } from '@/features/auth/components';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { AuthHeader, AuthHero, LoginForm, RegisterForm } from '@/features/auth/components';
 
 export const AuthPage = ({ onAuthSuccess }: { onAuthSuccess: () => void }) => {
+  const [isLogin, setIsLogin] = useState(true);
+
   return (
     <div className="min-h-screen w-full relative flex flex-col font-sans overflow-x-hidden selection:text-pink-600 selection:bg-pink-100 bg-transparent dot-grid">
       <AuthHeader />
@@ -21,7 +24,21 @@ export const AuthPage = ({ onAuthSuccess }: { onAuthSuccess: () => void }) => {
 
             <div className="relative bg-white/90 md:bg-white/80 backdrop-blur-2xl border border-slate-200/60 rounded-3xl md:rounded-[2.5rem] shadow-xl overflow-hidden flex flex-col md:flex-row gap-8 md:gap-16 p-6 md:p-12 lg:p-16 w-full">
               <AuthHero />
-              <AuthActions onAuthSuccess={onAuthSuccess} />
+
+              <div className="flex-[1.2] flex flex-col relative z-10 w-full max-w-md mx-auto md:max-w-none min-h-[300px] justify-center">
+                <AnimatePresence mode="wait">
+                  {isLogin ? (
+                    <LoginForm
+                      onAuthSuccess={onAuthSuccess}
+                      onSwitchToRegister={() => setIsLogin(false)}
+                    />
+                  ) : (
+                    <RegisterForm
+                      onSwitchToLogin={() => setIsLogin(true)}
+                    />
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </motion.div>
         </div>
