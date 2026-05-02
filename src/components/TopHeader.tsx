@@ -1,29 +1,20 @@
 import React, { useState } from 'react';
-import { LogOut, Send, Flame, ChevronDown, MessageSquare, Inbox } from 'lucide-react';
+import { LogOut, Send, ChevronDown, MessageSquare, Inbox } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-interface TopHeaderProps {
-  isLoggedIn: boolean;
-  currentUser: {
-    emoji: string;
-    friendId: string;
-  } | null;
-  onLogin: () => void;
-  onLogout: () => void;
-  onAccountClick?: () => void;
-}
-
-export function TopHeader({
-  isLoggedIn,
-  currentUser,
-  onLogin,
-  onLogout,
-  onAccountClick
-}: TopHeaderProps) {
+export function TopHeader() {
   const [isMessagesOpen, setIsMessagesOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
   const path = location.pathname;
+
+  // Mock user
+  const currentUser = {
+    emoji: '😎',
+    friendId: 'MyCodeName123'
+  };
 
   const getActiveTab = () => {
     if (path === '/discover') return 'main';
@@ -35,7 +26,11 @@ export function TopHeader({
 
   const activeView = getActiveTab();
   const isMessagesActive = path.startsWith('/messages');
-  const showTabs = ['/discover', '/confessions', '/messages/chats', '/messages/inbox'].includes(path);
+  const showTabs = ['/discover', '/confessions', '/messages/chats', '/messages/inbox', '/account'].includes(path);
+
+  const handleLogin = () => setIsLoggedIn(true);
+  const handleLogout = () => setIsLoggedIn(false);
+  const handleAccountClick = () => navigate('/account');
 
   return (
     <div className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
@@ -139,11 +134,11 @@ export function TopHeader({
 
         {/* RIGHT AREA: ACTION BUTTONS */}
         <div className="flex items-center justify-end w-32 md:w-auto gap-2">
-          {isLoggedIn && currentUser ? (
+          {isLoggedIn ? (
             <div className="flex items-center gap-2 md:gap-4">
               {/* Desktop Profile Pill */}
               <button
-                onClick={onAccountClick}
+                onClick={handleAccountClick}
                 className="hidden md:flex items-center gap-2 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-full border border-slate-200 transition-colors"
               >
                 <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center text-[10px] shadow-sm border border-slate-100">
@@ -153,10 +148,17 @@ export function TopHeader({
                   {currentUser.friendId}
                 </span>
               </button>
+              <button
+                onClick={handleLogout}
+                className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                title="Logout"
+              >
+                <LogOut size={18} />
+              </button>
             </div>
           ) : (
             <button
-              onClick={onLogin}
+              onClick={handleLogin}
               className="flex items-center gap-2 bg-[#0088cc] hover:bg-[#0077b3] text-white px-4 py-1.5 rounded-full text-xs font-bold transition-all shadow-lg active:scale-95"
             >
               <Send size={14} className="-ml-0.5" />

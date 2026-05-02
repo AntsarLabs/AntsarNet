@@ -2,10 +2,8 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, useParams, Navigate } from 'react-router-dom';
 import { Sparkles } from 'lucide-react';
 import { OnlineUsers } from '@/components/OnlineUsers';
-import { TopHeader } from '@/components/TopHeader';
-import { BottomNav } from '@/components/BottomNav';
-import { Footer } from '@/components/Footer';
-import { AccountPage } from '@/pages/AccountPage';
+import { MainLayout } from '@/components/MainLayout';
+import { AccountPage } from '@/features/account/page';
 import { LandingPage } from '@/pages/LandingPage';
 import { UserProfilePage } from '@/pages/UserProfilePage';
 import { ConfessionsPage } from '@/pages/ConfessionsPage';
@@ -14,7 +12,6 @@ import { ChatsListPage } from '@/pages/ChatsListPage';
 import { InboxSection } from '@/components/InboxSection';
 import { SendAnonymousMessagePage } from '@/pages/SendAnonymousMessagePage';
 import { AuthPage } from '@/features/auth/page';
-import { GlobalBackground } from '@/components/GlobalBackground';
 import {
   Contact,
   Message,
@@ -445,33 +442,6 @@ function AppContent() {
     setInboxMessages((prev) => prev.map((msg) => msg.id === id ? { ...msg, isRead: true } : msg));
   };
 
-  const MainLayout = ({ children, showBackground = true }: { children: React.ReactNode, showBackground?: boolean }) => {
-    return (
-      <div className="min-h-screen w-full flex flex-col text-foreground font-sans selection:bg-pink-500/30 overflow-x-hidden relative">
-        {showBackground && <GlobalBackground />}
-
-        <div className="relative z-10 flex flex-col min-h-screen">
-          <TopHeader
-            isLoggedIn={isLoggedIn}
-            currentUser={currentUser}
-            onLogin={handleLogin}
-            onLogout={handleLogout}
-            onAccountClick={() => navigate('/account')}
-          />
-
-          <main className="flex-1 w-full flex flex-col relative">
-            {children}
-
-
-          </main>
-
-          {<BottomNav onAccountClick={() => navigate('/account')} />}
-          {<Footer />}
-        </div>
-      </div>
-    );
-  };
-
   const ChatPageRoute = () => {
     const { id } = useParams();
     if (!id) return <Navigate to="/discover" />;
@@ -583,21 +553,17 @@ function AppContent() {
             </div>
           </MainLayout>
         } />
-        <Route path="/account" element={
-          <AccountPage
-            currentUser={currentUser}
-            contacts={MOCK_USERS}
-            sessions={sessions}
-            posts={posts}
-            onBack={() => navigate('/discover')}
-            onOpenChat={handleSelect}
-            onEditPost={handleEditPost}
-            onDeletePost={handleDeletePost}
-            onLogout={handleLogout}
-          />
+        <Route path="/account" element={<AccountPage/>} />
+        <Route path="/profile/:id" element={
+          <MainLayout showHeader={false} showBottomNav={false}>
+            <ProfilePageRoute />
+          </MainLayout>
         } />
-        <Route path="/profile/:id" element={<ProfilePageRoute />} />
-        <Route path="/chat/:id" element={<ChatPageRoute />} />
+        <Route path="/chat/:id" element={
+          <MainLayout showHeader={false} showBottomNav={false}>
+            <ChatPageRoute />
+          </MainLayout>
+        } />
       </Routes>
     </>
   );

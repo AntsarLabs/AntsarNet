@@ -12,6 +12,7 @@
   "dependencies": {
     "@emotion/react": "^11.13.3",
     "@supabase/supabase-js": "^2.105.1",
+    "emoji-picker-react": "^4.19.1",
     "ethereum-cryptography": "^3.2.0",
     "framer-motion": "^11.5.4",
     "lucide-react": "0.522.0",

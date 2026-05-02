@@ -1,17 +1,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Compass, Flame, User, MessageCircle, MessageSquare, Inbox as InboxIcon, ChevronUp } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-interface BottomNavProps {
-  onAccountClick: () => void;
-}
-
-export function BottomNav({
-  onAccountClick
-}: BottomNavProps) {
+export function BottomNav() {
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const path = location.pathname;
 
   const isMessagesActive = path.startsWith('/messages');
@@ -123,7 +118,7 @@ export function BottomNav({
               key={tab.id}
               onClick={() => {
                 if (tab.id === 'account') {
-                  onAccountClick();
+                  navigate('/account');
                 } else if (tab.id === 'messages') {
                   setIsSubMenuOpen(!isSubMenuOpen);
                 }
