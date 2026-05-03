@@ -49,7 +49,6 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: async () => {
-        await supabase.auth.signOut();
         set({
           user: null,
           session: null,
@@ -57,6 +56,7 @@ export const useAuthStore = create<AuthState>()(
           privateKey: null,
           isAuthenticated: false,
         });
+        await supabase.auth.signOut();
       },
 
       clearError: () => set({ error: null }),
@@ -94,7 +94,15 @@ export const useAuthStore = create<AuthState>()(
         // Listen for auth state changes to keep the store in sync
         supabase.auth.onAuthStateChange((event, session) => {
           if (event === 'SIGNED_OUT' || (event === 'USER_UPDATED' && !session)) {
-            useAuthStore.getState().logout();
+            if (useAuthStore.getState().isAuthenticated) {
+              useAuthStore.setState({
+                user: null,
+                session: null,
+                publicKey: null,
+                privateKey: null,
+                isAuthenticated: false,
+              });
+            }
           } else if (session) {
             useAuthStore.setState({
               session: {
