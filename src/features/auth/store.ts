@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { E2EE } from "@/utils/e2ee";
 import { supabase } from "@/lib/supabase";
-import { AuthState } from "./types";
+import { AuthState, AuthUser } from "./types";
 import { authApi } from "./api";
 
 export const useAuthStore = create<AuthState>()(
@@ -60,6 +60,12 @@ export const useAuthStore = create<AuthState>()(
       },
 
       clearError: () => set({ error: null }),
+
+      updateUser: (updates: Partial<AuthUser>) => {
+        set((state) => ({
+          user: state.user ? { ...state.user, ...updates } : null,
+        }));
+      },
     }),
     {
       name: "addisnet-auth-storage",
@@ -75,8 +81,33 @@ export const useAuthStore = create<AuthState>()(
           supabase.auth.setSession({
             access_token: state.session.access_token,
             refresh_token: state.session.refresh_token,
+          }).then(({ error }) => {
+            if (error) {
+              console.error("Rehydration session error:", error);
+              if (error.message.includes("Already Used") || error.message.includes("not found")) {
+                useAuthStore.getState().logout();
+              }
+            }
           });
         }
+
+        // Listen for auth state changes to keep the store in sync
+        supabase.auth.onAuthStateChange((event, session) => {
+          if (event === 'SIGNED_OUT' || (event === 'USER_UPDATED' && !session)) {
+            useAuthStore.getState().logout();
+          } else if (session) {
+            useAuthStore.setState({
+              session: {
+                access_token: session.access_token,
+                refresh_token: session.refresh_token,
+                expires_at: session.expires_at || 0,
+                token_type: session.token_type,
+              },
+              isAuthenticated: true,
+            });
+            console.log("Auth state change event:", event);
+          }
+        });
       },
     }
   )

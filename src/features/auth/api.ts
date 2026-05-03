@@ -8,7 +8,14 @@ export const authApi = {
       method: 'GET',
     });
 
-    if (error) throw new Error(error.message || "Failed to get auth message");
+    if (error) {
+      let message = error.message;
+      try {
+        const errorData = await error.context.json();
+        message = errorData.details || errorData.error || errorData.message || message;
+      } catch (e) {}
+      throw new Error(message);
+    }
     return data;
   },
 
@@ -33,7 +40,12 @@ export const authApi = {
     });
 
     if (error) {
-      throw new Error(error.message || "Authentication failed");
+      let message = error.message;
+      try {
+        const errorData = await error.context.json();
+        message = errorData.details || errorData.error || errorData.message || message;
+      } catch (e) {}
+      throw new Error(message);
     }
 
     return data;

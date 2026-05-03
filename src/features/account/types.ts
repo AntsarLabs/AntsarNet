@@ -10,10 +10,13 @@ export interface TabItem {
 }
 
 export interface AccountUser {
+  id: string;
+  username: string;
   emoji: string;
-  friendId: string;
+  public_key: string;
   bio?: string;
-  location?: string;
+  created_at?: string;
+  city_code?: string;
 }
 
 export interface AccountPageProps {

@@ -1,14 +1,25 @@
 import React from 'react';
-import { ChevronRight, LogOut } from 'lucide-react';
+import { ChevronRight, LogOut, Download } from 'lucide-react';
 import { AccountSidebarProps } from '../types';
 import { useAuthStore } from '@/features/auth/store';
+import { E2EE } from '@/utils/e2ee';
 
 export const AccountSidebar: React.FC<AccountSidebarProps> = ({
   tabs,
   activeTab,
   onTabChange
 }) => {
-  const { user } = useAuthStore();
+  const { user, publicKey, privateKey, logout } = useAuthStore();
+
+  const handleDownloadPasscard = () => {
+    if (!publicKey || !privateKey) return;
+
+    // Reconstruct the passcard: randomKey|publicKey|privateKey then btoa
+    // Using 're-download' as the randomKey prefix
+    const reconstructedPasscard = btoa(`re-download|${publicKey}|${privateKey}`);
+    E2EE.downloadPassCard(reconstructedPasscard);
+  };
+
   return (
     <div className="bg-white/85 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm overflow-hidden divide-y divide-slate-100 md:sticky md:top-24">
       {/* Mobile Header - Hidden on Desktop */}
@@ -52,8 +63,24 @@ export const AccountSidebar: React.FC<AccountSidebarProps> = ({
         );
       })}
 
+      {/* Download Passcard Button */}
+      <button
+        onClick={handleDownloadPasscard}
+        className="w-full flex items-center gap-3 px-4 py-3.5 transition-colors text-left group hover:bg-pink-50/80"
+      >
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-pink-100 text-[#D82B7D] transition-colors group-hover:bg-[#D82B7D] group-hover:text-white">
+          <Download size={18} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-semibold text-[#D82B7D] group-hover:text-pink-700">PassCard</h3>
+          <p className="md:hidden text-xs text-pink-400 mt-0.5">Download your login footprint</p>
+        </div>
+        <ChevronRight size={18} className="md:hidden text-pink-400/50 flex-shrink-0" />
+      </button>
+
       {/* Logout Button */}
       <button
+        onClick={logout}
         className="w-full flex items-center gap-3 px-4 py-3.5 transition-colors text-left group hover:bg-red-50/80"
       >
         <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-red-100 text-red-600 transition-colors group-hover:bg-red-500 group-hover:text-white">

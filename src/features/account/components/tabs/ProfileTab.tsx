@@ -2,10 +2,14 @@ import React, { useState } from 'react';
 import { Save, MapPin } from 'lucide-react';
 import EmojiPicker, { EmojiClickData, Theme, Categories } from 'emoji-picker-react';
 import { useAuthStore } from '@/features/auth/store';
+import { accountApi } from '../../api';
 
 
 export const ProfileTab: React.FC = () => {
-  const { user } = useAuthStore();
+  const { user, updateUser } = useAuthStore();
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   // default values of the username parts
   const username = user?.username || '';
@@ -24,15 +28,39 @@ export const ProfileTab: React.FC = () => {
     setEmoji(emojiData.emoji);
 
     // Get the first name and clean it up (lowercase, replace spaces/dashes with nothing or underscores)
-    const name = emojiData.names && emojiData.names.length > 0
-      ? [...emojiData.names].sort((a, b) => b.length - a.length)[0].toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')
-      : 'user';
+    const name = emojiData.names?.at(0)?.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') || '';
 
     setEmojiName(name);
     setShowEmojiPicker(false);
   };
 
   const fullUsername = `${emojiName}_${suffix}`;
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    setError(null);
+    setSuccess(false);
+    if (suffix.length !== 5) {
+      setError("Username suffix must be a letter followed by 4 digits (e.g., A0001)");
+      setIsSaving(false);
+      return;
+    }
+
+    try {
+      const updatedUser = await accountApi.updateProfile({
+        emoji,
+        username: fullUsername,
+        bio,
+      });
+      updateUser(updatedUser);
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err: any) {
+      setError(err.message || "Failed to update profile");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -43,6 +71,7 @@ export const ProfileTab: React.FC = () => {
             <button
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
               className="w-20 h-20 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-3xl hover:border-pink-400 transition-colors shadow-sm"
+              disabled={isSaving}
             >
               {emoji}
             </button>
@@ -60,6 +89,7 @@ export const ProfileTab: React.FC = () => {
                   <EmojiPicker
                     onEmojiClick={onEmojiClick}
                     autoFocusSearch={false}
+                    searchDisabled={true}
                     theme={Theme.LIGHT}
                     lazyLoadEmojis={true}
                     skinTonesDisabled={true}
@@ -90,6 +120,18 @@ export const ProfileTab: React.FC = () => {
         </div>
       </div>
 
+      {/* Error/Success Messages */}
+      {error && (
+        <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-2 rounded-lg text-sm">
+          {error}
+        </div>
+      )}
+      {success && (
+        <div className="bg-green-50 border border-green-100 text-green-600 px-4 py-2 rounded-lg text-sm">
+          Profile updated successfully!
+        </div>
+      )}
+
       {/* Form Card */}
       <div className="relative z-10 bg-white/85 backdrop-blur-md rounded-xl md:rounded-2xl border border-white/60 shadow-sm p-5 md:p-6 space-y-5">
         <div className="space-y-1.5">
@@ -109,6 +151,7 @@ export const ProfileTab: React.FC = () => {
               }}
               className="flex-1 bg-transparent px-4 py-2.5 text-slate-900 font-mono focus:outline-none"
               placeholder="A0001"
+              disabled={isSaving}
             />
           </div>
           <div className="px-1 flex justify-between items-center">
@@ -131,14 +174,23 @@ export const ProfileTab: React.FC = () => {
             onChange={(e) => setBio(e.target.value.slice(0, 120))}
             rows={3}
             className="w-full bg-white border border-slate-200 rounded-lg px-4 py-2.5 text-slate-900 focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-all resize-none shadow-sm"
+            disabled={isSaving}
           />
         </div>
       </div>
 
       <div className="flex justify-end">
-        <button className="flex items-center gap-2 bg-[#D82B7D] hover:bg-[#C0266F] active:bg-[#A82161] text-white px-6 py-2.5 rounded-xl font-semibold transition-colors shadow-sm">
-          <Save size={18} />
-          Save Changes
+        <button
+          onClick={handleSave}
+          disabled={isSaving}
+          className="flex items-center gap-2 bg-[#D82B7D] hover:bg-[#C0266F] active:bg-[#A82161] disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-xl font-semibold transition-colors shadow-sm"
+        >
+          {isSaving ? (
+            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          ) : (
+            <Save size={18} />
+          )}
+          {isSaving ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
     </div>

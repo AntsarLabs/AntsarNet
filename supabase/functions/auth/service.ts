@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { createClient, SupabaseClient } from "npm:@supabase/supabase-js";
 import { E2EE } from "./e2ee.ts";
-import { animalEmojis } from "./emojis.ts";
+import { emojis } from "./emojis.ts";
 
 export class AuthService {
     constructor(
@@ -46,9 +46,9 @@ export class AuthService {
 
     async getRandomUsername(tries: number = 0): Promise<{ username: string, emoji: string }> {
         const maxTries = 10;
-        const emojisList = Object.keys(animalEmojis);
+        const emojisList = Object.keys(emojis);
         const randomEmoji = emojisList[Math.floor(Math.random() * emojisList.length)];
-        const animalName = animalEmojis[randomEmoji];
+        const animalName = emojis[randomEmoji];
 
         const allowedLetters = "ABCDEFGHJKLMNPQRSTUVWXYZ"; // Excludes 'O' as it looks like '0'
         const randomLetter = allowedLetters[Math.floor(Math.random() * allowedLetters.length)];
@@ -159,13 +159,13 @@ export class AuthService {
             throw new Error("Bio must be 120 characters or less");
         }
 
-        if (updates.emoji !== undefined && !animalEmojis[updates.emoji]) {
+        if (updates.emoji !== undefined && !emojis[updates.emoji]) {
             throw new Error("Invalid emoji selection");
         }
 
         if (updates.username !== undefined) {
             // Basic format check
-            if (!/^[a-z]+_[A-Z][0-9]{4}$/.test(updates.username)) {
+            if (!/^[a-z0-9_]+_[A-Z][0-9]{4}$/.test(updates.username)) {
                 throw new Error("Username must follow the format: animal_A0001");
             }
 

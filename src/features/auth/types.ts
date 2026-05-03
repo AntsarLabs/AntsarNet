@@ -10,7 +10,7 @@ export interface AuthUser {
   username: string;
   emoji: string;
   public_key: string;
-  bio: string;
+  bio?: string;
   created_at: string;
 }
 
@@ -37,6 +37,7 @@ export interface AuthState {
   login: (passCard: string) => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
+  updateUser: (updates: Partial<AuthUser>) => void;
 }
 
 
