@@ -2,11 +2,13 @@ import { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Upload, Loader2 } from 'lucide-react';
 import { useAuthStore } from '@/features/auth/store';
-import { LoginFormProps } from '../types';
+import { AuthFormProps } from '../types';
+import { useNavigate } from 'react-router-dom';
 
-export const LoginForm = ({ onAuthSuccess, onSwitchToRegister }: LoginFormProps) => {
+export const LoginForm = ({ switchToAuthType }: AuthFormProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { login, isLoading, error, clearError } = useAuthStore();
+  const navigate = useNavigate();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -18,7 +20,7 @@ export const LoginForm = ({ onAuthSuccess, onSwitchToRegister }: LoginFormProps)
       if (content) {
         try {
           await login(content.trim());
-          onAuthSuccess();
+          navigate('/discover');
         } catch (err) {
           console.error("Login failed:", err);
         }
@@ -82,7 +84,7 @@ export const LoginForm = ({ onAuthSuccess, onSwitchToRegister }: LoginFormProps)
 
       <div className="text-center mt-4">
         <button
-          onClick={onSwitchToRegister}
+          onClick={() => switchToAuthType('register')}
           disabled={isLoading}
           className="text-slate-500 hover:text-slate-700 transition-colors text-sm font-medium disabled:opacity-50"
         >

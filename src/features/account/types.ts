@@ -25,5 +25,4 @@ export interface AccountSidebarProps {
   tabs: TabItem[];
   activeTab: AccountTab | null;
   onTabChange: (tab: AccountTab) => void;
-  currentUser: AccountUser;
 }

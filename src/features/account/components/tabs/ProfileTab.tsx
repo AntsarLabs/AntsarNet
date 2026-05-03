@@ -1,22 +1,23 @@
 import React, { useState } from 'react';
 import { Save, MapPin } from 'lucide-react';
 import EmojiPicker, { EmojiClickData, Theme, Categories } from 'emoji-picker-react';
+import { useAuthStore } from '@/features/auth/store';
 
-// Mock data inside component as requested
-const MOCK_USER = {
-  emoji: '🦊',
-  emojiName: 'fox',
-  suffix: 'A0001',
-  bio: 'Just joined AddisNet!',
-  location: 'Downtown'
-};
 
 export const ProfileTab: React.FC = () => {
-  const [emoji, setEmoji] = useState(MOCK_USER.emoji);
-  const [emojiName, setEmojiName] = useState(MOCK_USER.emojiName);
-  const [suffix, setSuffix] = useState(MOCK_USER.suffix);
-  const [bio, setBio] = useState(MOCK_USER.bio);
-  const [location, setLocation] = useState(MOCK_USER.location);
+  const { user } = useAuthStore();
+
+  // default values of the username parts
+  const username = user?.username || '';
+  const lastUnderScoreIndex = username.lastIndexOf('_'); // used split the emoji name by last underscore  in username
+
+  const defaultEmojiName = username.slice(0, lastUnderScoreIndex);
+  const defaultSuffix = username.slice(lastUnderScoreIndex + 1);
+
+  const [emoji, setEmoji] = useState(user?.emoji || '');
+  const [emojiName, setEmojiName] = useState(defaultEmojiName);
+  const [suffix, setSuffix] = useState(defaultSuffix);
+  const [bio, setBio] = useState(user?.bio || '');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const onEmojiClick = (emojiData: EmojiClickData) => {
@@ -131,19 +132,6 @@ export const ProfileTab: React.FC = () => {
             rows={3}
             className="w-full bg-white border border-slate-200 rounded-lg px-4 py-2.5 text-slate-900 focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-all resize-none shadow-sm"
           />
-        </div>
-
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium text-slate-700">Location</label>
-          <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-            <input
-              type="text"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-lg pl-10 pr-4 py-2.5 text-slate-900 focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition-all shadow-sm"
-            />
-          </div>
         </div>
       </div>
 

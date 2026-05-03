@@ -10,6 +10,7 @@ export interface AuthUser {
   username: string;
   emoji: string;
   public_key: string;
+  bio: string;
   created_at: string;
 }
 
@@ -38,15 +39,7 @@ export interface AuthState {
   clearError: () => void;
 }
 
-export interface LoginFormProps {
-  onAuthSuccess: () => void;
-  onSwitchToRegister: () => void;
-}
 
-export interface RegisterFormProps {
-  onSwitchToLogin: () => void;
-}
-
-export interface AuthPageProps {
-  onAuthSuccess: () => void;
+export interface AuthFormProps {
+  switchToAuthType: (type: 'login' | 'register') => void;
 }

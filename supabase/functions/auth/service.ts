@@ -88,38 +88,40 @@ export class AuthService {
         if (!user) {
             const { username, emoji } = await this.getRandomUsername();
             const { email, password } = this.generateCredentials(public_key);
-
-            // first create user on auth by admin role
-            const { data: authUser, error: authError } = await this.supabase.auth.admin.createUser({
-                email,
-                password,
-                email_confirm: true
-            });
-
-            if (authError) throw authError;
-
-            // now update the user metadata with the public key
-            const { data: newUser, error: insertError } = await this.supabase
-                .from("users")
-                .insert({
-                    id: authUser.user.id,
-                    public_key,
-                    username,
-                    emoji
-                })
-                .select()
-                .single();
-
-            if (insertError) {
-                console.error("Database Insert Error:", {
-                    message: insertError.message,
-                    details: insertError.details,
-                    hint: insertError.hint,
-                    code: insertError.code
+            let authUserId;
+            try {
+                // 1. Create the Auth User
+                const { data: authUser, error: authError } = await this.supabase.auth.admin.createUser({
+                    email,
+                    password,
+                    email_confirm: true
                 });
-                throw insertError;
+
+                if (authError) throw authError;
+
+                authUserId = authUser.user.id;
+
+                // 2. Try to insert the Profile, if it fails, ROLLBACK (delete) the auth user
+                const { data: newUser, error: insertError } = await this.supabase
+                    .from("users")
+                    .insert({
+                        id: authUserId,
+                        public_key,
+                        username,
+                        emoji
+                    })
+                    .select()
+                    .single();
+
+                if (insertError) throw insertError;
+                user = newUser;
+            } catch (error) {
+                if (authUserId) {
+                    await this.supabase.auth.admin.deleteUser(authUserId); // Rollback: Delete the auth user because the profile creation failed and to prevent latter on email already exists error
+                }
+                console.error("Profile creation failed, rolled back auth user:", error);
+                throw error;
             }
-            user = newUser;
         }
 
         return user;
@@ -148,6 +150,56 @@ export class AuthService {
 
         if (error) throw error;
 
+        return data;
+    }
+
+    async updateUserProfile(userId: string, updates: { bio?: string, city_code?: string, username?: string, emoji?: string }) {
+        // 1. Validation
+        if (updates.bio !== undefined && updates.bio.length > 120) {
+            throw new Error("Bio must be 120 characters or less");
+        }
+
+        if (updates.emoji !== undefined && !animalEmojis[updates.emoji]) {
+            throw new Error("Invalid emoji selection");
+        }
+
+        if (updates.username !== undefined) {
+            // Basic format check
+            if (!/^[a-z]+_[A-Z][0-9]{4}$/.test(updates.username)) {
+                throw new Error("Username must follow the format: animal_A0001");
+            }
+
+            // Check uniqueness
+            const { data: existingUser, error: checkError } = await this.supabase
+                .from("users")
+                .select("id")
+                .eq("username", updates.username)
+                .neq("id", userId)
+                .maybeSingle();
+
+            if (checkError) throw checkError;
+            if (existingUser) {
+                throw new Error("Username is already taken");
+            }
+        }
+
+        // 2. Filter out undefined values
+        const cleanUpdates = Object.fromEntries(
+            Object.entries(updates).filter(([_, v]) => v !== undefined)
+        );
+
+        if (Object.keys(cleanUpdates).length === 0) {
+            throw new Error("No updates provided");
+        }
+
+        const { data, error } = await this.supabase
+            .from("users")
+            .update(cleanUpdates)
+            .eq("id", userId)
+            .select()
+            .single();
+
+        if (error) throw error;
         return data;
     }
 }

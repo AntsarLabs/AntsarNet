@@ -1,20 +1,16 @@
 import React, { useState } from 'react';
-import { LogOut, Send, ChevronDown, MessageSquare, Inbox } from 'lucide-react';
+import { LogOut, Send, ChevronDown, MessageSquare, Inbox, LogIn } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@/features/auth/store';
+
 
 export function TopHeader() {
   const [isMessagesOpen, setIsMessagesOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const { isAuthenticated, user } = useAuthStore();
   const location = useLocation();
   const navigate = useNavigate();
   const path = location.pathname;
-
-  // Mock user
-  const currentUser = {
-    emoji: '😎',
-    friendId: 'MyCodeName123'
-  };
 
   const getActiveTab = () => {
     if (path === '/discover') return 'main';
@@ -28,8 +24,6 @@ export function TopHeader() {
   const isMessagesActive = path.startsWith('/messages');
   const showTabs = ['/discover', '/confessions', '/messages/chats', '/messages/inbox', '/account'].includes(path);
 
-  const handleLogin = () => setIsLoggedIn(true);
-  const handleLogout = () => setIsLoggedIn(false);
   const handleAccountClick = () => navigate('/account');
 
   return (
@@ -134,7 +128,7 @@ export function TopHeader() {
 
         {/* RIGHT AREA: ACTION BUTTONS */}
         <div className="flex items-center justify-end w-32 md:w-auto gap-2">
-          {isLoggedIn ? (
+          {isAuthenticated ? (
             <div className="flex items-center gap-2 md:gap-4">
               {/* Desktop Profile Pill */}
               <button
@@ -142,29 +136,21 @@ export function TopHeader() {
                 className="hidden md:flex items-center gap-2 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-full border border-slate-200 transition-colors"
               >
                 <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center text-[10px] shadow-sm border border-slate-100">
-                  {currentUser.emoji}
+                  {user?.emoji}
                 </div>
                 <span className="text-slate-800 text-xs font-mono font-bold tracking-tight">
-                  {currentUser.friendId}
+                  @{user?.username}
                 </span>
-              </button>
-              <button
-                onClick={handleLogout}
-                className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                title="Logout"
-              >
-                <LogOut size={18} />
               </button>
             </div>
           ) : (
-            <button
-              onClick={handleLogin}
-              className="flex items-center gap-2 bg-[#0088cc] hover:bg-[#0077b3] text-white px-4 py-1.5 rounded-full text-xs font-bold transition-all shadow-lg active:scale-95"
+            <Link
+              to="/auth"
+              className="flex items-center gap-2 bg-pink-500 text-white px-4 py-1.5 rounded-full text-xs font-bold transition-all shadow-lg active:scale-95"
             >
-              <Send size={14} className="-ml-0.5" />
-              <span className="hidden sm:inline">Connect Telegram</span>
-              <span className="sm:hidden text-[10px]">Connect</span>
-            </button>
+              <LogIn size={14} className="-ml-0.5" />
+              <span className="px-2 py-0.5 rounded-md text-[10px]">Login</span>
+            </Link>
           )}
         </div>
       </div>

@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion';
 import { Download, AlertTriangle } from 'lucide-react';
 import { E2EE } from '@/utils/e2ee';
-import { RegisterFormProps } from '../types';
+import { AuthFormProps } from '../types';
 
 
 
-export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
+export const RegisterForm = ({ switchToAuthType }: AuthFormProps) => {
 
   const handleRegisterClick = async () => {
     const passCard = await E2EE.generatePassCard()
@@ -14,7 +14,7 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
     E2EE.downloadPassCard(passCard)
 
     // navigate to login page
-    onSwitchToLogin()
+    switchToAuthType("login")
   };
 
   return (
@@ -57,7 +57,7 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
 
       <div className="text-center mt-2">
         <button
-          onClick={onSwitchToLogin}
+          onClick={() => switchToAuthType('login')}
           className="text-slate-500 hover:text-slate-700 transition-colors text-sm font-medium"
         >
           Already have a PassCard? <span className="text-pink-600 hover:underline">Use existing</span>

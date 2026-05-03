@@ -30,7 +30,7 @@ const authService = new AuthService(
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+  "Access-Control-Allow-Methods": "POST, GET, PUT, OPTIONS",
 };
 
 /**
@@ -89,6 +89,51 @@ app.get("/auth/message", (req: Request, res: Response) => {
   res.set(corsHeaders);
   const message = authService.generateAuthMessage();
   return res.status(200).json(message);
+});
+
+/**
+ * update user profile
+ */
+app.put("/auth/me", async (req: Request, res: Response) => {
+  res.set(corsHeaders);
+
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ error: "Missing authorization header" });
+
+  try {
+    const token = authHeader.replace("Bearer ", "");
+    // Use the service client to verify the token and get the user
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+    if (authError || !user) {
+      return res.status(401).json({ error: "Invalid or expired token" });
+    }
+
+    const { bio, location, username, emoji } = req.body;
+
+    // In our DB schema, 'location' maps to 'city_code'
+    const updatedUser = await authService.updateUserProfile(user.id, {
+      bio,
+      city_code: location,
+      username,
+      emoji
+    });
+
+    return res.status(200).json(updatedUser);
+  } catch (err: any) {
+    console.error("Update profile error:", err);
+    return res.status(500).json({
+      error: "Internal server error",
+      details: err.message || err,
+      code: err.code || null
+    });
+  }
+});
+
+// Handle preflight requests
+app.options("*", (req, res) => {
+  res.set(corsHeaders);
+  res.sendStatus(204);
 });
 
 app.listen(8000);

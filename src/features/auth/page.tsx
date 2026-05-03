@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AuthHeader, AuthHero, LoginForm, RegisterForm } from '@/features/auth/components';
-import { AuthPageProps } from './types';
 
-export const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
-  const [isLogin, setIsLogin] = useState(true);
+export const AuthPage = () => {
+  const [authType, setAuthType] = useState('login');
 
   return (
     <div className="min-h-screen w-full relative flex flex-col font-sans overflow-x-hidden selection:text-pink-600 selection:bg-pink-100 bg-transparent dot-grid">
@@ -28,14 +27,13 @@ export const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
 
               <div className="flex-[1.2] flex flex-col relative z-10 w-full max-w-md mx-auto md:max-w-none min-h-[300px] justify-center">
                 <AnimatePresence mode="wait">
-                  {isLogin ? (
+                  {authType === "login" ? (
                     <LoginForm
-                      onAuthSuccess={onAuthSuccess}
-                      onSwitchToRegister={() => setIsLogin(false)}
+                      switchToAuthType={setAuthType}
                     />
                   ) : (
                     <RegisterForm
-                      onSwitchToLogin={() => setIsLogin(true)}
+                      switchToAuthType={setAuthType}
                     />
                   )}
                 </AnimatePresence>

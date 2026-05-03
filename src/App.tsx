@@ -12,6 +12,7 @@ import { ChatsListPage } from '@/pages/ChatsListPage';
 import { InboxSection } from '@/components/InboxSection';
 import { SendAnonymousMessagePage } from '@/pages/SendAnonymousMessagePage';
 import { AuthPage } from '@/features/auth/page';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 import {
   Contact,
   Message,
@@ -21,6 +22,7 @@ import {
   InboxMessage
 } from
   '@/types/chat';
+
 const MOCK_USERS: Contact[] = [
   {
     id: '1',
@@ -355,23 +357,18 @@ const MOCK_INBOX_MESSAGES: InboxMessage[] = [
 
 function AppContent() {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [messages, setMessages] = useState<Record<string, Message[]>>(MOCK_MESSAGES);
   const [sessions, setSessions] = useState<ChatSession[]>(MOCK_SESSIONS);
   const [posts, setPosts] = useState<Post[]>(MOCK_POSTS);
   const [comments, setComments] = useState<Comment[]>(MOCK_COMMENTS);
   const [inboxMessages, setInboxMessages] = useState<InboxMessage[]>(MOCK_INBOX_MESSAGES);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   const currentUser = {
     emoji: '😎',
     friendId: 'MyCodeName123'
   };
   const inboxUrl = `addisnet.com/inbox/${currentUser.friendId}`;
-
-  const handleLogin = () => setIsLoggedIn(true);
-  const handleLogout = () => setIsLoggedIn(false);
 
   const handleSelect = (id: string) => {
     navigate(`/chat/${id}`);
@@ -407,12 +404,6 @@ function AppContent() {
     setPosts([newPost, ...posts]);
   };
 
-  const handleEditPost = (postId: string, newContent: string) => {
-    setPosts(prev => prev.map(p => p.id === postId ? { ...p, content: newContent } : p));
-  };
-  const handleDeletePost = (postId: string) => {
-    setPosts(prev => prev.filter(p => p.id !== postId));
-  };
 
   const handleAddComment = (postId: string, content: string, parentId?: string) => {
     const newComment: Comment = {
@@ -478,92 +469,98 @@ function AppContent() {
     );
   };
 
+
   return (
     <>
       <Routes>
+        {/* Public routes */}
         <Route path="/inbox/:inboxId" element={<SendAnonymousMessagePage />} />
         <Route path="/" element={<LandingPage onEnterApp={() => navigate('/discover')} />} />
-        <Route path="/auth" element={<AuthPage onAuthSuccess={() => { setIsLoggedIn(true); navigate('/discover'); }} />} />
-        <Route path="/discover" element={
-          <MainLayout>
-            <div className="flex-1 w-full flex flex-col items-center py-16 md:py-24 px-4 overflow-y-auto">
-              <div className="w-full max-w-3xl mx-auto relative z-10">
-                <OnlineUsers
-                  contacts={MOCK_USERS}
-                  onSelect={handleSelect}
-                  onViewProfile={(id) => navigate(`/profile/${id}`)}
-                />
-              </div>
-            </div>
-          </MainLayout>
-        } />
-        <Route path="/confessions" element={
-          <MainLayout>
-            <div className="flex-1 w-full relative pb-20 md:pb-0">
-              <div className="relative z-10">
-                <ConfessionsPage
-                  currentUser={currentUser}
-                  posts={posts}
-                  comments={comments}
-                  onAddPost={handleAddPost}
-                  onAddComment={handleAddComment}
-                  onReactPost={handleReactPost}
-                  onReactComment={handleReactComment}
-                />
-              </div>
-            </div>
-          </MainLayout>
-        } />
-        <Route path="/messages/chats" element={
-          <MainLayout>
-            <div className="flex-1 w-full relative pb-20 md:pb-0 font-sans">
-              <div className="relative z-10 w-full h-full">
-                <ChatsListPage
-                  sessions={sessions}
-                  contacts={MOCK_USERS}
-                  messages={messages}
-                  onOpenChat={handleSelect}
-                  onSendMessage={handleSendMessage}
-                />
-              </div>
-            </div>
-          </MainLayout>
-        } />
-        <Route path="/messages/inbox" element={
-          <MainLayout>
-            <div className="flex-1 w-full relative pb-32 md:pb-40 font-sans">
-              <div className="relative z-10 w-full max-w-3xl mx-auto px-4 py-12 min-h-screen">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                  <div>
-                    <h2 className="text-3xl font-bold text-slate-900 mb-1 flex items-center gap-2">
-                      Anonymous Inbox <Sparkles className="text-pink-500" size={24} />
-                    </h2>
-                    <p className="text-slate-500 text-sm max-w-md">
-                      Generate a unique link to privately receive anonymous messages, honest feedback, and questions from anywhere.
-                    </p>
-                  </div>
-                </div>
+        <Route path="/auth" element={<AuthPage />} />
 
-                <InboxSection
-                  inboxMessages={inboxMessages}
-                  inboxUrl={inboxUrl}
-                  onMarkRead={handleMarkInboxRead}
-                />
+        {/* Protected routes — layout route pattern for React Router v6 */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/discover" element={
+            <MainLayout>
+              <div className="flex-1 w-full flex flex-col items-center py-16 md:py-24 px-4 overflow-y-auto">
+                <div className="w-full max-w-3xl mx-auto relative z-10">
+                  <OnlineUsers
+                    contacts={MOCK_USERS}
+                    onSelect={handleSelect}
+                    onViewProfile={(id) => navigate(`/profile/${id}`)}
+                  />
+                </div>
               </div>
-            </div>
-          </MainLayout>
-        } />
-        <Route path="/account" element={<AccountPage/>} />
-        <Route path="/profile/:id" element={
-          <MainLayout showHeader={false} showBottomNav={false}>
-            <ProfilePageRoute />
-          </MainLayout>
-        } />
-        <Route path="/chat/:id" element={
-          <MainLayout showHeader={false} showBottomNav={false}>
-            <ChatPageRoute />
-          </MainLayout>
-        } />
+            </MainLayout>
+          } />
+          <Route path="/confessions" element={
+            <MainLayout>
+              <div className="flex-1 w-full relative pb-20 md:pb-0">
+                <div className="relative z-10">
+                  <ConfessionsPage
+                    currentUser={currentUser}
+                    posts={posts}
+                    comments={comments}
+                    onAddPost={handleAddPost}
+                    onAddComment={handleAddComment}
+                    onReactPost={handleReactPost}
+                    onReactComment={handleReactComment}
+                  />
+                </div>
+              </div>
+            </MainLayout>
+          } />
+          <Route path="/messages/chats" element={
+            <MainLayout>
+              <div className="flex-1 w-full relative pb-20 md:pb-0 font-sans">
+                <div className="relative z-10 w-full h-full">
+                  <ChatsListPage
+                    sessions={sessions}
+                    contacts={MOCK_USERS}
+                    messages={messages}
+                    onOpenChat={handleSelect}
+                    onSendMessage={handleSendMessage}
+                  />
+                </div>
+              </div>
+            </MainLayout>
+          } />
+          <Route path="/messages/inbox" element={
+            <MainLayout>
+              <div className="flex-1 w-full relative pb-32 md:pb-40 font-sans">
+                <div className="relative z-10 w-full max-w-3xl mx-auto px-4 py-12 min-h-screen">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                    <div>
+                      <h2 className="text-3xl font-bold text-slate-900 mb-1 flex items-center gap-2">
+                        Anonymous Inbox <Sparkles className="text-pink-500" size={24} />
+                      </h2>
+                      <p className="text-slate-500 text-sm max-w-md">
+                        Generate a unique link to privately receive anonymous messages, honest feedback, and questions from anywhere.
+                      </p>
+                    </div>
+                  </div>
+
+                  <InboxSection
+                    inboxMessages={inboxMessages}
+                    inboxUrl={inboxUrl}
+                    onMarkRead={handleMarkInboxRead}
+                  />
+                </div>
+              </div>
+            </MainLayout>
+          } />
+          <Route path="/account" element={<AccountPage />} />
+          <Route path="/profile/:id" element={
+            <MainLayout showHeader={false} showBottomNav={false}>
+              <ProfilePageRoute />
+            </MainLayout>
+          } />
+          <Route path="/chat/:id" element={
+            <MainLayout showHeader={false} showBottomNav={false}>
+              <ChatPageRoute />
+            </MainLayout>
+          } />
+        </Route>
       </Routes>
     </>
   );

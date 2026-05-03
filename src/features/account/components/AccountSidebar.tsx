@@ -1,23 +1,24 @@
 import React from 'react';
 import { ChevronRight, LogOut } from 'lucide-react';
 import { AccountSidebarProps } from '../types';
+import { useAuthStore } from '@/features/auth/store';
 
 export const AccountSidebar: React.FC<AccountSidebarProps> = ({
   tabs,
   activeTab,
-  onTabChange,
-  currentUser
+  onTabChange
 }) => {
+  const { user } = useAuthStore();
   return (
     <div className="bg-white/85 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm overflow-hidden divide-y divide-slate-100 md:sticky md:top-24">
       {/* Mobile Header - Hidden on Desktop */}
       <div className="md:hidden flex items-center gap-4 px-5 py-4 border-b border-slate-100">
         <div className="w-12 h-12 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-xl shadow-sm">
-          {currentUser.emoji}
+          {user?.emoji}
         </div>
         <div className="flex-1 min-w-0">
           <h2 className="font-mono font-bold text-slate-900 text-sm truncate">
-            {currentUser.friendId}
+            @{user?.username}
           </h2>
           <p className="text-xs text-slate-500">Manage your account</p>
         </div>

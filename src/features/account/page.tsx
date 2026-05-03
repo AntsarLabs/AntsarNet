@@ -7,7 +7,7 @@ import {
   ChevronLeft
 } from 'lucide-react';
 import { AccountTab, TabItem, AccountUser } from './types';
-import { AccountSidebar, ProfileTab, ConfessionsTab, BlockedTab } from './components';
+import { AccountSidebar, ProfileTab, BlockedTab } from './components';
 import { MainLayout } from '@/components/MainLayout';
 import { useNavigate } from 'react-router-dom';
 
@@ -19,12 +19,6 @@ const TABS: TabItem[] = [
     icon: User
   },
   {
-    id: 'confessions',
-    label: 'My Confessions',
-    description: 'Manage your anonymous posts',
-    icon: Flame
-  },
-  {
     id: 'blocked',
     label: 'Block List',
     description: 'Users you have blocked',
@@ -32,11 +26,6 @@ const TABS: TabItem[] = [
   }
 ];
 
-// Mock user for the sidebar
-const CURRENT_USER: AccountUser = {
-  emoji: '😎',
-  friendId: 'MyCodeName123'
-};
 
 export function AccountPage() {
   const [activeTab, setActiveTab] = useState<AccountTab | null>(null);
@@ -54,8 +43,6 @@ export function AccountPage() {
     switch (tab) {
       case 'profile':
         return <ProfileTab />;
-      case 'confessions':
-        return <ConfessionsTab />;
       case 'blocked':
         return <BlockedTab />;
       default:
@@ -92,7 +79,6 @@ export function AccountPage() {
               tabs={TABS}
               activeTab={activeTab}
               onTabChange={setActiveTab}
-              currentUser={CURRENT_USER}
             />
           </div>
 
