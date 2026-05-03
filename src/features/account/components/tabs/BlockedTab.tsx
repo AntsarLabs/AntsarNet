@@ -2,11 +2,6 @@ import React from 'react';
 import { Ban } from 'lucide-react';
 import { Contact } from '@/types/chat';
 
-// Mock data inside component as requested
-const MOCK_BLOCKED: Contact[] = [
-  { id: '2', friendId: 'B7d2e9a01bC3', emoji: '🦉', isOnline: true, distance: '1.2km', city: 'Addis Ababa', blockStatus: 'blocked_by_you' }
-];
-
 export const BlockedTab: React.FC = () => {
   return (
     <div className="space-y-4">
