@@ -45,6 +45,7 @@ export const inboxApi = {
       .from('inbox')
       .insert({
         inbox_id: inboxId,
+        public_key: E2EE.toBase64(tempoKeyPairs.publicKey),
         title: E2EE.toBase64(titleEncrypted.message),
         message: E2EE.toBase64(messageEncypted.message),
         nonce: E2EE.toBase64(nonce)
@@ -55,5 +56,72 @@ export const inboxApi = {
     }
 
     return true;
-  }
+  },
+
+  //fetch by pagination order by desc
+  async fetchInboxMessages(
+    userId: string,
+    privateKey: string,
+    page: number = 0,
+    limit: number = 10
+  ): Promise<{
+    data: Array<{ id: string; title: string; message: string; public_key: string; is_read: boolean; created_at: string }>;
+    error: Error | null;
+  }> {
+    const offset = page * limit;
+
+    const { data, error } = await supabase
+      .from('inbox')
+      .select('id, title, message, nonce, is_read, public_key, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    const results = data?.map((msg) => {
+      const sharedKey = E2EE.generateSharedKey(E2EE.toUint8Array(msg.public_key), E2EE.toUint8Array(privateKey));
+      const title = E2EE.decryptMsg(E2EE.toUint8Array(msg.title), sharedKey, E2EE.toUint8Array(msg.nonce));
+      const message = E2EE.decryptMsg(E2EE.toUint8Array(msg.message), sharedKey, E2EE.toUint8Array(msg.nonce));
+      return {
+        id: msg.id,
+        title,
+        message,
+        is_read: msg.is_read,
+        created_at: msg.created_at,
+      };
+    });
+
+    if (error) {
+      return { data: [], error };
+    }
+
+    return { data: results as Array<{ id: string; title: string; message: string; public_key: string; is_read: boolean; created_at: string }>, error: null };
+  },
+
+  async markMessageAsRead(messageId: string): Promise<boolean> {
+    const { error } = await supabase
+      .from('inbox')
+      .update({ is_read: true })
+      .eq('id', messageId);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return true;
+  },
+
+
+
+  async deleteInboxMessage(messageId: string): Promise<boolean> {
+    const { error } = await supabase
+      .from('inbox')
+      .delete()
+      .eq('id', messageId);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return true;
+  },
 };

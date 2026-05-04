@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronUp, ChevronDown, Check } from 'lucide-react';
+import { ChevronUp, ChevronDown, Check, Trash2 } from 'lucide-react';
 import { InboxMessageCardProps } from '../types';
 
 export function InboxMessageCard({
   msg,
   index,
-  onMarkRead
+  onMarkRead,
+  onDelete
 }: InboxMessageCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const isLong = msg.message.length > 180;
@@ -45,9 +46,18 @@ export function InboxMessageCard({
               <div className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-pink-500 border-2 border-white shadow-[0_0_8px_rgba(216,43,125,0.5)] z-10" />
             )}
           </div>
+        </div>
+        <div className="flex items-center gap-3">
           <span className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.15em] tabular-nums">
             {msg.createdAt}
           </span>
+          <button 
+            onClick={() => onDelete(msg.id)}
+            className="text-slate-300 hover:text-red-500 transition-colors p-1.5 -mr-1.5 rounded-full hover:bg-red-50"
+            title="Delete message"
+          >
+            <Trash2 size={14} />
+          </button>
         </div>
       </div>
 

@@ -1,6 +1,5 @@
 export interface InboxMessage {
   id: string;
-  from: string;
   subject: string;
   message: string;
   createdAt: string;
@@ -12,4 +11,5 @@ export interface InboxMessageCardProps {
   msg: InboxMessage;
   index: number;
   onMarkRead: (id: string) => void;
+  onDelete: (id: string) => void;
 }

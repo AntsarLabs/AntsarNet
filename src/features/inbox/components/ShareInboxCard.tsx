@@ -125,27 +125,28 @@ export function ShareInboxCard() {
                   </div>
 
                 </div>
-                <div className="flex gap-2">
-                  <div className="flex-1 relative">
-                    <label htmlFor="inbox-url" className="text-xs text-slate-600 font-semibold py-2">Inbox URL(share this for other users to recive messages under the current title you set)</label>
-                    <div className='flex gap-2'>
-                      <input
-                        id='inbox-url'
-                        type="text"
-                        value={generateInboxUrl(title)}
-                        readOnly
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-mono text-slate-600 focus:outline-none"
-                      />
-                      <button
-                        onClick={handleCopy}
-                        className="w-12 h-12 flex items-center justify-center bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-all active:scale-95 border border-slate-200 shadow-sm"
-                      >
-                        <Copy size={18} />
-                      </button>
+                {title.trim().length > 0 && (
+                  <div className="flex gap-2">
+                    <div className="flex-1 relative">
+                      <label htmlFor="inbox-url" className="text-xs text-slate-600 font-semibold py-2">Inbox URL(share this for other users to recive messages under the current title you set)</label>
+                      <div className='flex gap-2'>
+                        <input
+                          id='inbox-url'
+                          type="text"
+                          value={generateInboxUrl(title)}
+                          readOnly
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-mono text-slate-600 focus:outline-none"
+                        />
+                        <button
+                          onClick={handleCopy}
+                          className="w-12 h-12 flex items-center justify-center bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-all active:scale-95 border border-slate-200 shadow-sm"
+                        >
+                          <Copy size={18} />
+                        </button>
+                      </div>
                     </div>
                   </div>
-
-                </div>
+                )}
               </div>
             </motion.div>
           )}
