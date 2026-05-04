@@ -69,13 +69,3 @@ export interface Reaction {
   reactionType: 'like' | 'love' | 'laugh' | 'sad' | 'angry' | 'fire';
   createdAt: string;
 }
-
-export interface InboxMessage {
-  id: string;
-  from: string;
-  subject: string;
-  message: string;
-  createdAt: string;
-  isRead: boolean;
-  repliedAt?: string;
-}

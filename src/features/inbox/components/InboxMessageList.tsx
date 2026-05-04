@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { InboxMessageListProps } from '../types';
 import { InboxMessageCard } from './InboxMessageCard';
 import { EmptyInboxState } from './EmptyInboxState';
+import { MOCK_INBOX_MESSAGES } from '../constants';
 
-export function InboxMessageList({
-  inboxMessages,
-  expandedIds,
-  onToggleExpand
-}: InboxMessageListProps) {
+export function InboxMessageList() {
+  const [inboxMessages, setInboxMessages] = useState(MOCK_INBOX_MESSAGES);
+
+  const handleMarkRead = (id: string) => {
+    setInboxMessages((prev) => prev.map((msg) => msg.id === id ? { ...msg, isRead: true } : msg));
+  };
+
   if (inboxMessages.length === 0) {
     return <EmptyInboxState />;
   }
@@ -21,8 +23,7 @@ export function InboxMessageList({
             key={msg.id}
             msg={msg}
             index={index}
-            isExpanded={expandedIds.has(msg.id)}
-            onToggleExpand={onToggleExpand}
+            onMarkRead={handleMarkRead}
           />
         ))}
       </AnimatePresence>

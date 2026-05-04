@@ -85,13 +85,16 @@ export class E2EE {
     static encryptMsg(
         messageText: string,
         sharedKey: Uint8Array,
-        nonce: Uint8Array
+        nonce?: Uint8Array
     ): EncryptResult {
         const message = decodeUTF8(messageText);
+        if (!nonce) {
+            nonce = this.generateNonce();
+        }
         const encryptedBox = nacl.box.after(message, nonce, sharedKey);
 
         return {
-            nonce: nonce,
+            nonce,
             message: encryptedBox
         };
     }

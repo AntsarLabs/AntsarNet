@@ -90,6 +90,7 @@ Individual anonymous messages received via a user's unique inbox link.
 *   `id`: Primary key.
 *   `user_id`: Foreign key to Users (linked via `friend_id` on the frontend).
 *   `subject`: Message subject.
-*   `message`: Detailed content.
+*   `message`: Detailed content (encrypted).
+*   `nonce`: Encryption nonce.
 *   `is_read`: Boolean status.
 *   `created_at`: Timestamp.

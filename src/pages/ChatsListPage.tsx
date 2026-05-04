@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, MapPin, Search, Edit3, Sparkles } from 'lucide-react';
-import { ChatSession, Contact, Message, InboxMessage } from '@/types/chat';
+import { ChatSession, Contact, Message } from '@/types/chat';
 import { ChatPage } from '@/pages/ChatPage';
 interface ChatsListPageProps {
   sessions: ChatSession[];

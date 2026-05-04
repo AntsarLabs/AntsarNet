@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronUp, ChevronDown, Check } from 'lucide-react';
 import { InboxMessageCardProps } from '../types';
@@ -6,10 +6,23 @@ import { InboxMessageCardProps } from '../types';
 export function InboxMessageCard({
   msg,
   index,
-  isExpanded,
-  onToggleExpand
+  onMarkRead
 }: InboxMessageCardProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const isLong = msg.message.length > 180;
+
+  const handleToggleExpand = () => {
+    if (!msg.isRead) {
+      onMarkRead(msg.id);
+    }
+    setIsExpanded(!isExpanded);
+  };
+
+  const handleMarkReadOnly = () => {
+    if (!msg.isRead) {
+      onMarkRead(msg.id);
+    }
+  };
 
   return (
     <motion.div
@@ -51,7 +64,7 @@ export function InboxMessageCard({
 
         {isLong && (
           <button
-            onClick={() => onToggleExpand(msg.id, msg.isRead)}
+            onClick={handleToggleExpand}
             className="mt-3 flex items-center gap-1.5 text-xs font-bold text-pink-600 hover:text-pink-700 transition-colors group/btn bg-pink-50 px-3 py-1.5 rounded-lg border border-pink-100 w-fit"
           >
             {isExpanded ? (
@@ -68,7 +81,7 @@ export function InboxMessageCard({
 
         {!isLong && !msg.isRead && (
           <button
-            onClick={() => onToggleExpand(msg.id, msg.isRead)}
+            onClick={handleMarkReadOnly}
             className="mt-3 text-[10px] font-bold text-slate-400 hover:text-pink-600 transition-colors uppercase tracking-[0.15em] flex items-center gap-1.5"
           >
             <Check size={12} />
