@@ -10,6 +10,7 @@ export interface AuthUser {
   username: string;
   emoji: string;
   public_key: string;
+  inbox_id: string;
   bio?: string;
   created_at: string;
 }

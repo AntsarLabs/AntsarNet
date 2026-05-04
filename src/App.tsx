@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, useParams, Navigate } from 'react-router-dom';
-import { Sparkles } from 'lucide-react';
 import { OnlineUsers } from '@/components/OnlineUsers';
 import { MainLayout } from '@/components/MainLayout';
 import { AccountPage } from '@/features/account/page';
+import { InboxPage } from '@/features/inbox/page';
 import { LandingPage } from '@/pages/LandingPage';
 import { UserProfilePage } from '@/pages/UserProfilePage';
 import { ConfessionsPage } from '@/pages/ConfessionsPage';
 import { ChatPage } from '@/pages/ChatPage';
 import { ChatsListPage } from '@/pages/ChatsListPage';
-import { InboxSection } from '@/components/InboxSection';
 import { SendAnonymousMessagePage } from '@/pages/SendAnonymousMessagePage';
 import { AuthPage } from '@/features/auth/page';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
@@ -18,8 +17,7 @@ import {
   Message,
   ChatSession,
   Post,
-  Comment,
-  InboxMessage
+  Comment
 } from
   '@/types/chat';
 
@@ -288,72 +286,6 @@ const MOCK_COMMENTS: Comment[] = [
     reportCount: 0
   }];
 
-const MOCK_INBOX_MESSAGES: InboxMessage[] = [
-  {
-    id: 'i1',
-    from: '🕵️ Anonymous',
-    subject: 'Your Style',
-    message: 'I saw you at the coffee shop today, your outfit was amazing! Especially that jacket.',
-    createdAt: '2 hours ago',
-    isRead: false
-  },
-  {
-    id: 'i2',
-    from: 'Someone nearby',
-    subject: 'Liked your post',
-    message: 'Hey, I really liked your recent confession about the barista. Totally relate to it, I have the same problem at my local cafe!',
-    createdAt: '1 day ago',
-    isRead: true,
-    repliedAt: '1 day ago'
-  },
-  {
-    id: 'i3',
-    from: 'Secret Admirer',
-    subject: 'Compliment',
-    message: 'You have a great smile 😊 Just wanted to brighten your day a bit.',
-    createdAt: '3 days ago',
-    isRead: true
-  },
-  {
-    id: 'i4',
-    from: 'Night Owl',
-    subject: 'Late night thoughts',
-    message: 'Do you ever feel like the city is more alive at 3 AM than at 3 PM? Just wondering if anyone else is awake right now.',
-    createdAt: '1 hour ago',
-    isRead: false
-  },
-  {
-    id: 'i5',
-    from: 'Coffee Enthusiast',
-    subject: 'Recommendation',
-    message: 'If you like that shop, you should try the one on 5th street. Their cold brew is actually life-changing.',
-    createdAt: '5 hours ago',
-    isRead: false
-  },
-  {
-    id: 'i6',
-    from: 'A Friend',
-    subject: 'Check-in',
-    message: "Hey, hope your week is going well. You've seemed a bit busy lately!",
-    createdAt: '2 days ago',
-    isRead: true
-  },
-  {
-    id: 'i7',
-    from: 'Anonymous',
-    subject: 'Quick question',
-    message: 'What was the name of that song you were humming earlier? It sounded so familiar but I couldn\'t place it.',
-    createdAt: '10 hours ago',
-    isRead: false
-  },
-  {
-    id: 'i8',
-    from: 'Neighbor',
-    subject: 'Plant advice',
-    message: 'Your balcony garden looks amazing! What do you use for your succulents? Mine always seem to struggle.',
-    createdAt: '4 days ago',
-    isRead: true
-  }];
 
 function AppContent() {
   const navigate = useNavigate();
@@ -362,13 +294,11 @@ function AppContent() {
   const [sessions, setSessions] = useState<ChatSession[]>(MOCK_SESSIONS);
   const [posts, setPosts] = useState<Post[]>(MOCK_POSTS);
   const [comments, setComments] = useState<Comment[]>(MOCK_COMMENTS);
-  const [inboxMessages, setInboxMessages] = useState<InboxMessage[]>(MOCK_INBOX_MESSAGES);
 
   const currentUser = {
     emoji: '😎',
     friendId: 'MyCodeName123'
   };
-  const inboxUrl = `addisnet.com/inbox/${currentUser.friendId}`;
 
   const handleSelect = (id: string) => {
     navigate(`/chat/${id}`);
@@ -429,9 +359,6 @@ function AppContent() {
     setComments(prev => prev.map(c => c.id === commentId ? { ...c, reactionCount: c.reactionCount + 1 } : c));
   };
 
-  const handleMarkInboxRead = (id: string) => {
-    setInboxMessages((prev) => prev.map((msg) => msg.id === id ? { ...msg, isRead: true } : msg));
-  };
 
   const ChatPageRoute = () => {
     const { id } = useParams();
@@ -525,30 +452,7 @@ function AppContent() {
               </div>
             </MainLayout>
           } />
-          <Route path="/messages/inbox" element={
-            <MainLayout>
-              <div className="flex-1 w-full relative pb-32 md:pb-40 font-sans">
-                <div className="relative z-10 w-full max-w-3xl mx-auto px-4 py-12 min-h-screen">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                    <div>
-                      <h2 className="text-3xl font-bold text-slate-900 mb-1 flex items-center gap-2">
-                        Anonymous Inbox <Sparkles className="text-pink-500" size={24} />
-                      </h2>
-                      <p className="text-slate-500 text-sm max-w-md">
-                        Generate a unique link to privately receive anonymous messages, honest feedback, and questions from anywhere.
-                      </p>
-                    </div>
-                  </div>
-
-                  <InboxSection
-                    inboxMessages={inboxMessages}
-                    inboxUrl={inboxUrl}
-                    onMarkRead={handleMarkInboxRead}
-                  />
-                </div>
-              </div>
-            </MainLayout>
-          } />
+          <Route path="/messages/inbox" element={<InboxPage />} />
           <Route path="/account" element={<AccountPage />} />
           <Route path="/profile/:id" element={
             <MainLayout showHeader={false} showBottomNav={false}>
