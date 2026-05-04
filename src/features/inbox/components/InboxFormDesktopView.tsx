@@ -2,16 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { EyeOff, ShieldCheck, Users, MapPin, MessageSquare, Check } from 'lucide-react';
 
-interface SendInboxDesktopViewProps {
-  inboxId?: string;
-  message: string;
-  setMessage: (m: string) => void;
-  title: string;
-  isSending: boolean;
-  isSent: boolean;
-  handleSubmit: (e: React.FormEvent) => void;
-  onNavigateHome: () => void;
-}
+import { SendInboxDesktopViewProps } from '../types';
 
 export function SendInboxDesktopView({
   inboxId,

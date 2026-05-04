@@ -1,3 +1,5 @@
+import React from 'react';
+
 export interface InboxMessage {
   id: string;
   subject: string;
@@ -12,4 +14,26 @@ export interface InboxMessageCardProps {
   index: number;
   onMarkRead: (id: string) => void;
   onDelete: (id: string) => void;
+}
+
+export interface SendInboxDesktopViewProps {
+  inboxId?: string;
+  message: string;
+  setMessage: (m: string) => void;
+  title: string;
+  isSending: boolean;
+  isSent: boolean;
+  handleSubmit: (e: React.FormEvent) => void;
+  onNavigateHome: () => void;
+}
+
+export interface SendInboxMobileViewProps {
+  inboxId?: string;
+  message: string;
+  setMessage: (m: string) => void;
+  title: string;
+  isSending: boolean;
+  isSent: boolean;
+  handleSubmit: (e: React.FormEvent) => void;
+  onNavigateHome: () => void;
 }

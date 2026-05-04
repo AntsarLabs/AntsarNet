@@ -3,16 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Check, MessageSquare, ArrowRight, ChevronLeft } from 'lucide-react';
 import { SendInboxPromoCards } from './InboxFormPromoCards';
 
-interface SendInboxMobileViewProps {
-  inboxId?: string;
-  message: string;
-  setMessage: (m: string) => void;
-  title: string;
-  isSending: boolean;
-  isSent: boolean;
-  handleSubmit: (e: React.FormEvent) => void;
-  onNavigateHome: () => void;
-}
+import { SendInboxMobileViewProps } from '../types';
 
 export function SendInboxMobileView({
   inboxId,
