@@ -1,4 +1,4 @@
-import { InboxMessage } from '../../types/chat';
+import { InboxMessage } from './types';
 
 export const MOCK_INBOX_MESSAGES: InboxMessage[] = [
   {
