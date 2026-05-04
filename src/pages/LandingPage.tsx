@@ -1,4 +1,3 @@
-import React, { Children } from 'react'
 import { motion } from 'framer-motion'
 import {
   Shield,
@@ -14,9 +13,8 @@ import {
   Users,
 } from 'lucide-react'
 import { Footer } from '@/components/Footer'
-interface LandingPageProps {
-  onEnterApp: () => void
-}
+import { Link } from 'react-router-dom'
+
 const FLOATING_EMOJIS = [
   {
     emoji: '🦊',
@@ -80,7 +78,7 @@ const staggerContainer = {
     },
   },
 }
-export function LandingPage({ onEnterApp }: LandingPageProps) {
+export function LandingPage() {
   return (
     <div className="min-h-screen w-full bg-background text-foreground font-sans overflow-x-hidden selection:bg-primary/30">
       {/* HERO SECTION */}
@@ -200,13 +198,13 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
             }}
             className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto"
           >
-            <button
-              onClick={onEnterApp}
+            <Link
+              to="/discover"
               className="w-full sm:w-auto px-10 py-4 bg-[#D82B7D] hover:bg-[#C0266F] text-white rounded-xl font-semibold text-lg transition-all shadow-[0_0_30px_rgba(216,43,125,0.3)] hover:shadow-[0_0_40px_rgba(216,43,125,0.5)] flex items-center justify-center gap-2"
             >
               <Sparkles size={20} />
               Discover Nearby Friends
-            </button>
+            </Link>
           </motion.div>
         </div>
 
@@ -559,17 +557,18 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
             Ready to meet someone new?
           </h2>
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-            <button
-              onClick={onEnterApp}
+            <Link
+              to="/discover"
               className="w-full sm:w-auto px-8 py-4 bg-primary hover:opacity-90 text-white rounded-xl font-semibold text-lg transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
             >
               <Sparkles size={20} />
               Start Discovering
-            </button>
-            <button className="w-full sm:w-auto px-8 py-4 text-muted-foreground hover:text-foreground font-semibold text-lg transition-colors flex items-center justify-center gap-2">
+            </Link>
+            <Link to="/privacy-policy"
+              className="w-full sm:w-auto px-8 py-4 text-muted-foreground hover:text-foreground font-semibold text-lg transition-colors flex items-center justify-center gap-2">
               Learn more about safety
               <ChevronRight size={18} />
-            </button>
+            </Link>
           </div>
         </motion.div>
       </section>

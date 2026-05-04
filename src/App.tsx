@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, useParams, Navigate } from 'react-router-dom';
+import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useParams, Navigate } from 'react-router-dom';
 import { OnlineUsers } from '@/components/OnlineUsers';
 import { MainLayout } from '@/components/MainLayout';
 import { AccountPage } from '@/features/account/page';
@@ -9,7 +9,7 @@ import { UserProfilePage } from '@/pages/UserProfilePage';
 import { ConfessionsPage } from '@/pages/ConfessionsPage';
 import { ChatPage } from '@/pages/ChatPage';
 import { ChatsListPage } from '@/pages/ChatsListPage';
-import { SendAnonymousMessagePage } from '@/pages/SendAnonymousMessagePage';
+import { InboxReceivingPage } from '@/features/inbox/pages/InboxReceivingPage';
 import { AuthPage } from '@/features/auth/page';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import {
@@ -401,9 +401,9 @@ function AppContent() {
     <>
       <Routes>
         {/* Public routes */}
-        <Route path="/inbox/:inboxId" element={<SendAnonymousMessagePage />} />
-        <Route path="/" element={<LandingPage onEnterApp={() => navigate('/discover')} />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/inbox/:inboxId" element={<InboxReceivingPage />} />
 
         {/* Protected routes — layout route pattern for React Router v6 */}
         <Route element={<ProtectedRoute />}>
