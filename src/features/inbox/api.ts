@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { E2EE } from "@/utils/e2ee";
 
 export const inboxApi = {
   async generateNewInboxId(userId: string): Promise<string> {
@@ -16,5 +17,43 @@ export const inboxApi = {
     }
 
     return data.inbox_id;
+  },
+
+  async sendMessageToInbox(title: string, message: string, inboxId: string): Promise<boolean> {
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('public_key')
+      .eq('inbox_id', inboxId)
+      .single();
+
+    if (userError) {
+      throw new Error(userError.message);
+    }
+
+    // create shared key between inbox owner pub key and the sender's temp pub key
+    const publicKey = E2EE.toUint8Array(userData?.public_key);
+    const tempoPassCard = await E2EE.generatePassCard();
+    const tempoKeyPairs = await E2EE.getKeyPairs(tempoPassCard);
+    const sharedKey = E2EE.generateSharedKey(publicKey, tempoKeyPairs.privateKey);
+
+    // encrypt the message and title with the shared key use same nonce for both
+    const nonce = E2EE.generateNonce()
+    const messageEncypted = E2EE.encryptMsg(message, sharedKey, nonce);
+    const titleEncrypted = E2EE.encryptMsg(title, sharedKey, nonce);
+
+    const { error } = await supabase
+      .from('inbox')
+      .insert({
+        inbox_id: inboxId,
+        title: E2EE.toBase64(titleEncrypted.message),
+        message: E2EE.toBase64(messageEncypted.message),
+        nonce: E2EE.toBase64(nonce)
+      });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return true;
   }
 };

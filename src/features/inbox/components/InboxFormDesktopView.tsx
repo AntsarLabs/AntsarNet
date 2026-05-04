@@ -1,14 +1,12 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { EyeOff, ShieldCheck, Users, MapPin, MessageSquare } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { EyeOff, ShieldCheck, Users, MapPin, MessageSquare, Check } from 'lucide-react';
 
 interface SendInboxDesktopViewProps {
   inboxId?: string;
-  subject: string;
-  setSubject: (s: string) => void;
   message: string;
   setMessage: (m: string) => void;
-  instruction: string;
+  title: string;
   isSending: boolean;
   isSent: boolean;
   handleSubmit: (e: React.FormEvent) => void;
@@ -17,33 +15,14 @@ interface SendInboxDesktopViewProps {
 
 export function SendInboxDesktopView({
   inboxId,
-  subject,
-  setSubject,
   message,
   setMessage,
-  instruction,
+  title,
   isSending,
   isSent,
   handleSubmit,
   onNavigateHome
 }: SendInboxDesktopViewProps) {
-  if (isSent) {
-    return (
-      <div className="hidden md:flex relative z-10 flex-1 items-center justify-center px-8 py-20">
-        <div className="bg-white shadow-2xl rounded-[3rem] p-16 text-center max-w-md w-full border border-white/40">
-          <h2 className="text-4xl font-black text-slate-900 mb-4">Delivered!</h2>
-          <p className="text-slate-500 font-bold mb-8">Your secret is safe with us.</p>
-          <button
-            onClick={onNavigateHome}
-            className="w-full h-16 bg-[#D82B7D] text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-pink-500/20 active:scale-[0.98] transition-all"
-          >
-            Go Home
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="hidden md:flex relative z-10 flex-1 items-center justify-center px-8 py-20">
       <div className="w-full max-w-7xl grid grid-cols-[300px_1fr_300px] gap-12 items-start">
@@ -69,30 +48,34 @@ export function SendInboxDesktopView({
             <span className="text-[10px] font-black font-mono text-pink-600 bg-pink-50 px-4 py-1.5 rounded-lg border border-pink-100 uppercase tracking-widest">To: #{inboxId?.toUpperCase()}</span>
           </div>
 
-          {instruction && (
+          {title && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className="mb-8 p-6 bg-slate-50 border border-slate-100 rounded-[2rem] text-center relative"
             >
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-white border border-slate-100 rounded-full text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Instruction</span>
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-white border border-slate-100 rounded-full text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Title</span>
               <p className="text-sm font-bold text-slate-600 leading-relaxed italic">
-                "{instruction}"
+                "{title}"
               </p>
             </motion.div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Subject</label>
-              <input
-                type="text"
-                placeholder="Optional subject..."
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                className="w-full h-14 bg-slate-50 border border-slate-100 rounded-xl px-5 text-slate-900 focus:outline-none focus:border-pink-300 shadow-sm"
-              />
-            </div>
+            <AnimatePresence>
+              {isSent && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10, height: 0 }}
+                  animate={{ opacity: 1, y: 0, height: 'auto' }}
+                  exit={{ opacity: 0, y: -10, height: 0 }}
+                  className="bg-emerald-50 text-emerald-600 px-4 py-3 rounded-xl text-sm font-bold border border-emerald-100 flex items-center justify-center gap-2 overflow-hidden shadow-sm"
+                >
+                  <Check size={18} />
+                  Message sent securely!
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Message</label>
               <textarea
@@ -109,7 +92,7 @@ export function SendInboxDesktopView({
               disabled={isSending || !message.trim()}
               className="w-full h-16 bg-[#D82B7D] hover:bg-[#C0266F] text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-pink-500/20 active:scale-[0.98] transition-all"
             >
-              {isSending ? "Sending..." : "Send Anonymous Whisper"}
+              {isSending ? "Sending..." : "Send"}
             </button>
           </form>
         </div>

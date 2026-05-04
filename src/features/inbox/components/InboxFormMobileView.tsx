@@ -5,28 +5,22 @@ import { SendInboxPromoCards } from './InboxFormPromoCards';
 
 interface SendInboxMobileViewProps {
   inboxId?: string;
-  subject: string;
-  setSubject: (s: string) => void;
   message: string;
   setMessage: (m: string) => void;
-  instruction: string;
+  title: string;
   isSending: boolean;
   isSent: boolean;
-  setIsSent: (b: boolean) => void;
   handleSubmit: (e: React.FormEvent) => void;
   onNavigateHome: () => void;
 }
 
 export function SendInboxMobileView({
   inboxId,
-  subject,
-  setSubject,
   message,
   setMessage,
-  instruction,
+  title,
   isSending,
   isSent,
-  setIsSent,
   handleSubmit,
   onNavigateHome
 }: SendInboxMobileViewProps) {
@@ -48,7 +42,6 @@ export function SendInboxMobileView({
 
       <div className="flex-1 flex flex-col overflow-y-auto">
         <AnimatePresence mode="wait">
-          {!isSent ? (
             <motion.div
               key="mobile-form"
               initial={{ opacity: 0, y: 100 }}
@@ -63,7 +56,7 @@ export function SendInboxMobileView({
                   <span className="text-pink-500">Anonymous</span> Message
                 </h1>
 
-                {instruction && (
+                {title && (
                   <motion.div
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -72,9 +65,9 @@ export function SendInboxMobileView({
                     <div className="absolute top-0 right-0 p-2 opacity-10">
                       <MessageSquare size={40} className="text-pink-600" />
                     </div>
-                    <span className="text-[9px] font-black uppercase tracking-widest text-pink-500 mb-1 block">Inbox Instruction</span>
+                    <span className="text-[9px] font-black uppercase tracking-widest text-pink-500 mb-1 block">Inbox Title</span>
                     <p className="text-xs font-bold text-slate-700 leading-relaxed italic">
-                      "{instruction}"
+                      "{title}"
                     </p>
                   </motion.div>
                 )}
@@ -83,16 +76,19 @@ export function SendInboxMobileView({
               <SendInboxPromoCards />
 
               <form onSubmit={handleSubmit} className="px-6 pt-2 flex flex-col gap-5 pb-12">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Subject</label>
-                  <input
-                    type="text"
-                    placeholder="What is this about? (Optional)"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                    className="w-full h-14 bg-slate-50 border border-slate-100 rounded-2xl px-5 text-slate-900 focus:outline-none focus:border-pink-300 transition-all font-bold placeholder:text-slate-400"
-                  />
-                </div>
+                <AnimatePresence>
+                  {isSent && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, height: 0 }}
+                      animate={{ opacity: 1, y: 0, height: 'auto' }}
+                      exit={{ opacity: 0, y: -10, height: 0 }}
+                      className="bg-emerald-50 text-emerald-600 px-4 py-3 rounded-2xl text-sm font-bold border border-emerald-100 flex items-center justify-center gap-2 overflow-hidden shadow-sm"
+                    >
+                      <Check size={18} />
+                      Message sent securely!
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 <div className="space-y-1.5">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Message</label>
@@ -117,7 +113,7 @@ export function SendInboxMobileView({
                     ) : (
                       <div className="flex items-center gap-3">
                         <Send size={18} />
-                        <span>Send Whisper</span>
+                        <span>Send</span>
                       </div>
                     )}
                   </button>
@@ -132,36 +128,6 @@ export function SendInboxMobileView({
                 </div>
               </form>
             </motion.div>
-          ) : (
-            <motion.div
-              key="mobile-success"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="flex-1 flex flex-col bg-white rounded-t-[2.5rem] items-center justify-center p-8 text-center"
-            >
-              <div className="w-24 h-24 rounded-3xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-6 shadow-sm relative">
-                <Check size={40} className="text-emerald-500" />
-              </div>
-              <h2 className="text-3xl font-black text-slate-900 mb-2 tracking-tight">Whisper Sent!</h2>
-              <p className="text-slate-500 text-sm font-bold mb-10 max-w-[240px]">Your message has been delivered safely and anonymously.</p>
-
-              <div className="w-full space-y-3">
-                <button
-                  onClick={() => setIsSent(false)}
-                  className="w-full h-14 bg-slate-100 text-slate-700 rounded-2xl font-bold border border-slate-200"
-                >
-                  Send Another
-                </button>
-                <button
-                  onClick={onNavigateHome}
-                  className="w-full h-16 bg-pink-500 text-white rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3"
-                >
-                  Create Your Inbox
-                  <ArrowRight size={18} />
-                </button>
-              </div>
-            </motion.div>
-          )}
         </AnimatePresence>
       </div>
     </div>

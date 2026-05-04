@@ -13,15 +13,9 @@ RETURNS TRIGGER AS $$
 BEGIN
     -- fetch sender user id from users table using sender inbox id
     SELECT id
-    INTO NEW.sender_id
+    INTO NEW.user_id
     FROM users
-    WHERE inbox_id = NEW.sender_inbox_id;
-
-    -- fetch receiver user id from users table using receiver inbox id
-    SELECT id
-    INTO NEW.receiver_id
-    FROM users
-    WHERE inbox_id = NEW.receiver_inbox_id;
+    WHERE inbox_id = NEW.inbox_id;
 
     RETURN NEW;
 END;

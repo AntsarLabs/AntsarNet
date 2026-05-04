@@ -2,30 +2,31 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { SendInboxMobileView } from '../components/InboxFormMobileView';
 import { SendInboxDesktopView } from '../components/InboxFormDesktopView';
+import { inboxApi } from '../api';
+import { GlobalBackground } from '@/components/GlobalBackground';
 
 export function InboxReceivingPage() {
   const { inboxId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [isSent, setIsSent] = useState(false);
-  const [instruction, setInstruction] = useState('Tell me something you never had the courage to say in person... 💭');
+  const [title, setTitle] = useState('');
 
   useEffect(() => {
-    // Decode custom title/instruction from the URL search parameters if provided
+    // Decode custom title from the URL search parameters if provided
     const searchParams = new URLSearchParams(location.search);
     const tParam = searchParams.get('t');
     if (tParam) {
       try {
         const decodedTitle = decodeURIComponent(atob(tParam));
         if (decodedTitle) {
-          setInstruction(decodedTitle);
+          setTitle(decodedTitle);
         }
       } catch (err) {
-        console.error('Failed to decode instruction param', err);
+        console.error('Failed to decode title param', err);
       }
     }
   }, [location.search]);
@@ -36,11 +37,14 @@ export function InboxReceivingPage() {
 
     setIsSending(true);
     // Simulate API call
-    setTimeout(() => {
+    setTimeout(async () => {
       setIsSending(false);
-      setIsSent(true);
-      setSubject('');
+      if (inboxId) {
+        await inboxApi.sendMessageToInbox(title, message, inboxId);
+      }
       setMessage('');
+      setIsSent(true);
+      setTimeout(() => setIsSent(false), 3000);
     }, 1500);
   };
 
@@ -50,27 +54,23 @@ export function InboxReceivingPage() {
 
   return (
     <div className="min-h-screen w-full relative bg-transparent font-sans overflow-x-hidden flex flex-col">
+      <GlobalBackground />
       <SendInboxMobileView
         inboxId={inboxId}
-        subject={subject}
-        setSubject={setSubject}
         message={message}
         setMessage={setMessage}
-        instruction={instruction}
+        title={title}
         isSending={isSending}
         isSent={isSent}
-        setIsSent={setIsSent}
         handleSubmit={handleSubmit}
         onNavigateHome={handleNavigateHome}
       />
-      
+
       <SendInboxDesktopView
         inboxId={inboxId}
-        subject={subject}
-        setSubject={setSubject}
         message={message}
         setMessage={setMessage}
-        instruction={instruction}
+        title={title}
         isSending={isSending}
         isSent={isSent}
         handleSubmit={handleSubmit}
