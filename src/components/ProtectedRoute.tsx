@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/features/auth/store';
+import { useLiveStatus } from '@/features/live';
 
 interface ProtectedRouteProps {
   redirectTo?: string;
@@ -17,6 +18,9 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({ redirectTo = '/auth' }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading } = useAuthStore();
   const location = useLocation();
+  
+  // Initialize the live status WebSocket connection
+  useLiveStatus();
 
   if (isLoading) {
     return (

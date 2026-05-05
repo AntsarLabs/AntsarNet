@@ -21,7 +21,7 @@ export const inboxApi = {
 
   async sendMessageToInbox(title: string, message: string, inboxId: string): Promise<boolean> {
     const { data: userData, error: userError } = await supabase
-      .from('users')
+      .from('inbox_key_lookup')
       .select('public_key')
       .eq('inbox_id', inboxId)
       .single();

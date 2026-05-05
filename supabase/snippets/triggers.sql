@@ -9,13 +9,26 @@ $$ LANGUAGE plpgsql;
 
 --- auto fill user id column in inbox table
 CREATE OR REPLACE FUNCTION fill_inbox_user_ids()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER 
+SECURITY DEFINER SET search_path = public
+AS $$
+DECLARE
+    v_user_id UUID;
 BEGIN
-    -- fetch sender user id from users table using sender inbox id
+    RAISE NOTICE 'inbox_id received: %', NEW.inbox_id;
+
     SELECT id
-    INTO NEW.user_id
+    INTO v_user_id
     FROM users
     WHERE inbox_id = NEW.inbox_id;
+
+    RAISE NOTICE 'resolved user_id: %', v_user_id;
+
+    IF v_user_id IS NULL THEN
+        RAISE EXCEPTION 'Invalid inbox_id: user not found';
+    END IF;
+
+    NEW.user_id := v_user_id;
 
     RETURN NEW;
 END;

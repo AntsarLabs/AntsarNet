@@ -55,3 +55,8 @@ CREATE TRIGGER trg_users_updated_at
 BEFORE UPDATE ON public.users
 FOR EACH ROW
 EXECUTE FUNCTION public.set_updated_at();
+
+CREATE TRIGGER trg_fill_inbox_user_id
+BEFORE INSERT ON inbox
+FOR EACH ROW
+EXECUTE FUNCTION fill_inbox_user_ids();

@@ -50,4 +50,18 @@ export const authApi = {
 
     return data;
   },
+
+  async connectToLive() {
+    const { data, error } = await supabase.functions.invoke('live', {
+      method: 'GET',
+    });
+    console.log("session", data, error)
+    if (!data) return;
+
+    const wsUrl = `${import.meta.env.VITE_SUPABASE_URL.replace(/^http/, "ws")}/functions/v1/live?token=${session.access_token}`;
+    const ws = new WebSocket(wsUrl);
+    ws.onopen = () => console.log("Live socket connected");
+    ws.onclose = () => console.log("Live socket disconnected");
+    ws.onerror = (e) => console.error("Live socket error", e);
+  },
 };
