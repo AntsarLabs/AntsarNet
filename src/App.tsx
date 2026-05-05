@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useParams, Navigate } from 'react-router-dom';
-import { OnlineUsers } from '@/components/OnlineUsers';
+
 import { MainLayout } from '@/components/MainLayout';
 import { AccountPage } from '@/features/account/page';
 import { InboxPage } from '@/features/inbox/page';
 import { LandingPage } from '@/pages/LandingPage';
-import { UserProfilePage } from '@/pages/UserProfilePage';
 import { ConfessionsPage } from '@/pages/ConfessionsPage';
 import { ChatPage } from '@/pages/ChatPage';
 import { ChatsListPage } from '@/pages/ChatsListPage';
 import { InboxReceivingPage } from '@/features/inbox/pages/InboxReceivingPage';
 import { AuthPage } from '@/features/auth/page';
+import { DiscoverPage } from '@/features/user/page';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import {
   Contact,
@@ -18,92 +18,10 @@ import {
   ChatSession,
   Post,
   Comment
-} from
-  '@/types/chat';
-
-const MOCK_USERS: Contact[] = [
-  {
-    id: '1',
-    friendId: 'Ae1cf8ff45cF',
-    emoji: '🦊',
-    isOnline: true,
-    distance: '500m',
-    city: 'Addis Ababa',
-    blockStatus: null,
-    mood: '😔 feeling low today… need someone to talk to'
-  },
-  {
-    id: '2',
-    friendId: 'B7d2e9a01bC3',
-    emoji: '🦉',
-    isOnline: true,
-    distance: '1.2km',
-    city: 'Addis Ababa',
-    blockStatus: 'blocked_by_you',
-    mood: '🎧 vibing to lo-fi beats rn'
-  },
-  {
-    id: '3',
-    friendId: '4fE8c1d73aB6',
-    emoji: '🐯',
-    isOnline: true,
-    distance: '3.4km',
-    city: 'Adama',
-    blockStatus: 'blocked_you',
-    mood: '💪 gym mode activated'
-  },
-  {
-    id: '4',
-    friendId: 'Dc5a92f0e8F1',
-    emoji: '🐻',
-    isOnline: true,
-    distance: '800m',
-    city: 'Adama',
-    blockStatus: null,
-    mood: "☕ just woke up, don't talk to me yet lol"
-  },
-  {
-    id: '5',
-    friendId: '9bA3d7c46eE2',
-    emoji: '🐬',
-    isOnline: false,
-    distance: '12km',
-    city: 'Bahir Dar',
-    blockStatus: null,
-    mood: '✨ manifesting good energy today'
-  },
-  {
-    id: '6',
-    friendId: 'F2e6b8a15dC0',
-    emoji: '🐺',
-    isOnline: true,
-    distance: '2.5km',
-    city: 'Dire Dawa',
-    blockStatus: 'blocked_you',
-    mood: '🔥 on a winning streak fr'
-  },
-  {
-    id: '7',
-    friendId: '3cD1f4e97aB8',
-    emoji: '🐱',
-    isOnline: false,
-    distance: '5km',
-    city: 'Hawassa',
-    blockStatus: 'blocked_by_you',
-    mood: '😴 nap time is every time'
-  },
-  {
-    id: '8',
-    friendId: 'E8a0c5d32fF7',
-    emoji: '🦅',
-    isOnline: true,
-    distance: '15km',
-    city: 'Addis Ababa',
-    blockStatus: null,
-    mood: '🌅 chasing sunsets and good convos'
-  }];
+} from '@/types/chat';
 
 const MOCK_MESSAGES: Record<string, Message[]> = {
+
   '1': [
     {
       id: 'm1',
@@ -360,41 +278,26 @@ function AppContent() {
   };
 
 
-  const ChatPageRoute = () => {
-    const { id } = useParams();
-    if (!id) return <Navigate to="/discover" />;
+  // const ChatPageRoute = () => {
+  //   const { id } = useParams();
+  //   if (!id) return <Navigate to="/discover" />;
 
-    const contact = MOCK_USERS.find(c => c.id === id);
-    if (!contact) return <Navigate to="/discover" />;
+  //   const contact = MOCK_USERS.find(c => c.id === id);
+  //   if (!contact) return <Navigate to="/discover" />;
 
-    return (
-      <div className="h-screen w-full bg-slate-50 flex flex-col">
-        <ChatPage
-          contact={contact}
-          messages={messages[id] || []}
-          onBack={() => navigate(-1)}
-          onSend={(text) => handleSendMessage(id, text)}
-        />
-      </div>
-    );
-  };
+  //   return (
+  //     <div className="h-screen w-full bg-slate-50 flex flex-col">
+  //       <ChatPage
+  //         contact={contact}
+  //         messages={messages[id] || []}
+  //         onBack={() => navigate(-1)}
+  //         onSend={(text) => handleSendMessage(id, text)}
+  //       />
+  //     </div>
+  //   );
+  // };
 
-  const ProfilePageRoute = () => {
-    const { id } = useParams();
-    const user = MOCK_USERS.find((c) => c.id === id);
-    if (!user) return <Navigate to="/discover" />;
-    return (
-      <UserProfilePage
-        user={user}
-        posts={posts}
-        onBack={() => navigate(-1)}
-        onMessage={(id) => {
-          handleSelect(id);
-        }}
-        onReactPost={handleReactPost}
-      />
-    );
-  };
+
 
 
   return (
@@ -407,19 +310,7 @@ function AppContent() {
 
         {/* Protected routes — layout route pattern for React Router v6 */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/discover" element={
-            <MainLayout>
-              <div className="flex-1 w-full flex flex-col items-center py-16 md:py-24 px-4 overflow-y-auto">
-                <div className="w-full max-w-3xl mx-auto relative z-10">
-                  <OnlineUsers
-                    contacts={MOCK_USERS}
-                    onSelect={handleSelect}
-                    onViewProfile={(id) => navigate(`/profile/${id}`)}
-                  />
-                </div>
-              </div>
-            </MainLayout>
-          } />
+          <Route path="/discover" element={<DiscoverPage />} />
           <Route path="/confessions" element={
             <MainLayout>
               <div className="flex-1 w-full relative pb-20 md:pb-0">
@@ -437,7 +328,7 @@ function AppContent() {
               </div>
             </MainLayout>
           } />
-          <Route path="/messages/chats" element={
+          {/* <Route path="/messages/chats" element={
             <MainLayout>
               <div className="flex-1 w-full relative pb-20 md:pb-0 font-sans">
                 <div className="relative z-10 w-full h-full">
@@ -451,19 +342,15 @@ function AppContent() {
                 </div>
               </div>
             </MainLayout>
-          } />
+          } /> */}
           <Route path="/messages/inbox" element={<InboxPage />} />
           <Route path="/account" element={<AccountPage />} />
-          <Route path="/profile/:id" element={
-            <MainLayout showHeader={false} showBottomNav={false}>
-              <ProfilePageRoute />
-            </MainLayout>
-          } />
-          <Route path="/chat/:id" element={
+
+          {/* <Route path="/chat/:id" element={
             <MainLayout showHeader={false} showBottomNav={false}>
               <ChatPageRoute />
             </MainLayout>
-          } />
+          } /> */}
         </Route>
       </Routes>
     </>

@@ -1,7 +1,6 @@
-import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/features/auth/store';
-import { useLiveStatus } from '@/features/live';
+import { useTrackOnlineStatus } from '@/features/live/hooks';
 
 interface ProtectedRouteProps {
   redirectTo?: string;
@@ -18,9 +17,9 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({ redirectTo = '/auth' }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading } = useAuthStore();
   const location = useLocation();
-  
-  // Initialize the live status WebSocket connection
-  useLiveStatus();
+
+  // Initialize the live status (heartbeat and real-time sync)
+  useTrackOnlineStatus();
 
   if (isLoading) {
     return (

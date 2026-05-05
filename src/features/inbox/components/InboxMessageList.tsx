@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
@@ -7,6 +7,7 @@ import { inboxApi } from '../api';
 import { useAuthStore } from '@/features/auth/store';
 import { InboxMessageCard } from './InboxMessageCard';
 import { EmptyInboxState } from './EmptyInboxState';
+import { timeAgo } from '@/utils/date';
 
 const PAGE_SIZE = 10;
 
@@ -15,20 +16,7 @@ const inboxKeys = {
   messages: (inboxId: string) => [...inboxKeys.all, 'messages', inboxId] as const,
 };
 
-function timeAgo(dateString: string) {
-  const date = new Date(dateString);
-  const now = new Date();
-  const seconds = Math.round((now.getTime() - date.getTime()) / 1000);
-  const minutes = Math.round(seconds / 60);
-  const hours = Math.round(minutes / 60);
-  const days = Math.round(hours / 24);
 
-  if (seconds < 60) return 'just now';
-  if (minutes < 60) return `${minutes}m ago`;
-  if (hours < 24) return `${hours}h ago`;
-  if (days < 7) return `${days}d ago`;
-  return date.toLocaleDateString();
-}
 
 export function InboxMessageList() {
   const { user, privateKey } = useAuthStore();
