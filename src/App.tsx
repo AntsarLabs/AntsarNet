@@ -5,7 +5,7 @@ import { MainLayout } from '@/components/MainLayout';
 import { AccountPage } from '@/features/account/page';
 import { InboxPage } from '@/features/inbox/page';
 import { LandingPage } from '@/pages/LandingPage';
-import { ConfessionsPage } from '@/pages/ConfessionsPage';
+import { ConfessionsPage } from '@/features/confession/page';
 import { ChatPage } from '@/pages/ChatPage';
 import { ChatsListPage } from '@/pages/ChatsListPage';
 import { InboxReceivingPage } from '@/features/inbox/pages/InboxReceivingPage';
@@ -16,8 +16,6 @@ import {
   Contact,
   Message,
   ChatSession,
-  Post,
-  Comment
 } from '@/types/chat';
 
 const MOCK_MESSAGES: Record<string, Message[]> = {
@@ -66,157 +64,12 @@ const MOCK_SESSIONS: ChatSession[] = [
     status: 'ended'
   }];
 
-const MOCK_POSTS: Post[] = [
-  {
-    id: 'p1',
-    userId: 'Ae1cf8ff45cF',
-    emoji: '🦊',
-    content:
-      "I've been going to the same coffee shop for 3 months just because the barista is cute. I don't even like coffee that much 😭",
-    tags: ['Crush', 'Funny', 'Secret'],
-    visibility: 'public',
-    createdAt: '2 hours ago',
-    status: 'active',
-    reactionCount: 45,
-    commentCount: 12,
-    reportCount: 0
-  },
-  {
-    id: 'p2',
-    userId: 'B7d2e9a01bC3',
-    emoji: '🦉',
-    content:
-      "Sometimes I pretend to be on a phone call when walking past people handing out flyers. I'm sorry, I just have social anxiety.",
-    tags: ['Vent', 'Mental Health'],
-    visibility: 'public',
-    createdAt: '5 hours ago',
-    status: 'active',
-    reactionCount: 128,
-    commentCount: 3,
-    reportCount: 0
-  },
-  {
-    id: 'p3',
-    userId: '4fE8c1d73aB6',
-    emoji: '🐯',
-    content:
-      "I accidentally liked my ex's new partner's Instagram post from 2021. I immediately deactivated my account. Moving to Nepal tomorrow.",
-    tags: ['Awkward', 'Relationship', 'Regret'],
-    visibility: 'public',
-    createdAt: '1 day ago',
-    status: 'active',
-    reactionCount: 342,
-    commentCount: 45,
-    reportCount: 0
-  },
-  {
-    id: 'p4',
-    userId: 'Dc5a92f0e8F1',
-    emoji: '🐻',
-    content:
-      "I'm 28 and I still sleep with a stuffed bear. It's the only thing keeping my mental health together.",
-    tags: ['Wholesome', 'Mental Health'],
-    visibility: 'anonymous_room',
-    createdAt: '2 days ago',
-    status: 'active',
-    reactionCount: 89,
-    commentCount: 15,
-    reportCount: 0
-  },
-  {
-    id: 'p5',
-    userId: 'MyCodeName123',
-    emoji: '😎',
-    content:
-      'I told my boss I was sick but I actually spent the whole day binge-watching a K-drama. No regrets, the finale was worth it 🍿',
-    tags: ['Funny', 'Secret', 'Regret'],
-    visibility: 'public',
-    createdAt: '3 hours ago',
-    status: 'active',
-    reactionCount: 67,
-    commentCount: 8,
-    reportCount: 0
-  },
-  {
-    id: 'p6',
-    userId: 'MyCodeName123',
-    emoji: '😎',
-    content:
-      "I've been learning to cook just to impress someone who doesn't even know I exist. My kitchen has seen things… burnt things 🔥😅",
-    tags: ['Crush', 'Funny'],
-    visibility: 'public',
-    createdAt: '1 day ago',
-    status: 'active',
-    reactionCount: 134,
-    commentCount: 22,
-    reportCount: 0
-  },
-  {
-    id: 'p7',
-    userId: 'MyCodeName123',
-    emoji: '😎',
-    content:
-      "Sometimes I walk around the city with earphones in but no music playing, just so I can eavesdrop on strangers' conversations. I'm basically a detective at this point 🕵️",
-    tags: ['Awkward', 'Secret'],
-    visibility: 'anonymous_room',
-    createdAt: '3 days ago',
-    status: 'active',
-    reactionCount: 201,
-    commentCount: 31,
-    reportCount: 0
-  }];
-
-const MOCK_COMMENTS: Comment[] = [
-  {
-    id: 'c1',
-    postId: 'p1',
-    userId: '9bA3d7c46eE2',
-    emoji: '🐬',
-    content: 'Omg same! Have you talked to them yet?',
-    createdAt: '1 hour ago',
-    status: 'active',
-    reactionCount: 5,
-    reportCount: 0
-  },
-  {
-    id: 'c2',
-    postId: 'p1',
-    userId: 'F2e6b8a15dC0',
-    emoji: '🐺',
-    parentCommentId: 'c1',
-    content:
-      "Plot twist: they know and they're making your coffee extra weak on purpose.",
-    createdAt: '45 mins ago',
-    status: 'active',
-    reactionCount: 12,
-    reportCount: 0
-  },
-  {
-    id: 'c3',
-    postId: 'p3',
-    userId: '3cD1f4e97aB8',
-    emoji: '🐱',
-    content:
-      "RIP. We've all been there. The Nepal move is the only logical step.",
-    createdAt: '20 hours ago',
-    status: 'active',
-    reactionCount: 45,
-    reportCount: 0
-  }];
-
 
 function AppContent() {
   const navigate = useNavigate();
 
   const [messages, setMessages] = useState<Record<string, Message[]>>(MOCK_MESSAGES);
   const [sessions, setSessions] = useState<ChatSession[]>(MOCK_SESSIONS);
-  const [posts, setPosts] = useState<Post[]>(MOCK_POSTS);
-  const [comments, setComments] = useState<Comment[]>(MOCK_COMMENTS);
-
-  const currentUser = {
-    emoji: '😎',
-    friendId: 'MyCodeName123'
-  };
 
   const handleSelect = (id: string) => {
     navigate(`/chat/${id}`);
@@ -233,48 +86,6 @@ function AppContent() {
       ...prev,
       [contactId]: [...(prev[contactId] || []), newMessage]
     }));
-  };
-
-  const handleAddPost = (content: string, visibility: 'public' | 'anonymous_room', tags: string[]) => {
-    const newPost: Post = {
-      id: `p${Date.now()}`,
-      userId: currentUser.friendId,
-      emoji: currentUser.emoji,
-      content,
-      tags,
-      visibility,
-      createdAt: 'Just now',
-      status: 'active',
-      reactionCount: 0,
-      commentCount: 0,
-      reportCount: 0
-    };
-    setPosts([newPost, ...posts]);
-  };
-
-
-  const handleAddComment = (postId: string, content: string, parentId?: string) => {
-    const newComment: Comment = {
-      id: `c${Date.now()}`,
-      postId,
-      userId: currentUser.friendId,
-      emoji: currentUser.emoji,
-      content,
-      parentCommentId: parentId,
-      createdAt: 'Just now',
-      status: 'active',
-      reactionCount: 0,
-      reportCount: 0
-    };
-    setComments([...comments, newComment]);
-    setPosts(prev => prev.map(p => p.id === postId ? { ...p, commentCount: p.commentCount + 1 } : p));
-  };
-
-  const handleReactPost = (postId: string) => {
-    setPosts(prev => prev.map(p => p.id === postId ? { ...p, reactionCount: p.reactionCount + 1 } : p));
-  };
-  const handleReactComment = (commentId: string) => {
-    setComments(prev => prev.map(c => c.id === commentId ? { ...c, reactionCount: c.reactionCount + 1 } : c));
   };
 
 
@@ -311,23 +122,7 @@ function AppContent() {
         {/* Protected routes — layout route pattern for React Router v6 */}
         <Route element={<ProtectedRoute />}>
           <Route path="/discover" element={<DiscoverPage />} />
-          <Route path="/confessions" element={
-            <MainLayout>
-              <div className="flex-1 w-full relative pb-20 md:pb-0">
-                <div className="relative z-10">
-                  <ConfessionsPage
-                    currentUser={currentUser}
-                    posts={posts}
-                    comments={comments}
-                    onAddPost={handleAddPost}
-                    onAddComment={handleAddComment}
-                    onReactPost={handleReactPost}
-                    onReactComment={handleReactComment}
-                  />
-                </div>
-              </div>
-            </MainLayout>
-          } />
+          <Route path="/confessions" element={<ConfessionsPage />} />
           {/* <Route path="/messages/chats" element={
             <MainLayout>
               <div className="flex-1 w-full relative pb-20 md:pb-0 font-sans">

@@ -29,38 +29,50 @@ Managing blocked interactions between users.
 
 ---
 
-## Confessions
+## tags
+A collection of available tags.
+*   `id`: primary key 
+*   `name`: String (e.g., "Crush", "Secret", "Vent").
+*   `count`: Integer
+*   created_at: Timestamp
+*   updated_at: Timestamp
+
+## posts
 Anonymous or semi-anonymous posts shared by users in the Discovery feed.
 *   `id`: Primary key.
 *   `user_id`: Foreign key to Users (The creator).
+*   `post_type`: `confession` | `vent` | `question` | `advice`
 *   `content`: The text body.
-*   `status`: `deleted` | `flagged` | `published`.
-*   `reaction_count`: Denormalized count for performance.
-*   `comment_count`: Denormalized count for performance.
-*   `report_count`: Safety metric used for moderation.
+*   `status`: `deleted` | `flagged` | `published` | `pening`
+*   created_at: Timestamp
+*   updated_at: Timestamp
 
-### Confession Tags
-Category tags for confessions used for filtering.
-*   `confession_id`: Foreign key to Confessions.
-*   `tag_name`: String (e.g., "Crush", "Secret", "Vent").
-*   `count`: Integer
+### post tags
+Category tags for posts used for filtering.
+*   `post_id`: Foreign key to Posts.
+*   `tag_id`: String
 
-### Confession Comments
-Threads on confessions.
+### post comments
+Threads on posts.
 *   `id`: Primary key.
-*   `confession_id`: Foreign key to Confessions.
+*   `post_id`: Foreign key to Posts.
 *   `user_id`: Foreign key to Users.
 *   `parent_comment_id`: Self-referencing ID for replies (null for top-level).
 *   `content`: Comment text.
 *   `status`: `active` | `deleted` | `flagged`.
+*   created_at: Timestamp
+*   updated_at: Timestamp
 
-### Reactions
-Shared reactions across both confessions and comments.
+### reactions
+Shared reactions across both posts and comments.
 *   `id`: Primary key.
 *   `user_id`: Foreign key to Users.
-*   `confession_id`: Foreign key to Confessions.
-*   `comment_id`: Foreign key to Confession Comments.
-*   `reaction`: Enum (...list of allowed emojis).
+*   `post_id`: Foreign key to Posts.
+*   `comment_id`: Foreign key to Post Comments.
+*   `emoji`: String
+*   created_at: Timestamp
+*   updated_at: Timestamp
+
 
 ---
 

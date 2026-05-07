@@ -12,8 +12,8 @@ import {
 } from
   'lucide-react';
 import { Contact, Post } from '@/types/chat';
-import { PostCard } from '@/components/PostCard';
-import { ReactionType } from '@/components/ReactionBar';
+import { PostCard } from '@/features/confession/components/PostCard';
+import { ReactionType } from '@/features/confession/types';
 import { getFullUsername } from '@/utils/user';
 interface UserProfilePageProps {
   user: Contact;
