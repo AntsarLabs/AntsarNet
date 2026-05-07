@@ -6,43 +6,53 @@ import {
   Send,
   Ban,
   Flag,
-  MapPin,
-  Phone,
-  Video,
   Info
 } from
   'lucide-react';
-import { Contact, Message } from '@/types/chat';
-import { MessageBubble } from '@/components/MessageBubble';
+import { useParams, useNavigate } from 'react-router-dom';
+import { MainLayout } from '@/components/MainLayout';
+import { useChatStore } from '../store';
+import { MessageBubble } from '../components/MessageBubble';
+
 interface ChatPageProps {
-  contact: Contact;
-  messages: Message[];
-  onBack: () => void;
-  onSend: (text: string) => void;
+  id?: string;
   hideBackButton?: boolean;
+  onBack?: () => void;
+  noLayout?: boolean;
 }
+
 export function ChatPage({
-  contact,
-  messages,
+  id: propId,
+  hideBackButton,
   onBack,
-  onSend,
-  hideBackButton
+  noLayout
 }: ChatPageProps) {
+  const { id: routeId } = useParams<{ id: string }>();
+  const id = propId || routeId;
+  const navigate = useNavigate();
+  const { contacts, messages, sendMessage } = useChatStore();
+  
+  const contact = contacts.find((c) => c.id === id);
+  const chatMessages = id ? messages[id] || [] : [];
+  
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({
       behavior: 'smooth'
     });
   };
+  
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isTyping]);
+  }, [chatMessages, isTyping]);
+  
   const handleSend = () => {
-    if (!inputText.trim()) return;
-    onSend(inputText.trim());
+    if (!inputText.trim() || !id) return;
+    sendMessage(id, inputText.trim());
     setInputText('');
     // Mock typing indicator
     setIsTyping(true);
@@ -50,16 +60,27 @@ export function ChatPage({
       setIsTyping(false);
     }, 2500);
   };
+  
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
   };
+
+  if (!contact) {
+    return (
+      <div className="flex-1 flex items-center justify-center bg-[#FAF8F5]">
+        <p className="text-slate-500">Contact not found</p>
+      </div>
+    );
+  }
+
   const isBlockedByMe = contact.blockStatus === 'blocked_by_you';
   const isBlockedByThem = contact.blockStatus === 'blocked_you';
   const canChat = !isBlockedByMe && !isBlockedByThem;
-  return (
+
+  const content = (
     <div className="flex flex-col h-full w-full text-slate-800 relative bg-[#FAF8F5]">
       {/* Subtle gradient bg */}
       <div className="absolute inset-0 bg-gradient-to-b from-slate-50 to-[#FAF8F5] z-0" />
@@ -69,7 +90,7 @@ export function ChatPage({
         <div className="flex items-center gap-1 sm:gap-3">
           {!hideBackButton &&
             <button
-              onClick={onBack}
+              onClick={onBack || (() => navigate(-1))}
               className="p-2 text-slate-500 hover:text-slate-800 transition-colors rounded-full hover:bg-slate-100 active:bg-slate-200">
 
               <ChevronLeft size={24} />
@@ -86,7 +107,7 @@ export function ChatPage({
             </div>
             <div className="flex flex-col justify-center">
               <span className="font-semibold text-[15px] text-slate-900 leading-tight">
-                {contact.friendId}
+                @{contact.username}
               </span>
               <div className="flex items-center gap-1.5 mt-0.5">
                 {contact.isOnline ?
@@ -98,23 +119,13 @@ export function ChatPage({
                     Offline
                   </span>
                 }
-                <span className="w-1 h-1 rounded-full bg-slate-300" />
-                <span className="text-xs text-slate-400 flex items-center gap-0.5">
-                  <MapPin size={10} />
-                  {contact.distance}
-                </span>
+
               </div>
             </div>
           </div>
         </div>
 
         <div className="flex items-center gap-1 sm:gap-2">
-          <button className="p-2.5 text-slate-400 hover:text-slate-700 transition-colors rounded-full hover:bg-slate-100 hidden sm:block">
-            <Phone size={18} />
-          </button>
-          <button className="p-2.5 text-slate-400 hover:text-slate-700 transition-colors rounded-full hover:bg-slate-100 hidden sm:block">
-            <Video size={18} />
-          </button>
 
           <div className="relative">
             <button
@@ -194,14 +205,14 @@ export function ChatPage({
 
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-1 relative z-10 scroll-smooth">
-        {messages.length === 0 ?
+        {chatMessages.length === 0 ?
           <div className="h-full flex flex-col items-center justify-center text-center space-y-5 opacity-80">
             <div className="w-24 h-24 rounded-full bg-white border border-slate-200 flex items-center justify-center text-5xl shadow-sm">
               {contact.emoji}
             </div>
             <div className="max-w-xs">
               <p className="text-slate-800 font-semibold text-lg mb-2">
-                Say hi to {contact.friendId}!
+                Say hi to @{contact.username}!
               </p>
               <p className="text-slate-500 text-sm leading-relaxed">
                 Messages are anonymous, end-to-end encrypted, and disappear
@@ -216,8 +227,8 @@ export function ChatPage({
                 Today
               </span>
             </div>
-            {messages.map((msg, idx) => {
-              const prevMsg = messages[idx - 1];
+            {chatMessages.map((msg, idx) => {
+              const prevMsg = chatMessages[idx - 1];
               const isFirstInGroup =
                 !prevMsg || prevMsg.senderId !== msg.senderId;
               return (
@@ -293,6 +304,16 @@ export function ChatPage({
           </button>
         </div>
       </div>
-    </div>);
+    </div>
+  );
 
+  // If this component is being used as a full page (not within the hub)
+  // we wrap it in MainLayout.
+  if (noLayout) return content;
+
+  return (
+    <MainLayout showHeader={false} showBottomNav={false} showFooter={false}>
+      {content}
+    </MainLayout>
+  );
 }

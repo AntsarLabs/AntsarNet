@@ -76,29 +76,51 @@ Shared reactions across both posts and comments.
 
 ---
 
-## Chat
-Conversational links between two users. Users can only have one active session at a time.
-*   `id`: Primary key.
-*   `user_1_id`: Initiator of the session.
-*   `user_2_id`: Participant receiving the session.
-*   `status`: `active` | `ended`.
-*   `total_messages`: Denormalized count.
-*   `unreplied_count`: Number of messages waiting for a response from the current viewer.
-*   `started_at`: Timestamp.
-*   `last_message_at`: Timestamp.
 
-### Messages
-Individual messages within a specific chat session.
-*   `id`: Primary key.
-*   `chat_id`: Foreign key to Chat Sessions.
-*   `sender_id`: Foreign key to Users
-*   `text`: Message content.
-*   `created_at`: Timestamp.
+CREATE TABLE chats (
+    id UUID PRIMARY KEY,
+
+    sender_id UUID NOT NULL REFERENCES public_users(id),
+    receiver_id UUID NOT NULL REFERENCES public_users(id),
+
+    status TEXT NOT NULL DEFAULT 'pending',
+    -- pending | accepted | declined
+
+    sender_deleted_at TIMESTAMP NULL,
+    receiver_deleted_at TIMESTAMP NULL,
+
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+
+CREATE TABLE messages (
+    id UUID PRIMARY KEY,
+
+    chat_id UUID NOT NULL REFERENCES chats(id),
+
+    sender_id UUID NOT NULL REFERENCES public_users(id)
+
+    encrypted_text TEXT NOT NULL,
+
+    nonce TEXT NOT NULL,
+
+    sender_public_key TEXT NULL,
+
+    seen_at TIMESTAMP NULL,
+
+    sender_deleted_at TIMESTAMP NULL,
+    receiver_deleted_at TIMESTAMP NULL,
+    auto_delete_at TIMESTAMP NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+
 
 ---
 
 ## Inbox Messages
-Individual anonymous messages received via a user's unique inbox link.
 *   `id`: Primary key.
 *   `user_id`: Foreign key to Users (linked via `friend_id` on the frontend).
 *   `subject`: Message subject.

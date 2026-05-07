@@ -1,6 +1,6 @@
 export interface User {
   id: string;
-  friendId: string;
+  username: string;
   emoji: string;
   isOnline: boolean;
   distance?: string;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { CheckCheck } from 'lucide-react';
-import { Message } from '../types/chat';
+import { Message } from '../types';
 interface MessageBubbleProps {
   message: Message;
   isMe: boolean;

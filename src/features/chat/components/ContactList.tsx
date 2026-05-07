@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Search } from 'lucide-react';
-import { Contact } from '../types/chat';
+import { Contact } from '../types';
 interface ContactListProps {
   contacts: Contact[];
   selectedId: string | null;
@@ -13,7 +13,7 @@ export function ContactList({
 }: ContactListProps) {
   const [search, setSearch] = useState('');
   const filtered = contacts.filter((c) =>
-  c.friendId.toLowerCase().includes(search.toLowerCase())
+  c.username.toLowerCase().includes(search.toLowerCase())
   );
   return (
     <div className="flex flex-col h-full">
@@ -25,7 +25,7 @@ export function ContactList({
           
           <input
             type="text"
-            placeholder="Search by Friend ID..."
+            placeholder="Search by Username..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-muted/50 border border-border/50 rounded-lg pl-9 pr-4 py-2 text-[14px] focus:outline-none focus:ring-1 focus:ring-pink-500 focus:bg-muted transition-all placeholder:text-muted-foreground/70" />
@@ -59,11 +59,9 @@ export function ContactList({
                   <h3
                 className={`font-medium text-[15px] truncate font-mono tracking-wide ${selectedId === contact.id ? 'text-foreground' : 'text-foreground/90'}`}>
                 
-                    {contact.friendId}
+                    @{contact.username}
                   </h3>
-                  <span className="text-[11px] text-muted-foreground whitespace-nowrap ml-2 font-medium">
-                    {contact.lastMessageTime}
-                  </span>
+
                 </div>
                 <p
               className={`text-[13px] truncate ${contact.unreadCount ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
