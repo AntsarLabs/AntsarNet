@@ -22,7 +22,7 @@ function AppContent() {
         {/* Protected routes — layout route pattern for React Router v6 */}
         <Route element={<ProtectedRoute />}>
           <Route path="/discover" element={<DiscoverPage />} />
-          <Route path="/confessions" element={<ConfessionsPage />} />
+          <Route path="/posts" element={<ConfessionsPage />} />
           <Route path="/chats" element={<ChatPage />} />
           <Route path="/chats/:id" element={<ChatPage />} />
           <Route path="/messages/inbox" element={<InboxPage />} />

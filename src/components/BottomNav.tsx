@@ -24,10 +24,10 @@ export function BottomNav() {
       icon: MessageCircle
     },
     {
-      id: 'confessions',
-      label: 'Confessions',
+      id: 'posts',
+      label: 'Posts',
       icon: Flame,
-      to: '/confessions'
+      to: '/posts'
     },
     {
       id: 'account',

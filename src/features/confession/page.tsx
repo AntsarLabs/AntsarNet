@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Flame } from 'lucide-react';
+import { Plus, Flame, X } from 'lucide-react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { PostCard, CreatePostModal } from './components';
 import { MainLayout } from '@/components/MainLayout';
 import { usePostsInfinite, useCreatePost, useToggleReaction, useAddComment } from './hooks';
@@ -15,11 +16,14 @@ export function ConfessionsPage() {
   const [activeType, setActiveType] = useState<PostType | 'all'>('all');
   const [sort, setSort] = useState<'latest' | 'hot' | 'my'>('latest');
   const { user } = useAuthStore();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const filterUserId = searchParams.get('user');
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     usePostsInfinite({
       postType: activeType,
-      userId: sort === 'my' ? user?.id : undefined,
+      userId: filterUserId || (sort === 'my' ? user?.id : undefined),
       sort
     });
   const createPost = useCreatePost();
@@ -63,10 +67,10 @@ export function ConfessionsPage() {
               <div className="flex md:flex-row flex-col gap-2 justify-between">
                 <div>
                   <h2 className="text-3xl font-bold text-slate-900 mb-1">
-                    Posts
+                    {filterUserId ? 'User Posts' : 'Posts'}
                   </h2>
                   <p className="text-slate-500 text-sm">
-                    Confess, vent, ask, or share advice — anonymously.
+                    {filterUserId ? 'Showing posts from this user.' : 'Confess, vent, ask, or share advice — anonymously.'}
                   </p>
                 </div>
 
@@ -91,12 +95,21 @@ export function ConfessionsPage() {
                     )}
                   </div>
 
-                  <button
-                    onClick={() => setIsCreateOpen(true)}
-                    className="flex items-center gap-2 px-4 py-1.5 bg-[#D82B7D] hover:bg-[#C0266F] active:bg-[#A82161] text-white rounded-xl text-sm font-semibold transition-colors shadow-sm">
-                    <Plus size={16} />
-                    Post
-                  </button>
+                  {filterUserId ? (
+                    <button
+                      onClick={() => navigate('/posts')}
+                      className="flex items-center gap-2 px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-colors shadow-sm">
+                      <X size={16} />
+                      Clear Filter
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setIsCreateOpen(true)}
+                      className="flex items-center gap-2 px-4 py-1.5 bg-[#D82B7D] hover:bg-[#C0266F] active:bg-[#A82161] text-white rounded-xl text-sm font-semibold transition-colors shadow-sm">
+                      <Plus size={16} />
+                      Post
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -105,6 +118,7 @@ export function ConfessionsPage() {
                 {POST_TYPES.map((type) => {
                   const isActive = activeType === type;
                   const meta = type === 'all' ? null : POST_TYPE_META[type];
+                  const Icon = meta?.icon;
                   return (
                     <button
                       key={type}
@@ -114,7 +128,7 @@ export function ConfessionsPage() {
                         : 'bg-white/80 text-slate-600 border-slate-200/60 hover:border-slate-300 hover:bg-white'
                         }`}
                     >
-                      {meta && <span className="text-base leading-none">{meta.emoji}</span>}
+                      {Icon && <Icon size={14} />}
                       {type === 'all' ? 'All' : meta!.label}
                     </button>
                   );
@@ -155,6 +169,7 @@ export function ConfessionsPage() {
                         post={post}
                         onReact={handleReact}
                         onAddComment={handleAddComment}
+                        showDeleteButton={sort==='my'}
                       />
                     </motion.div>
                   ))}

@@ -1,3 +1,6 @@
+import type { LucideIcon } from 'lucide-react';
+import { MessageSquare, Flame, HelpCircle, Lightbulb } from 'lucide-react';
+
 export type PostType = 'confession' | 'vent' | 'question' | 'advice';
 
 export type ReactionType = string;
@@ -11,11 +14,11 @@ export const REACTION_EMOJIS: Record<string, string> = {
   fire: '🔥',
 };
 
-export const POST_TYPE_META: Record<PostType, { label: string; emoji: string }> = {
-  confession: { label: 'Confession', emoji: '🤫' },
-  vent: { label: 'Vent', emoji: '😤' },
-  question: { label: 'Question', emoji: '❓' },
-  advice: { label: 'Advice', emoji: '💡' },
+export const POST_TYPE_META: Record<PostType, { label: string; icon: LucideIcon }> = {
+  confession: { label: 'Confession', icon: MessageSquare },
+  vent: { label: 'Vent', icon: Flame },
+  question: { label: 'Question', icon: HelpCircle },
+  advice: { label: 'Advice', icon: Lightbulb },
 };
 
 // ── DB-shaped interfaces ──────────────────────────────

@@ -27,12 +27,12 @@ export function PostCard({
   userReaction: propReaction,
   onReact,
   onAddComment,
-  onDelete
-}: PostCardProps & { onDelete?: (id: string) => void }) {
+  onDelete,
+  showDeleteButton = false
+}: PostCardProps & { onDelete?: (id: string) => void; showDeleteButton?: boolean }) {
   const { user: currentUser } = useAuthStore();
   const isAuthor = currentUser?.id === post.user_id;
-  const [showOptions, setShowOptions] = useState(false);
-  const userReaction = propReaction ?? post.user_reaction;
+    const userReaction = propReaction ?? post.user_reaction;
   const [showReactions, setShowReactions] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showComments, setShowComments] = useState(false);
@@ -69,6 +69,7 @@ export function PostCard({
   const displayText = isExpanded || !isLong ? post.content : post.content.slice(0, maxLength).trim();
 
   const typeMeta = POST_TYPE_META[post.post_type];
+  const TypeIcon = typeMeta.icon;
 
   return (
     <>
@@ -84,59 +85,30 @@ export function PostCard({
             </div>
             <div>
               <div className="font-mono font-semibold text-slate-800 text-sm">
-                {post.user?.username || 'Anonymous'}
+                @{post.user?.username || 'Anonymous'}
               </div>
               <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
                 <span>{timeAgo(post.created_at)}</span>
-                <span className="text-slate-300">·</span>
+                <span className="text-slate-300">.</span>
                 <span className="inline-flex items-center gap-1">
-                  <span className="text-sm leading-none">{typeMeta.emoji}</span>
+                  <TypeIcon size={12} />
                   {typeMeta.label}
                 </span>
               </div>
             </div>
           </div>
-          <div className="relative">
+          {isAuthor && showDeleteButton && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                setShowOptions(!showOptions);
+                if (onDelete && confirm('Are you sure you want to delete this post?')) {
+                  onDelete(post.id);
+                }
               }}
-              className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors opacity-0 group-hover:opacity-100">
-              <MoreVertical size={18} />
+              className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors">
+              <Trash2 size={18} />
             </button>
-
-            <AnimatePresence>
-              {showOptions && isAuthor && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setShowOptions(false)}
-                  />
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                    className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 py-1 z-50 overflow-hidden"
-                  >
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (onDelete && confirm('Are you sure you want to delete this post?')) {
-                          onDelete(post.id);
-                        }
-                        setShowOptions(false);
-                      }}
-                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium text-left"
-                    >
-                      <Trash2 size={16} />
-                      Delete Post
-                    </button>
-                  </motion.div>
-                </>
-              )}
-            </AnimatePresence>
-          </div>
+          )}
         </div>
 
         {/* Content */}
@@ -236,16 +208,6 @@ export function PostCard({
             >
               <MessageCircle size={15} className="opacity-70" />
               <span>{post.comment_count}</span>
-            </button>
-
-            {/* Send to Friend Button */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 text-slate-600 border border-slate-200/60 hover:bg-slate-100 text-[13px] font-semibold transition-colors"
-              title="Send to Friend">
-              <Send size={15} className="opacity-70 -ml-0.5" />
             </button>
 
           </div>

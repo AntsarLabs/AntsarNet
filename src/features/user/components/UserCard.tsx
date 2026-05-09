@@ -199,12 +199,13 @@ export function UserCard({
         <div
           onClick={(e) => {
             e.stopPropagation();
+            navigate(`/posts?user=${user.id}`);
           }}
           className="flex items-center gap-1.5 text-slate-500 hover:text-pink-600 transition-colors cursor-pointer group/link shrink-0"
         >
           <MessagesSquare size={14} className="group-hover/link:text-pink-600" />
           <span className="text-[10px] md:text-xs font-bold group-hover/link:underline decoration-pink-300 underline-offset-4">
-            Confessions
+            Posts
           </span>
         </div>
       </div>

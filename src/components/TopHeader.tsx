@@ -14,7 +14,7 @@ export function TopHeader() {
 
   const getActiveTab = () => {
     if (path === '/discover') return 'main';
-    if (path === '/confessions') return 'confessions';
+    if (path === '/posts') return 'posts';
     if (path.startsWith('/chats')) return 'chats';
     if (path === '/messages/inbox') return 'inbox';
     return '';
@@ -22,7 +22,7 @@ export function TopHeader() {
 
   const activeView = getActiveTab();
   const isMessagesActive = path.startsWith('/messages') || path.startsWith('/chats');
-  const showTabs = ['/discover', '/confessions', '/chats', '/messages/inbox', '/account'].some(p => path.startsWith(p));
+  const showTabs = ['/discover', '/posts', '/chats', '/messages/inbox', '/account'].some(p => path.startsWith(p));
 
   const handleAccountClick = () => navigate('/account');
 
@@ -113,11 +113,11 @@ export function TopHeader() {
             </div>
 
             <Link
-              to="/confessions"
-              className={`text-sm font-medium transition-colors relative pb-0.5 ${activeView === 'confessions' ? 'text-slate-900' : 'text-slate-400 hover:text-slate-700'}`}
+              to="/posts"
+              className={`text-sm font-medium transition-colors relative pb-0.5 ${activeView === 'posts' ? 'text-slate-900' : 'text-slate-400 hover:text-slate-700'}`}
             >
-              Confessions
-              {activeView === 'confessions' && (
+              Posts
+              {activeView === 'posts' && (
                 <motion.div
                   layoutId="headerTab"
                   className="absolute -bottom-3 left-0 right-0 h-0.5 bg-pink-500" />

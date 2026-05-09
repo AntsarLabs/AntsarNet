@@ -112,6 +112,7 @@ export function CreatePostModal({
                     <div className="flex flex-wrap gap-1.5 sm:gap-2">
                       {POST_TYPES.map((type) => {
                         const meta = POST_TYPE_META[type];
+                        const Icon = meta.icon;
                         const isSelected = postType === type;
                         return (
                           <button
@@ -124,7 +125,7 @@ export function CreatePostModal({
                                 : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
                             }`}
                           >
-                            <span className="text-sm leading-none">{meta.emoji}</span>
+                            <Icon size={14} />
                             {meta.label}
                           </button>
                         );
