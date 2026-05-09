@@ -27,8 +27,8 @@ export const chatApi = {
         receiver_deleted_at,
         created_at,
         updated_at,
-        sender:public_users!sender_id(id, username, emoji,bio,created_at,updated_at,is_online, user_blocks!user_id(blocked_id)),
-        receiver:public_users!receiver_id(id, username, emoji,bio,created_at,updated_at,is_online, user_blocks!user_id(blocked_id))
+        sender:public_users!sender_id(id, username, emoji,bio,created_at,updated_at,is_online, user_blocks!user_id(user_id)),
+        receiver:public_users!receiver_id(id, username, emoji,bio,created_at,updated_at,is_online, user_blocks!user_id(user_id))
       `
       )
       .or(`and(sender_id.eq.${userId},sender_deleted_at.is.null),and(receiver_id.eq.${userId},receiver_deleted_at.is.null)`)
@@ -56,7 +56,7 @@ export const chatApi = {
           created_at: chat.sender.created_at,
           updated_at: chat.sender.updated_at,
           blockStatus: (Array.isArray(chat.sender.user_blocks) ? chat.sender.user_blocks : chat.sender.user_blocks ? [chat.sender.user_blocks] : []).some(
-            (block: any) => block.blocked_id === userId
+            (block: any) => block.user_id === userId
           ) ? 'blocked_by_you' : null
         } : undefined,
         receiver: chat.receiver ? {
@@ -68,7 +68,7 @@ export const chatApi = {
           created_at: chat.receiver.created_at,
           updated_at: chat.receiver.updated_at,
           blockStatus: (Array.isArray(chat.receiver.user_blocks) ? chat.receiver.user_blocks : chat.receiver.user_blocks ? [chat.receiver.user_blocks] : []).some(
-            (block: any) => block.blocked_id === userId
+            (block: any) => block.user_id === userId
           ) ? 'blocked_by_you' : null
         } : undefined
       };
