@@ -31,7 +31,7 @@ export const accountApi = {
       .from('user_blocks')
       .select(`
         blocked_id,
-        users!blocked_id (
+        public_users!blocked_id (
           id,
           username,
           emoji
@@ -48,8 +48,8 @@ export const accountApi = {
 
     return (data || []).map((row: any) => ({
       id: row.blocked_id,
-      username: row.users?.username || row.blocked_id.substring(0, 8),
-      emoji: row.users?.emoji || '👤'
+      username: row.public_users?.username || row.blocked_id.substring(0, 8),
+      emoji: row.public_users?.emoji || '👤'
     }));
   },
 
