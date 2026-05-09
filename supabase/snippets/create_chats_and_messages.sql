@@ -112,3 +112,11 @@ CREATE POLICY "Users can update their own messages visibility"
         )
     );
 
+
+
+
+CREATE UNIQUE INDEX chats_unique_pair_idx
+ON chats (
+  LEAST(sender_id, receiver_id),
+  GREATEST(sender_id, receiver_id)
+);

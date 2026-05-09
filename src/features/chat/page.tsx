@@ -1,239 +1,291 @@
-import React, { useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, MapPin, Search } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { MessageCircle, UserPlus, Loader2 } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { MainLayout } from '@/components/MainLayout';
+import { useAuthStore } from '@/features/auth/store';
 import { useChatStore } from './store';
-import { ChatPage } from './pages/ChatPage';
+import {
+  useChatsWithLastMessage,
+  useMessages,
+  useSendMessage,
+  useUpdateChatStatus,
+  useMarkAsRead,
+  useChatRealtime,
+} from './hooks';
+import { ChatListItem, ChatRequestModal, ChatWindow } from './components';
+import type { PendingChatRequest } from './types';
 
-export function ChatsListPage() {
+// --- Global Styles to hide scrollbars ---
+const HideScrollbarGlobal = () => (
+  <style dangerouslySetInnerHTML={{
+    __html: `
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  `}} />
+);
+
+// --- Main Page Component ---
+
+export function ChatPage() {
   const navigate = useNavigate();
-  const { sessions, contacts, messages, sendMessage } = useChatStore();
-  
-  const [desktopSelectedId, setDesktopSelectedId] = useState<string | null>(
-    null
-  );
-  const [searchQuery, setSearchQuery] = useState('');
-  
-  const sortedSessions = [...sessions].sort((a, b) => {
-    if (a.status === 'active' && b.status !== 'active') return -1;
-    if (a.status !== 'active' && b.status === 'active') return 1;
-    return 0;
-  });
-  
-  const filteredSessions = sortedSessions.filter((session) => {
-    const contact = contacts.find((c) => c.id === session.contactId);
-    if (!contact) return false;
-    return contact.username.toLowerCase().includes(searchQuery.toLowerCase());
-  });
-  
-  const getLastMessage = (contactId: string): string => {
-    const contactMessages = messages[contactId];
-    if (!contactMessages || contactMessages.length === 0) {
-      return 'No messages yet';
-    }
-    const lastMsg = contactMessages[contactMessages.length - 1];
-    return lastMsg.text;
-  };
-  
-  const getUnreadCount = (session: ChatSession): number => {
-    return session.unrepliedCount || 0;
-  };
-  
-  const handleSelectChat = (contactId: string) => {
-    if (typeof window !== 'undefined' && window.innerWidth >= 768) {
-      setDesktopSelectedId(contactId);
+  const { id: chatIdFromUrl } = useParams<{ id: string }>();
+  const { user: currentUser } = useAuthStore();
+
+  // Store state
+  const {
+    activeChatId,
+    setActiveChatId,
+    showRequestsModal,
+    setShowRequestsModal,
+    optimisticMessages,
+    addOptimisticMessage,
+  } = useChatStore();
+
+  // Data fetching
+  const {
+    data: chats = [],
+    isLoading: isLoadingChats,
+    error: chatsError,
+  } = useChatsWithLastMessage();
+  const { mutate: sendMessage, isPending: isSendingMessage } = useSendMessage();
+  const { mutate: updateChatStatus, isPending: isUpdatingStatus } = useUpdateChatStatus();
+
+  // Realtime subscriptions
+  useChatRealtime();
+
+  // Sync URL param with active chat
+  useEffect(() => {
+    if (chatIdFromUrl) {
+      setActiveChatId(chatIdFromUrl);
     } else {
-      navigate(`/chat/${contactId}`);
+      setActiveChatId(null);
     }
-  };
-  
-  const selectedContact = desktopSelectedId ?
-    contacts.find((c) => c.id === desktopSelectedId) :
-    null;
+  }, [chatIdFromUrl, setActiveChatId]);
 
-  const renderSessionsList = (compact?: boolean) =>
-    <>
-      {filteredSessions.length === 0 ?
-        <div className={`text-center ${compact ? 'py-12' : 'py-20'} px-4`}>
-          <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center shadow-sm">
-            <MessageCircle size={36} className="text-slate-400" />
-          </div>
-          <h3
-            className={`${compact ? 'text-lg' : 'text-xl'} font-semibold text-slate-700 mb-2`}>
+  // Get active chat data
+  const activeChat = useMemo(() => {
+    return chats.find((c) => c.id === activeChatId) || null;
+  }, [chats, activeChatId]);
 
-            No conversations found
-          </h3>
-          <p className="text-slate-500 text-sm max-w-xs mx-auto">
-            {searchQuery ?
-              "We couldn't find any chats matching your search." :
-              'Discover someone nearby to start chatting!'}
-          </p>
-        </div> :
+  // Fetch messages for active chat
+  const {
+    data: messages = [],
+    isLoading: isLoadingMessages,
+    error: messagesError,
+  } = useMessages(activeChatId || '');
 
-        <div className="space-y-1 sm:space-y-2">
-          {filteredSessions.map((session, index) => {
-            const contact = contacts.find((c) => c.id === session.contactId);
-            if (!contact) return null;
+  // Mark unread messages as read
+  const { mutate: markAsRead } = useMarkAsRead();
 
-            const lastMessage = getLastMessage(session.contactId);
-            const unreadCount = getUnreadCount(session);
-            const isSelected = desktopSelectedId === contact.id;
-            return (
-              <motion.button
-                key={session.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.03 }}
-                onClick={() => handleSelectChat(contact.id)}
-                className={`w-full flex items-center gap-3 sm:gap-4 ${compact ? 'p-3' : 'p-5'} rounded-2xl transition-all text-left relative group ${
-                  isSelected 
-                    ? 'bg-white shadow-[0_8px_30px_rgba(216,43,125,0.1)] border border-pink-500/20 ring-1 ring-pink-500/10' 
-                    : 'bg-white/85 backdrop-blur-md border border-white/60 hover:bg-white hover:shadow-md'
-                }`}
-              >
-                 {/* Avatar */}
-                <div className="relative flex-shrink-0">
-                  <div
-                    className={`${compact ? 'w-12 h-12 text-xl' : 'w-14 h-14 text-2xl'} rounded-full bg-slate-50 flex items-center justify-center shadow-sm border border-slate-100 group-hover:border-slate-200 transition-colors`}>
-                    {contact.emoji}
-                  </div>
-                  {contact.isOnline && (
-                    <span className={`absolute bottom-0 right-0 ${compact ? 'w-3.5 h-3.5' : 'w-4 h-4'} rounded-full bg-green-500 border-2 border-white`} />
-                  )}
-                </div>
+  useEffect(() => {
+    if (!currentUser || !messages.length) return;
 
-                {/* Content */}
-                <div className="flex-1 min-w-0 py-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2 truncate pr-2">
-                      <h3 className={`font-bold text-[15px] truncate ${isSelected ? 'text-slate-900' : 'text-slate-800'}`}>
-                        @{contact.username}
-                      </h3>
-
-                    </div>
-
-                  </div>
-
-                  <div className="flex items-center justify-between gap-2">
-                    <p className={`text-sm truncate ${unreadCount > 0 ? 'text-slate-700 font-bold' : 'text-slate-500 font-medium'}`}>
-                      {lastMessage}
-                    </p>
-                    {unreadCount > 0 && (
-                      <div className="flex-shrink-0">
-                        <div className="min-w-[20px] h-[20px] px-1.5 rounded-full bg-pink-500 text-white text-[11px] font-black flex items-center justify-center shadow-[0_2px_10px_rgba(216,43,125,0.4)]">
-                          {unreadCount}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </motion.button>
-            );
-          })}
-        </div>
+    // Mark messages from others that are unread
+    messages.forEach((msg) => {
+      if (msg.senderId !== currentUser.id && !msg.seenAt) {
+        markAsRead(msg.id);
       }
-    </>;
+    });
+  }, [messages, currentUser, markAsRead]);
+
+  // Debug: Log any message loading errors
+  if (messagesError) {
+    console.error('[Chat] Messages error:', messagesError);
+  }
+
+  // Pending requests calculation
+  const pendingRequests = useMemo<PendingChatRequest[]>(() => {
+    if (!currentUser) return [];
+    return chats
+      .filter((c) => c.status === 'pending')
+      .map((c) => {
+        const isIncoming = c.receiverId === currentUser.id;
+        return {
+          ...c,
+          isIncoming,
+          requester: isIncoming ? (c.sender!) : (c.receiver!),
+        };
+      });
+  }, [chats, currentUser]);
+
+  // Handlers
+  const handleChatSelect = (chatId: string) => {
+    navigate(`/chats/${chatId}`);
+  };
+
+  const handleSendMessage = (text: string) => {
+    if (!activeChatId || !currentUser) return;
+
+    // Send actual message
+    sendMessage({ chatId: activeChatId, text });
+  };
+
+  const handleAcceptRequest = (chatId: string) => {
+    updateChatStatus({ chatId, status: 'accepted' });
+  };
+
+  const handleDeclineRequest = (chatId: string) => {
+    updateChatStatus({ chatId, status: 'declined' });
+  };
+
+  // Render chat sidebar
+  const renderSidebar = () => (
+    <div className="flex flex-col h-full bg-white/40 backdrop-blur-sm">
+      {/* Header with requests button */}
+      <div className="px-4 py-4 border-b border-slate-200">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold text-slate-900">Messages</h2>
+          {pendingRequests.length > 0 && (
+            <button
+              onClick={() => setShowRequestsModal(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-pink-50 hover:bg-pink-100 text-pink-600 rounded-full text-xs font-semibold transition-colors"
+            >
+              <UserPlus size={14} />
+              {pendingRequests.length} request{pendingRequests.length !== 1 ? 's' : ''}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Chat List */}
+      <div className="flex-1 overflow-y-auto px-3 space-y-1 pb-20 pt-2 no-scrollbar">
+        {isLoadingChats ? (
+          <div className="flex flex-col items-center justify-center py-12">
+            <Loader2 className="w-6 h-6 animate-spin text-pink-500 mb-2" />
+            <p className="text-sm text-slate-400">Loading chats...</p>
+          </div>
+        ) : chatsError ? (
+          <div className="flex flex-col items-center justify-center py-12 px-4">
+            <p className="text-sm text-red-500 text-center">Failed to load chats</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-2 text-xs text-pink-600 font-semibold hover:underline"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : chats.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 px-4">
+            <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+              <MessageCircle size={28} className="text-slate-400" />
+            </div>
+            <p className="text-slate-600 font-medium text-center">No chats yet</p>
+            <p className="text-xs text-slate-400 text-center mt-1">
+              Go to Discover to find people and start chatting
+            </p>
+          </div>
+        ) : (
+          chats.map((chat) => (
+            <ChatListItem
+              key={chat.id}
+              chat={chat}
+              isActive={chat.id === activeChatId}
+              currentUserId={currentUser?.id || ''}
+              onClick={() => handleChatSelect(chat.id)}
+            />
+          ))
+        )}
+      </div>
+    </div>
+  );
+
+  // Empty state when no chat selected
+  const renderEmptyState = () => (
+    <div className="h-full flex flex-col items-center justify-center text-center p-8">
+      <div className="w-24 h-24 rounded-full bg-slate-100 flex items-center justify-center mb-6">
+        <MessageCircle size={40} className="text-slate-400" />
+      </div>
+      <h3 className="text-xl font-bold text-slate-800 mb-2">Select a Conversation</h3>
+      <p className="text-slate-500 max-w-xs">
+        Choose a chat from the sidebar to start messaging anonymously.
+      </p>
+      {pendingRequests.length > 0 && (
+        <button
+          onClick={() => setShowRequestsModal(true)}
+          className="mt-6 flex items-center gap-2 px-5 py-2.5 bg-pink-50 hover:bg-pink-100 text-pink-600 rounded-xl text-sm font-semibold transition-colors"
+        >
+          <UserPlus size={18} />
+          View {pendingRequests.length} Pending Request{pendingRequests.length !== 1 ? 's' : ''}
+        </button>
+      )}
+    </div>
+  );
 
   return (
     <MainLayout showFooter={false}>
-      <div className="flex-1 w-full relative pb-20 md:pb-0 h-full bg-transparent">
-
-        <div className="md:hidden relative z-10 w-full max-w-3xl mx-auto flex flex-col h-full">
-          <div className="px-4 pt-8 pb-4 sticky top-0 z-20">
-
-
-            <div className="relative mb-2">
-              <Search
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-                size={18}
-              />
-              <input
-                type="text"
-                placeholder="Search conversations..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white/90 backdrop-blur-md border border-slate-200/60 rounded-2xl pl-11 pr-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-pink-500/30 transition-all shadow-sm"
+      <HideScrollbarGlobal />
+      <div className="flex-1 flex w-full h-full bg-transparent overflow-hidden no-scrollbar">
+        {/* Mobile View */}
+        <div className="md:hidden w-full h-[calc(100vh-57px)]">
+          {activeChatId && activeChat ? (
+            <div className="fixed inset-0 z-[60] bg-white">
+              <ChatWindow
+                chat={activeChat}
+                messages={messages}
+                optimisticMessages={optimisticMessages[activeChatId] || []}
+                currentUserId={currentUser?.id || ''}
+                isLoading={isLoadingMessages}
+                onBack={() => navigate('/chats')}
+                onSendMessage={handleSendMessage}
+                onAccept={() => handleAcceptRequest(activeChatId)}
+                onDecline={() => handleDeclineRequest(activeChatId)}
+                isSending={isSendingMessage}
               />
             </div>
-          </div>
-
-          <div className="flex-1 overflow-y-auto px-4 pb-20">
-            {renderSessionsList()}
-          </div>
+          ) : (
+            renderSidebar()
+          )}
         </div>
 
-        {/* === DESKTOP LAYOUT === */}
-        <div className="hidden md:flex relative z-10 w-full h-full max-w-7xl mx-auto">
-          {/* Left Panel: Navigation & List */}
-          <div className="w-[340px] lg:w-[400px] flex-shrink-0 border-r border-slate-200/60 flex flex-col h-[calc(100vh-57px)] bg-white/40 backdrop-blur-sm">
-            <div className="p-8 pb-4 flex-shrink-0">
-
-
-              <div className="relative mb-4">
-                <Search
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-                  size={16}
-                />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-white/90 border border-slate-200/60 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-pink-400 transition-all shadow-sm"
-                />
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto px-4 py-3 scrollbar-hide">
-              {renderSessionsList(true)}
-            </div>
+        {/* Desktop View */}
+        <div className="hidden md:flex w-full h-[calc(100vh-57px)]">
+          {/* Sidebar */}
+          <div className="w-[350px] lg:w-[400px] border-r border-slate-200">
+            {renderSidebar()}
           </div>
 
-          {/* Right Panel: Content Area */}
-          <div className="flex-1 flex flex-col h-[calc(100vh-57px)] min-w-0 bg-transparent">
+          {/* Main Area */}
+          <div className="flex-1">
             <AnimatePresence mode="wait">
-              {selectedContact ? (
+              {activeChatId && activeChat ? (
                 <motion.div
-                  key={desktopSelectedId}
+                  key={activeChatId}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15 }}
-                  className="flex-1 flex flex-col h-full"
+                  className="h-full"
                 >
-                  <ChatPage
-                    id={desktopSelectedId}
-                    onBack={() => setDesktopSelectedId(null)}
-                    hideBackButton
-                    noLayout
+                  <ChatWindow
+                    chat={activeChat}
+                    messages={messages}
+                    optimisticMessages={optimisticMessages[activeChatId] || []}
+                    currentUserId={currentUser?.id || ''}
+                    isLoading={isLoadingMessages}
+                    onBack={() => navigate('/chats')}
+                    onSendMessage={handleSendMessage}
+                    onAccept={() => handleAcceptRequest(activeChatId)}
+                    onDecline={() => handleDeclineRequest(activeChatId)}
+                    isSending={isSendingMessage}
                   />
                 </motion.div>
               ) : (
-                <motion.div
-                  key="empty-chats"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="flex-1 flex flex-col items-center justify-center text-center space-y-5"
-                >
-                  <div className="w-24 h-24 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center shadow-sm">
-                    <MessageCircle size={40} className="text-slate-400" />
-                  </div>
-                  <div className="max-w-sm">
-                    <h3 className="text-xl font-semibold text-slate-700 mb-2">
-                      Your Messages
-                    </h3>
-                    <p className="text-slate-500 text-sm leading-relaxed">
-                      Select a conversation from the list to start chatting. All
-                      messages are anonymous and end-to-end encrypted.
-                    </p>
-                  </div>
-                </motion.div>
+                renderEmptyState()
               )}
             </AnimatePresence>
           </div>
         </div>
       </div>
+
+      {/* Chat Request Modal */}
+      <ChatRequestModal
+        isOpen={showRequestsModal}
+        onClose={() => setShowRequestsModal(false)}
+        requests={pendingRequests}
+        onAccept={handleAcceptRequest}
+        onDecline={handleDeclineRequest}
+        isPending={isUpdatingStatus}
+      />
     </MainLayout>
   );
 }

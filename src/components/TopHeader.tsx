@@ -15,14 +15,14 @@ export function TopHeader() {
   const getActiveTab = () => {
     if (path === '/discover') return 'main';
     if (path === '/confessions') return 'confessions';
-    if (path === '/messages/chats') return 'chats';
+    if (path.startsWith('/chats')) return 'chats';
     if (path === '/messages/inbox') return 'inbox';
     return '';
   };
 
   const activeView = getActiveTab();
-  const isMessagesActive = path.startsWith('/messages');
-  const showTabs = ['/discover', '/confessions', '/messages/chats', '/messages/inbox', '/account'].includes(path);
+  const isMessagesActive = path.startsWith('/messages') || path.startsWith('/chats');
+  const showTabs = ['/discover', '/confessions', '/chats', '/messages/inbox', '/account'].some(p => path.startsWith(p));
 
   const handleAccountClick = () => navigate('/account');
 
@@ -89,7 +89,7 @@ export function TopHeader() {
                   >
                     <div className="bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden p-1.5 backdrop-blur-xl">
                       <Link
-                        to="/messages/chats"
+                        to="/chats"
                         onClick={() => setIsMessagesOpen(false)}
                         className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeView === 'chats' ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/20' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                           }`}

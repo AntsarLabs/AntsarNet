@@ -1,7 +1,11 @@
 import { motion } from 'framer-motion';
-import { MessagesSquare, UserPlus } from 'lucide-react';
+import { MessagesSquare, UserPlus, Loader2, MessageCircle, Clock, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { timeAgo } from '@/utils/date';
 import { useOnlineStatus } from '@/features/live/store';
+import { useAuthStore } from '@/features/auth/store';
+import { useCreateChat, useUpdateChatStatus, chatKeys } from '@/features/chat/hooks';
+import { useQueryClient } from '@tanstack/react-query';
 import { UserCardProps } from '../types';
 
 
@@ -25,7 +29,24 @@ export function UserCard({
   itemVariants,
   cardRef
 }: UserCardProps) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const isOnline = useOnlineStatus((state) => state.onlineStatus[user.id] ?? user.is_online);
+  const { mutate: createChat, isPending: isCreating } = useCreateChat();
+  const { mutate: updateChatStatus, isPending: isUpdating } = useUpdateChatStatus();
+  const currentUser = useAuthStore((state) => state.user);
+
+  // Get chat from sent_chats or received_chats
+  const userAny = user as any;
+  const sentChat = userAny.sent_chats?.[0] || null;
+  const receivedChat = userAny.received_chats?.[0] || null;
+  const existingChat = sentChat || receivedChat;
+
+  // Determine CURRENT USER's role (not the displayed user)
+  // sentChat exists = displayed user sent chat TO current user (current user is receiver)
+  // receivedChat exists = current user sent chat TO displayed user (current user is sender)
+  const currentUserIsSender = !!receivedChat;  // displayed user received = current user sent
+  const currentUserIsReceiver = !!sentChat;    // displayed user sent = current user received
 
 
   const isHighlighted = highlightIndex === index;
@@ -104,17 +125,76 @@ export function UserCard({
 
       {/* Card Footer: Action buttons side by side */}
       <div className="flex items-center justify-between gap-3 w-full mt-auto pt-4 md:pt-5">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            if (onSelect) onSelect(user.id);
-          }}
-          disabled={isSpinning}
-          className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 md:py-2 rounded-lg text-[10px] md:text-xs font-bold transition-all shadow-sm bg-pink-50 text-pink-600 border border-pink-200 disabled:opacity-50`}
-        >
-          <UserPlus className="w-3.5 h-3.5" />
-          connect
-        </button>
+        {/* Chat/Connect/Pending/Accept button based on chat status */}
+        {existingChat?.status === 'accepted' ? (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/chats/${existingChat.id}`);
+            }}
+            disabled={isSpinning}
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 md:py-2 rounded-lg text-[10px] md:text-xs font-bold transition-all shadow-sm bg-green-50 text-green-600 border border-green-200 hover:bg-green-100"
+          >
+            <MessageCircle className="w-3.5 h-3.5" />
+            chat
+          </button>
+        ) : existingChat?.status === 'pending' && currentUserIsSender ? (
+          <button
+            disabled
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 md:py-2 rounded-lg text-[10px] md:text-xs font-bold transition-all shadow-sm bg-amber-50 text-amber-600 border border-amber-200 opacity-70 cursor-not-allowed"
+          >
+            <Clock className="w-3.5 h-3.5" />
+            pending
+          </button>
+        ) : existingChat?.status === 'pending' && currentUserIsReceiver ? (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!existingChat?.id || isUpdating) return;
+              updateChatStatus(
+                { chatId: existingChat.id, status: 'accepted' },
+                {
+                  onSuccess: () => {
+                    queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
+                    queryClient.invalidateQueries({ queryKey: chatKeys.listsWithLastMessage() });
+                    navigate(`/chats/${existingChat.id}`);
+                  },
+                }
+              );
+            }}
+            disabled={isUpdating}
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 md:py-2 rounded-lg text-[10px] md:text-xs font-bold transition-all shadow-sm bg-green-50 text-green-600 border border-green-200 hover:bg-green-100 disabled:opacity-50"
+          >
+            {isUpdating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+            {isUpdating ? 'Accepting...' : 'accept'}
+          </button>
+        ) : existingChat?.status === 'declined' ? (
+          <button
+            disabled
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 md:py-2 rounded-lg text-[10px] md:text-xs font-bold transition-all shadow-sm bg-red-50 text-red-600 border border-red-200 opacity-70 cursor-not-allowed"
+          >
+            declined
+          </button>
+        ) : (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (isCreating) return;
+              createChat(user.id, {
+                onSuccess: (chat) => {
+                  queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
+                  queryClient.invalidateQueries({ queryKey: chatKeys.listsWithLastMessage() });
+                  navigate(`/chats/${chat.id}`);
+                },
+              });
+            }}
+            disabled={isSpinning || isCreating}
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 md:py-2 rounded-lg text-[10px] md:text-xs font-bold transition-all shadow-sm bg-pink-50 text-pink-600 border border-pink-200 disabled:opacity-50 hover:bg-pink-100"
+          >
+            {isCreating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <UserPlus className="w-3.5 h-3.5" />}
+            {isCreating ? 'Connecting...' : 'connect'}
+          </button>
+        )}
 
         <div
           onClick={(e) => {

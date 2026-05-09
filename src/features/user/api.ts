@@ -7,15 +7,46 @@ export const userApi = {
      * Supports filtering by username and online status.
      */
     async getUsers(
-        options: { page?: number; limit?: number; username?: string } = {}
+        options: {
+            page?: number;
+            limit?: number;
+            username?: string;
+        } = {}
     ): Promise<User[]> {
+
         const { page = 0, limit = 100, username } = options;
+
         const from = page * limit;
         const to = from + limit - 1;
 
+        const currentUserId = (
+            await supabase.auth.getUser()
+        ).data.user?.id;
+
         let query = supabase
             .from('public_users')
-            .select('id,username,emoji,bio,is_online,created_at,updated_at')
+            .select(`
+      id,
+      username,
+      emoji,
+      bio,
+      is_online,
+      created_at,
+      updated_at,
+
+      sent_chats:chats!sender_id(
+        id,
+        receiver_id,
+        status
+      ),
+
+      received_chats:chats!receiver_id(
+        id,
+        sender_id,
+        status
+      )
+    `)
+            .neq('id', currentUserId)
             .range(from, to);
 
         if (username) {
@@ -25,7 +56,7 @@ export const userApi = {
         const { data, error } = await query;
 
         if (error) {
-            console.error('Error fetching public users:', error);
+            console.error(error);
             throw new Error(error.message);
         }
 

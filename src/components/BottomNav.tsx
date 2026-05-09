@@ -9,7 +9,7 @@ export function BottomNav() {
   const navigate = useNavigate();
   const path = location.pathname;
 
-  const isMessagesActive = path.startsWith('/messages');
+  const isMessagesActive = path.startsWith('/messages') || path.startsWith('/chats');
 
   const tabs = [
     {
@@ -49,9 +49,9 @@ export function BottomNav() {
           >
             <div className="max-w-xs mx-auto bg-white border border-slate-200 rounded-2xl shadow-xl p-2 flex gap-2 pointer-events-auto">
               <Link
-                to="/messages/chats"
+                to="/chats"
                 onClick={() => setIsSubMenuOpen(false)}
-                className={`flex-1 flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all ${path === '/messages/chats' ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/20' : 'text-slate-500 bg-slate-50'
+                className={`flex-1 flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all ${path.startsWith('/chats') ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/20' : 'text-slate-500 bg-slate-50'
                   }`}
               >
                 <MessageSquare size={18} />
