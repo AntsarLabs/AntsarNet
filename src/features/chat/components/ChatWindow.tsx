@@ -1,11 +1,12 @@
 import { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, MoreVertical, Ban, Info, Send, Check, X } from 'lucide-react';
+import { ChevronLeft, MoreVertical, Ban, Info, Send, Check, X, Trash2 } from 'lucide-react';
 import { useOnlineStatus } from '@/features/live/store';
 import { MessageBubble } from './MessageBubble';
 import type { Chat, Message } from '../types';
 import { timeAgo } from '@/utils/date';
 import { accountApi } from '@/features/account/api';
+import { useDeleteChat } from '../hooks/use-chats';
 import { Link } from 'react-router-dom';
 
 interface ChatWindowProps {
@@ -20,6 +21,7 @@ interface ChatWindowProps {
   onDecline?: () => void;
   isSending: boolean;
   onLoadMoreMessages?: (offset: number, limit: number) => void;
+  onDeleteChat?: () => void;
 }
 
 export function ChatWindow({
@@ -34,6 +36,7 @@ export function ChatWindow({
   onDecline,
   isSending,
   onLoadMoreMessages,
+  onDeleteChat,
 }: ChatWindowProps) {
   const [inputText, setInputText] = useState('');
   const [showMenu, setShowMenu] = useState(false);
@@ -44,6 +47,7 @@ export function ChatWindow({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const MESSAGE_LIMIT = 50;
+  const deleteChat = useDeleteChat();
 
 
   // Determine the other participant
@@ -136,6 +140,16 @@ export function ChatWindow({
     }
   }
 
+  const handleDeleteChat = async () => {
+    try {
+      await deleteChat.mutateAsync(chat.id);
+      setShowMenu(false);
+      onDeleteChat?.();
+    } catch (error) {
+      console.error('Failed to delete chat:', error);
+    }
+  }
+
   return (
     <div className="flex flex-col h-full w-full bg-white/60 backdrop-blur-md relative overflow-hidden">
       {/* Header */}
@@ -206,6 +220,14 @@ export function ChatWindow({
                     <Ban size={16} className="text-slate-400" /> {iBlockedThem ? 'Unblock' : 'Block'}
                   </button>
                 )}
+                <button 
+                  onClick={handleDeleteChat} 
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  disabled={deleteChat.isPending}
+                >
+                  <Trash2 size={16} className="text-red-400" /> 
+                  {deleteChat.isPending ? 'Deleting...' : 'Delete Chat'}
+                </button>
               </motion.div>
             )}
           </AnimatePresence>

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
-import { Clock, AlertCircle } from 'lucide-react';
+import { Clock, AlertCircle, Trash2 } from 'lucide-react';
 import { useOnlineStatus } from '@/features/live/store';
+import { useDeleteChat } from '../hooks/use-chats';
 import type { ChatWithLastMessage } from '../types';
 
 interface ChatListItemProps {
@@ -8,13 +9,15 @@ interface ChatListItemProps {
   isActive: boolean;
   currentUserId: string;
   onClick: () => void;
+  onDelete?: () => void;
 }
 
-export function ChatListItem({ chat, isActive, currentUserId, onClick }: ChatListItemProps) {
+export function ChatListItem({ chat, isActive, currentUserId, onClick, onDelete }: ChatListItemProps) {
   // Determine the other participant (not the current user)
   const isSender = chat.senderId === currentUserId;
   const otherParticipant = isSender ? chat.receiver : chat.sender;
   const onlineStatus = useOnlineStatus((state) => state.onlineStatus[otherParticipant?.id || ''] ?? otherParticipant?.is_online);
+  const deleteChat = useDeleteChat();
 
   // Format last message time
   const formatTime = (dateStr: string) => {
@@ -53,6 +56,16 @@ export function ChatListItem({ chat, isActive, currentUserId, onClick }: ChatLis
     }
     const prefix = chat.lastMessage.senderId === currentUserId ? 'You: ' : '';
     return `${prefix}${chat.lastMessage.text}`;
+  };
+
+  const handleDeleteChat = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await deleteChat.mutateAsync(chat.id);
+      onDelete?.();
+    } catch (error) {
+      console.error('Failed to delete chat:', error);
+    }
   };
 
   return (
@@ -111,6 +124,16 @@ export function ChatListItem({ chat, isActive, currentUserId, onClick }: ChatLis
           </p>
         </div>
       </div>
+
+      {/* Delete button - shows on hover */}
+      <button
+        onClick={handleDeleteChat}
+        disabled={deleteChat.isPending}
+        className="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
+        title="Delete chat"
+      >
+        <Trash2 size={16} />
+      </button>
     </motion.button>
   );
 }

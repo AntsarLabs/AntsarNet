@@ -15,7 +15,7 @@ export const chatKeys = {
 export function useChats() {
   return useQuery({
     queryKey: chatKeys.lists(),
-    queryFn: () => chatApi.getChats(),
+    queryFn: () => chatApi.getChatsWithLastMessage(),
     refetchInterval: 10000, // Refetch every 10 seconds for basic "live" feel if realtime isn't enough
   });
 }
@@ -57,6 +57,21 @@ export function useUpdateChatStatus() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
       queryClient.invalidateQueries({ queryKey: chatKeys.detail(variables.chatId) });
+    },
+  });
+}
+
+/**
+ * Hook to delete a chat for the current user
+ */
+export function useDeleteChat() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (chatId: string) => chatApi.deleteChat(chatId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: chatKeys.listsWithLastMessage() });
     },
   });
 }

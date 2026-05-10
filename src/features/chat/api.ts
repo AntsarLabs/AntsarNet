@@ -5,77 +5,6 @@ import type { Message, Chat, ChatWithLastMessage } from './types';
 
 export const chatApi = {
   /**
-   * Get all chats for the current user (both as sender and receiver)
-   * Includes block status information
-   */
-  // async getChats(options: { limit?: number } = {}): Promise<Chat[]> {
-  //   const { limit = 50 } = options;
-
-  //   const { data: { session } } = await supabase.auth.getSession();
-  //   if (!session?.user) throw new Error('Not authenticated');
-
-  //   const userId = session.user.id;
-  //   const { data, error } = await supabase
-  //     .from('chats')
-  //     .select(
-  //       `
-  //       id,
-  //       sender_id,
-  //       receiver_id,
-  //       status,
-  //       sender_deleted_at,
-  //       receiver_deleted_at,
-  //       created_at,
-  //       updated_at,
-  //       sender:public_users!sender_id(id, username, emoji,bio,created_at,updated_at,is_online, user_blocks!user_id(blocked_id)),
-  //       receiver:public_users!receiver_id(id, username, emoji,bio,created_at,updated_at,is_online, user_blocks!user_id(blocked_id))
-  //     `
-  //     )
-  //     .or(`and(sender_id.eq.${userId},sender_deleted_at.is.null),and(receiver_id.eq.${userId},receiver_deleted_at.is.null)`)
-  //     .order('created_at', { ascending: false })
-  //     .limit(limit);
-
-  //   if (error) throw new Error(error.message);
-
-  //   return (data || []).map((chat: any) => {
-  //     return {
-  //       id: chat.id,
-  //       senderId: chat.sender_id,
-  //       receiverId: chat.receiver_id,
-  //       status: chat.status,
-  //       senderDeletedAt: chat.sender_deleted_at,
-  //       receiverDeletedAt: chat.receiver_deleted_at,
-  //       createdAt: chat.created_at,
-  //       updatedAt: chat.updated_at,
-  //       sender: chat.sender ? {
-  //         id: chat.sender.id,
-  //         username: chat.sender.username,
-  //         emoji: chat.sender.emoji,
-  //         is_online: chat.sender.is_online,
-  //         bio: chat.sender.bio,
-  //         created_at: chat.sender.created_at,
-  //         updated_at: chat.sender.updated_at,
-  //         is_blocked: (Array.isArray(chat.sender.user_blocks) ? chat.sender.user_blocks : chat.sender.user_blocks ? [chat.sender.user_blocks] : []).some(
-  //           (block: any) => block.blocked_id === userId
-  //         ) ? true : false
-  //       } : null,
-  //       receiver: chat.receiver ? {
-  //         id: chat.receiver.id,
-  //         username: chat.receiver.username,
-  //         emoji: chat.receiver.emoji,
-  //         is_online: chat.receiver.is_online,
-  //         bio: chat.receiver.bio,
-  //         created_at: chat.receiver.created_at,
-  //         updated_at: chat.receiver.updated_at,
-  //         is_blocked: (Array.isArray(chat.receiver.user_blocks) ? chat.receiver.user_blocks : chat.receiver.user_blocks ? [chat.receiver.user_blocks] : []).some(
-  //           (block: any) => block.blocked_id === userId
-  //         ) ? true : false
-  //       } : null
-  //     };
-  //   });
-  // },
-
-  /**
    * Get chats with last message info for the chat list
    */
   async getChatsWithLastMessage(options: { limit?: number } = {}): Promise<ChatWithLastMessage[]> {
@@ -94,14 +23,12 @@ export const chatApi = {
         sender_id,
         receiver_id,
         status,
-        sender_deleted_at,
-        receiver_deleted_at,
         created_at,
         updated_at,
         sender:public_users!sender_id(id, username, emoji, bio, created_at, updated_at, is_online, user_blocks!user_id(blocked_id)),
         receiver:public_users!receiver_id(id, username, emoji, bio, created_at, updated_at, is_online, user_blocks!user_id(blocked_id))
       `)
-      .or(`and(sender_id.eq.${userId},sender_deleted_at.is.null),and(receiver_id.eq.${userId},receiver_deleted_at.is.null)`)
+      .or(`and(sender_id.eq.${userId}),and(receiver_id.eq.${userId})`)
       .order('updated_at', { ascending: false })
       .limit(limit);
 
@@ -511,6 +438,19 @@ export const chatApi = {
       .update({ status })
       .eq('id', chatId)
       .eq('receiver_id', session.user.id);
+
+    if (error) throw new Error(error.message);
+  },
+
+  /**
+   * Delete a chat for the current user (soft delete)
+   * Sets either sender_deleted_at or receiver_deleted_at based on user role
+   */
+  async deleteChat(chatId: string): Promise<void> {
+    const { error } = await supabase
+      .from('chats')
+      .delete()
+      .eq('id', chatId);
 
     if (error) throw new Error(error.message);
   }
