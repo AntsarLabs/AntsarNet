@@ -4,6 +4,7 @@ import { ChevronLeft, MoreVertical, Ban, Flag, Info, Send, Check, X } from 'luci
 import { useOnlineStatus } from '@/features/live/store';
 import { MessageBubble } from './MessageBubble';
 import type { Chat, Message } from '../types';
+import { timeAgo } from '@/utils/date';
 
 interface ChatWindowProps {
   chat: Chat;
@@ -15,7 +16,9 @@ interface ChatWindowProps {
   onSendMessage: (text: string) => void;
   onAccept?: () => void;
   onDecline?: () => void;
+  onUnblock?: () => void;
   isSending: boolean;
+  onLoadMoreMessages?: (offset: number, limit: number) => void;
 }
 
 export function ChatWindow({
@@ -28,21 +31,76 @@ export function ChatWindow({
   onSendMessage,
   onAccept,
   onDecline,
+  onUnblock,
   isSending,
+  onLoadMoreMessages,
 }: ChatWindowProps) {
   const [inputText, setInputText] = useState('');
   const [showMenu, setShowMenu] = useState(false);
+  const [allMessages, setAllMessages] = useState<Message[]>([]);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const MESSAGE_LIMIT = 50;
+
 
   // Determine the other participant
   const isSender = chat.senderId === currentUserId;
   const otherParticipant = isSender ? chat.receiver : chat.sender;
   const onlineStatus = useOnlineStatus((state) => state.onlineStatus[otherParticipant?.id || ''] ?? otherParticipant?.is_online);
 
-  // Scroll to bottom when messages change
+  // Initialize and update messages when new messages arrive
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, optimisticMessages]);
+    if (messages.length > 0) {
+      if (offset === 0) {
+        // Initial load or new message - replace all messages
+        setAllMessages(messages);
+      } else {
+        // Pagination load - prepend older messages
+        setAllMessages(prev => [...messages, ...prev]);
+      }
+      // Check if there are more messages to load
+      setHasMore(messages.length === MESSAGE_LIMIT);
+    }
+  }, [messages, offset]);
+
+  // Scroll to bottom when new messages arrive (but not during pagination)
+  useEffect(() => {
+    if (offset === 0) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [allMessages, optimisticMessages, offset]);
+
+  // Infinite scroll handler
+  const handleScroll = () => {
+    if (!messagesContainerRef.current || isLoadingMore || !hasMore) return;
+    
+    const { scrollTop } = messagesContainerRef.current;
+    // Load more messages when user scrolls near the top (100px from top)
+    if (scrollTop < 100 && hasMore && !isLoadingMore) {
+      loadMoreMessages();
+    }
+  };
+
+  const loadMoreMessages = async () => {
+    if (isLoadingMore || !hasMore || !onLoadMoreMessages) return;
+    
+    setIsLoadingMore(true);
+    const newOffset = offset + MESSAGE_LIMIT;
+    setOffset(newOffset);
+    
+    try {
+      await onLoadMoreMessages(newOffset, MESSAGE_LIMIT);
+    } catch (error) {
+      console.error('Failed to load more messages:', error);
+      // Reset offset on error
+      setOffset(offset);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
 
   const handleSend = () => {
     if (!inputText.trim() || chat.status !== 'accepted') return;
@@ -58,9 +116,8 @@ export function ChatWindow({
   };
 
   // Combine real and optimistic messages, filter out optimistic ones that have real counterparts
-  const allMessages = [...messages];
   const pendingOptimistic = optimisticMessages.filter(
-    (opt) => !messages.some((real) => real.id === opt.id)
+    (opt) => !allMessages.some((real) => real.id === opt.id)
   );
 
   return (
@@ -92,8 +149,8 @@ export function ChatWindow({
                 @{otherParticipant?.username || 'Unknown'}
               </span>
               <span
-                className={`text-xs ${
-                  onlineStatus ? 'text-green-600' : 'text-slate-400'
+                className={`text-xs font-medium ${
+                  onlineStatus ? 'text-green-600' : 'text-slate-500'
                 }`}
               >
                 {chat.status === 'pending'
@@ -104,7 +161,7 @@ export function ChatWindow({
                   ? 'Request declined'
                   : onlineStatus
                   ? 'Online'
-                  : 'Offline'}
+                  : `last seen ${otherParticipant?.updated_at ? timeAgo(otherParticipant.updated_at) : 'a while ago'}`}
               </span>
             </div>
           </div>
@@ -142,7 +199,11 @@ export function ChatWindow({
       </header>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar">
+      <div 
+        ref={messagesContainerRef}
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar"
+      >
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <div className="animate-pulse text-slate-400">Loading messages...</div>
@@ -229,6 +290,15 @@ export function ChatWindow({
         ) : (
           /* Messages List */
           <>
+            {/* Loading indicator for older messages */}
+            {isLoadingMore && (
+              <div className="flex justify-center py-2">
+                <div className="flex items-center gap-2 text-slate-400 text-sm">
+                  <div className="w-4 h-4 rounded-full border-2 border-slate-300 border-t-transparent animate-spin"></div>
+                  Loading older messages...
+                </div>
+              </div>
+            )}
             {allMessages.map((message) => (
               <MessageBubble
                 key={message.id}
@@ -252,25 +322,62 @@ export function ChatWindow({
       {/* Input Area - Only show for accepted chats */}
       {chat.status === 'accepted' && (
         <div className="p-4 bg-white/80 backdrop-blur-xl border-t border-slate-200">
-          <div className="max-w-4xl mx-auto flex items-end gap-3">
-            <div className="flex-1 bg-slate-50 border border-slate-200 rounded-3xl focus-within:bg-white focus-within:border-slate-300 transition-all">
-              <textarea
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Type a message..."
-                className="w-full bg-transparent px-5 py-3.5 text-[15px] text-slate-800 focus:outline-none resize-none max-h-32 min-h-[52px]"
-                rows={1}
-                disabled={isSending}
-              />
-            </div>
-            <button
-              onClick={handleSend}
-              disabled={!inputText.trim() || isSending}
-              className="w-[52px] h-[52px] rounded-full bg-gradient-to-br from-[#D82B7D] to-[#B5246A] text-white flex items-center justify-center shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Send size={20} className="ml-1" />
-            </button>
+          <div className="max-w-4xl mx-auto">
+            {/* Check block status - determine who blocked whom */}
+            {(() => {
+              // Did current user block the other person?
+              const iBlockedThem = isSender ? chat.sender?.is_blocked : chat.receiver?.is_blocked;
+              // Did other person block current user?
+              const theyBlockedMe = isSender ? chat.receiver?.is_blocked : chat.sender?.is_blocked;
+
+              if (iBlockedThem) {
+                return (
+                  <div className="flex items-center justify-between py-3 px-4 bg-amber-50 rounded-2xl border border-amber-100">
+                    <span className="text-amber-700 font-medium">You&apos;ve blocked this user</span>
+                    <button
+                      onClick={onUnblock}
+                      disabled={!onUnblock}
+                      className="px-4 py-1.5 bg-white text-amber-700 text-sm font-semibold rounded-full border border-amber-200 hover:bg-amber-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Unblock
+                    </button>
+                  </div>
+                );
+              }
+
+              if (theyBlockedMe) {
+                return (
+                  <div className="flex items-center justify-center py-3 px-4 bg-red-50 rounded-2xl border border-red-100">
+                    <Ban size={18} className="text-red-500 mr-2" />
+                    <span className="text-red-600 font-medium">You&apos;re blocked</span>
+                  </div>
+                );
+              }
+
+              return (
+              /* Normal message input */
+              <div className="flex items-end gap-3">
+                <div className="flex-1 bg-slate-50 border border-slate-200 rounded-3xl focus-within:bg-white focus-within:border-slate-300 transition-all">
+                  <textarea
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Type a message..."
+                    className="w-full bg-transparent px-5 py-3.5 text-[15px] text-slate-800 focus:outline-none resize-none max-h-32 min-h-[52px]"
+                    rows={1}
+                    disabled={isSending}
+                  />
+                </div>
+                <button
+                  onClick={handleSend}
+                  disabled={!inputText.trim() || isSending}
+                  className="w-[52px] h-[52px] rounded-full bg-gradient-to-br from-[#D82B7D] to-[#B5246A] text-white flex items-center justify-center shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Send size={20} className="ml-1" />
+                </button>
+              </div>
+              );
+            })()}
           </div>
         </div>
       )}

@@ -1,7 +1,7 @@
 import type { User } from "@/features/user/types";
 
 export interface ChatParticipant extends User {
-  blockStatus?: 'blocked_by_you' | 'blocked_you' | null;
+  is_blocked: boolean;
 }
 
 export interface Message {

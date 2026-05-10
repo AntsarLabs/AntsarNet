@@ -5,10 +5,10 @@ import { chatKeys } from './use-chats';
 /**
  * Hook to fetch messages for a specific chat
  */
-export function useMessages(chatId: string) {
+export function useMessages(chatId: string, options: { limit?: number; offset?: number } = {}) {
   return useQuery({
-    queryKey: chatKeys.messages(chatId),
-    queryFn: () => chatApi.getMessages(chatId),
+    queryKey: [...chatKeys.messages(chatId), options],
+    queryFn: () => chatApi.getMessages(chatId, options),
     enabled: !!chatId,
   });
 }
