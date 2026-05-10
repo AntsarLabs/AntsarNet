@@ -39,7 +39,6 @@ export function ChatPage() {
     showRequestsModal,
     setShowRequestsModal,
     optimisticMessages,
-    addOptimisticMessage,
   } = useChatStore();
 
   // Data fetching
