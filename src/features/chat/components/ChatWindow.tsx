@@ -1,10 +1,12 @@
 import { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, MoreVertical, Ban, Flag, Info, Send, Check, X } from 'lucide-react';
+import { ChevronLeft, MoreVertical, Ban, Info, Send, Check, X } from 'lucide-react';
 import { useOnlineStatus } from '@/features/live/store';
 import { MessageBubble } from './MessageBubble';
 import type { Chat, Message } from '../types';
 import { timeAgo } from '@/utils/date';
+import { accountApi } from '@/features/account/api';
+import { Link } from 'react-router-dom';
 
 interface ChatWindowProps {
   chat: Chat;
@@ -16,7 +18,6 @@ interface ChatWindowProps {
   onSendMessage: (text: string) => void;
   onAccept?: () => void;
   onDecline?: () => void;
-  onUnblock?: () => void;
   isSending: boolean;
   onLoadMoreMessages?: (offset: number, limit: number) => void;
 }
@@ -31,7 +32,6 @@ export function ChatWindow({
   onSendMessage,
   onAccept,
   onDecline,
-  onUnblock,
   isSending,
   onLoadMoreMessages,
 }: ChatWindowProps) {
@@ -50,6 +50,11 @@ export function ChatWindow({
   const isSender = chat.senderId === currentUserId;
   const otherParticipant = isSender ? chat.receiver : chat.sender;
   const onlineStatus = useOnlineStatus((state) => state.onlineStatus[otherParticipant?.id || ''] ?? otherParticipant?.is_online);
+
+  // Did current user block the other person?
+  const iBlockedThem = isSender ? chat.sender?.is_blocked : chat.receiver?.is_blocked;
+  // Did other person block current user?
+  const theyBlockedMe = isSender ? chat.receiver?.is_blocked : chat.sender?.is_blocked;
 
   // Initialize and update messages when new messages arrive
   useEffect(() => {
@@ -76,7 +81,7 @@ export function ChatWindow({
   // Infinite scroll handler
   const handleScroll = () => {
     if (!messagesContainerRef.current || isLoadingMore || !hasMore) return;
-    
+
     const { scrollTop } = messagesContainerRef.current;
     // Load more messages when user scrolls near the top (100px from top)
     if (scrollTop < 100 && hasMore && !isLoadingMore) {
@@ -86,11 +91,11 @@ export function ChatWindow({
 
   const loadMoreMessages = async () => {
     if (isLoadingMore || !hasMore || !onLoadMoreMessages) return;
-    
+
     setIsLoadingMore(true);
     const newOffset = offset + MESSAGE_LIMIT;
     setOffset(newOffset);
-    
+
     try {
       await onLoadMoreMessages(newOffset, MESSAGE_LIMIT);
     } catch (error) {
@@ -120,6 +125,17 @@ export function ChatWindow({
     (opt) => !allMessages.some((real) => real.id === opt.id)
   );
 
+  const handleBlock = async () => {
+    try {
+      if (otherParticipant?.id) {
+        await accountApi.toggleBlocking(currentUserId, otherParticipant.id);
+        setShowMenu(false)
+      }
+    } catch (error) {
+      console.error('Failed to block user:', error);
+    }
+  }
+
   return (
     <div className="flex flex-col h-full w-full bg-white/60 backdrop-blur-md relative overflow-hidden">
       {/* Header */}
@@ -136,11 +152,10 @@ export function ChatWindow({
 
           <div className="flex items-center gap-3">
             <div
-              className={`w-11 h-11 rounded-full bg-white flex items-center justify-center text-xl border ${
-                onlineStatus
-                  ? 'ring-2 ring-green-500 ring-offset-2'
-                  : 'border-slate-200'
-              }`}
+              className={`w-11 h-11 rounded-full bg-white flex items-center justify-center text-xl border ${onlineStatus
+                ? 'ring-2 ring-green-500 ring-offset-2'
+                : 'border-slate-200'
+                }`}
             >
               {otherParticipant?.emoji || '😶'}
             </div>
@@ -149,19 +164,18 @@ export function ChatWindow({
                 @{otherParticipant?.username || 'Unknown'}
               </span>
               <span
-                className={`text-xs font-medium ${
-                  onlineStatus ? 'text-green-600' : 'text-slate-500'
-                }`}
+                className={`text-xs font-medium ${onlineStatus ? 'text-green-600' : 'text-slate-500'
+                  }`}
               >
                 {chat.status === 'pending'
                   ? isSender
                     ? 'Request pending...'
                     : 'New request'
                   : chat.status === 'declined'
-                  ? 'Request declined'
-                  : onlineStatus
-                  ? 'Online'
-                  : `last seen ${otherParticipant?.updated_at ? timeAgo(otherParticipant.updated_at) : 'a while ago'}`}
+                    ? 'Request declined'
+                    : onlineStatus
+                      ? 'Online'
+                      : `last seen ${otherParticipant?.updated_at ? timeAgo(otherParticipant.updated_at) : 'a while ago'}`}
               </span>
             </div>
           </div>
@@ -183,15 +197,15 @@ export function ChatWindow({
                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
                 className="absolute right-0 top-full mt-2 w-48 bg-white border border-slate-200 rounded-2xl shadow-xl z-40 py-1.5 overflow-hidden"
               >
-                <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
-                  <Info size={16} className="text-slate-400" /> View Profile
-                </button>
-                <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
-                  <Ban size={16} className="text-slate-400" /> Block User
-                </button>
-                <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors">
-                  <Flag size={16} /> Report User
-                </button>
+                <Link to={`/posts?user=${otherParticipant?.id}`} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                  <Info size={16} className="text-slate-400" /> User Posts
+                </Link>
+                {/* show if block or unblok btn if they r not blocked */}
+                {!theyBlockedMe && (
+                  <button onClick={handleBlock} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                    <Ban size={16} className="text-slate-400" /> {iBlockedThem ? 'Unblock' : 'Block'}
+                  </button>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -199,7 +213,7 @@ export function ChatWindow({
       </header>
 
       {/* Messages Area */}
-      <div 
+      <div
         ref={messagesContainerRef}
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar"
@@ -325,18 +339,14 @@ export function ChatWindow({
           <div className="max-w-4xl mx-auto">
             {/* Check block status - determine who blocked whom */}
             {(() => {
-              // Did current user block the other person?
-              const iBlockedThem = isSender ? chat.sender?.is_blocked : chat.receiver?.is_blocked;
-              // Did other person block current user?
-              const theyBlockedMe = isSender ? chat.receiver?.is_blocked : chat.sender?.is_blocked;
+
 
               if (iBlockedThem) {
                 return (
                   <div className="flex items-center justify-between py-3 px-4 bg-amber-50 rounded-2xl border border-amber-100">
                     <span className="text-amber-700 font-medium">You&apos;ve blocked this user</span>
                     <button
-                      onClick={onUnblock}
-                      disabled={!onUnblock}
+                      onClick={handleBlock}
                       className="px-4 py-1.5 bg-white text-amber-700 text-sm font-semibold rounded-full border border-amber-200 hover:bg-amber-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Unblock
@@ -355,27 +365,27 @@ export function ChatWindow({
               }
 
               return (
-              /* Normal message input */
-              <div className="flex items-end gap-3">
-                <div className="flex-1 bg-slate-50 border border-slate-200 rounded-3xl focus-within:bg-white focus-within:border-slate-300 transition-all">
-                  <textarea
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Type a message..."
-                    className="w-full bg-transparent px-5 py-3.5 text-[15px] text-slate-800 focus:outline-none resize-none max-h-32 min-h-[52px]"
-                    rows={1}
-                    disabled={isSending}
-                  />
+                /* Normal message input */
+                <div className="flex items-end gap-3">
+                  <div className="flex-1 bg-slate-50 border border-slate-200 rounded-3xl focus-within:bg-white focus-within:border-slate-300 transition-all">
+                    <textarea
+                      value={inputText}
+                      onChange={(e) => setInputText(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      placeholder="Type a message..."
+                      className="w-full bg-transparent px-5 py-3.5 text-[15px] text-slate-800 focus:outline-none resize-none max-h-32 min-h-[52px]"
+                      rows={1}
+                      disabled={isSending}
+                    />
+                  </div>
+                  <button
+                    onClick={handleSend}
+                    disabled={!inputText.trim() || isSending}
+                    className="w-[52px] h-[52px] rounded-full bg-gradient-to-br from-[#D82B7D] to-[#B5246A] text-white flex items-center justify-center shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Send size={20} className="ml-1" />
+                  </button>
                 </div>
-                <button
-                  onClick={handleSend}
-                  disabled={!inputText.trim() || isSending}
-                  className="w-[52px] h-[52px] rounded-full bg-gradient-to-br from-[#D82B7D] to-[#B5246A] text-white flex items-center justify-center shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Send size={20} className="ml-1" />
-                </button>
-              </div>
               );
             })()}
           </div>
