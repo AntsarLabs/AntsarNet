@@ -1,6 +1,6 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, UserPlus, Loader2 } from 'lucide-react';
+import { MessageCircle, UserPlus, Loader2, ChevronDown } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { MainLayout } from '@/components/MainLayout';
 import { useAuthStore } from '@/features/auth/store';
@@ -14,8 +14,8 @@ import {
   useChatRealtime,
 } from './hooks';
 import { chatApi } from './api';
-import { ChatListItem, ChatRequestModal, ChatWindow } from './components';
-import type { PendingChatRequest } from './types';
+import { ChatListItem, ChatWindow } from './components';
+import type { PendingChatRequest, ChatWithLastMessage } from './types';
 
 // --- Global Styles to hide scrollbars ---
 const HideScrollbarGlobal = () => (
@@ -37,22 +37,76 @@ export function ChatPage() {
   const {
     activeChatId,
     setActiveChatId,
-    showRequestsModal,
-    setShowRequestsModal,
     optimisticMessages,
   } = useChatStore();
 
   // Data fetching
+  const [allChats, setAllChats] = useState<ChatWithLastMessage[]>([]);
+  const [hasMoreChats, setHasMoreChats] = useState(true);
+  const [isLoadingMoreChats, setIsLoadingMoreChats] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const CHAT_LIMIT = 10;
+
+  // Ref for chat list scroll container
+  const chatListRef = useRef<HTMLDivElement>(null);
+
   const {
     data: chats = [],
     isLoading: isLoadingChats,
     error: chatsError,
-  } = useChatsWithLastMessage();
+  } = useChatsWithLastMessage({ limit: CHAT_LIMIT, offset: 0 });
   const { mutate: sendMessage, isPending: isSendingMessage } = useSendMessage();
-  const { mutate: updateChatStatus, isPending: isUpdatingStatus } = useUpdateChatStatus();
+  const { mutate: updateChatStatus } = useUpdateChatStatus();
 
   // Realtime subscriptions
   useChatRealtime();
+
+  // Initial load - only runs once
+  useEffect(() => {
+    if (!isLoadingChats && isInitialLoading) {
+      setAllChats(chats);
+      setHasMoreChats(chats.length === CHAT_LIMIT);
+      setIsInitialLoading(false);
+    }
+  }, [chats, isLoadingChats, isInitialLoading]);
+
+  // Load more chats handler - preserves scroll position
+  const handleLoadMoreChats = async () => {
+    if (isLoadingMoreChats || !hasMoreChats) return;
+
+    // Save current scroll position and height
+    const container = chatListRef.current;
+    const scrollTopBefore = container?.scrollTop || 0;
+    const scrollHeightBefore = container?.scrollHeight || 0;
+
+    setIsLoadingMoreChats(true);
+    const newOffset = allChats.length;
+
+    try {
+      const newChats = await chatApi.getChatsWithLastMessage({ offset: newOffset, limit: CHAT_LIMIT });
+      // Filter out any chats that already exist to prevent duplicates
+      const existingIds = new Set(allChats.map(c => c.id));
+      const uniqueNewChats = newChats.filter(c => !existingIds.has(c.id));
+      
+      if (uniqueNewChats.length > 0) {
+        setAllChats(prev => [...prev, ...uniqueNewChats]);
+      }
+      setHasMoreChats(newChats.length === CHAT_LIMIT);
+
+      // Restore scroll position after new content is added
+      requestAnimationFrame(() => {
+        if (container) {
+          const scrollHeightAfter = container.scrollHeight;
+          const heightDiff = scrollHeightAfter - scrollHeightBefore;
+          container.scrollTop = scrollTopBefore + heightDiff;
+        }
+      });
+    } catch (error) {
+      console.error('Failed to load more chats:', error);
+    } finally {
+      setIsLoadingMoreChats(false);
+    }
+  };
 
   // Sync URL param with active chat
   useEffect(() => {
@@ -65,8 +119,8 @@ export function ChatPage() {
 
   // Get active chat data
   const activeChat = useMemo(() => {
-    return chats.find((c) => c.id === activeChatId) || null;
-  }, [chats, activeChatId]);
+    return allChats.find((c) => c.id === activeChatId) || null;
+  }, [allChats, activeChatId]);
 
   // Fetch messages for active chat
   const {
@@ -97,7 +151,7 @@ export function ChatPage() {
   // Pending requests calculation
   const pendingRequests = useMemo<PendingChatRequest[]>(() => {
     if (!currentUser) return [];
-    return chats
+    return allChats
       .filter((c) => c.status === 'pending')
       .map((c) => {
         const isIncoming = c.receiverId === currentUser.id;
@@ -107,7 +161,7 @@ export function ChatPage() {
           requester: isIncoming ? (c.sender!) : (c.receiver!),
         };
       });
-  }, [chats, currentUser]);
+  }, [allChats, currentUser]);
 
   // Handlers
   const handleChatSelect = (chatId: string) => {
@@ -137,20 +191,17 @@ export function ChatPage() {
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-slate-900">Messages</h2>
           {pendingRequests.length > 0 && (
-            <button
-              onClick={() => setShowRequestsModal(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-pink-50 hover:bg-pink-100 text-pink-600 rounded-full text-xs font-semibold transition-colors"
-            >
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-pink-50 text-pink-600 rounded-full text-xs font-semibold">
               <UserPlus size={14} />
               {pendingRequests.length} request{pendingRequests.length !== 1 ? 's' : ''}
-            </button>
+            </div>
           )}
         </div>
       </div>
 
       {/* Chat List */}
-      <div className="flex-1 overflow-y-auto px-3 space-y-1 pb-20 pt-2 no-scrollbar">
-        {isLoadingChats ? (
+      <div ref={chatListRef} className="flex-1 overflow-y-auto px-3 space-y-1 pb-20 pt-2 no-scrollbar">
+        {isInitialLoading ? (
           <div className="flex flex-col items-center justify-center py-12">
             <Loader2 className="w-6 h-6 animate-spin text-pink-500 mb-2" />
             <p className="text-sm text-slate-400">Loading chats...</p>
@@ -165,7 +216,7 @@ export function ChatPage() {
               Try Again
             </button>
           </div>
-        ) : chats.length === 0 ? (
+        ) : allChats.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 px-4">
             <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
               <MessageCircle size={28} className="text-slate-400" />
@@ -176,15 +227,38 @@ export function ChatPage() {
             </p>
           </div>
         ) : (
-          chats.map((chat) => (
-            <ChatListItem
-              key={chat.id}
-              chat={chat}
-              isActive={chat.id === activeChatId}
-              currentUserId={currentUser?.id || ''}
-              onClick={() => handleChatSelect(chat.id)}
-            />
-          ))
+          <>
+            {allChats.map((chat) => (
+              <ChatListItem
+                key={chat.id}
+                chat={chat}
+                isActive={chat.id === activeChatId}
+                currentUserId={currentUser?.id || ''}
+                onClick={() => handleChatSelect(chat.id)}
+              />
+            ))}
+            {hasMoreChats && (
+              <div className="flex justify-center py-3">
+                <button
+                  onClick={handleLoadMoreChats}
+                  disabled={isLoadingMoreChats}
+                  className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full text-sm font-medium transition-colors disabled:opacity-50"
+                >
+                  {isLoadingMoreChats ? (
+                    <>
+                      <div className="w-4 h-4 rounded-full border-2 border-slate-400 border-t-transparent animate-spin"></div>
+                      Loading...
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown size={16} />
+                      Load more
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
@@ -200,15 +274,6 @@ export function ChatPage() {
       <p className="text-slate-500 max-w-xs">
         Choose a chat from the sidebar to start messaging anonymously.
       </p>
-      {pendingRequests.length > 0 && (
-        <button
-          onClick={() => setShowRequestsModal(true)}
-          className="mt-6 flex items-center gap-2 px-5 py-2.5 bg-pink-50 hover:bg-pink-100 text-pink-600 rounded-xl text-sm font-semibold transition-colors"
-        >
-          <UserPlus size={18} />
-          View {pendingRequests.length} Pending Request{pendingRequests.length !== 1 ? 's' : ''}
-        </button>
-      )}
     </div>
   );
 
@@ -279,15 +344,6 @@ export function ChatPage() {
         </div>
       </div>
 
-      {/* Chat Request Modal */}
-      <ChatRequestModal
-        isOpen={showRequestsModal}
-        onClose={() => setShowRequestsModal(false)}
-        requests={pendingRequests}
-        onAccept={handleAcceptRequest}
-        onDecline={handleDeclineRequest}
-        isPending={isUpdatingStatus}
-      />
     </MainLayout>
   );
 }

@@ -23,11 +23,23 @@ export function useChats() {
 /**
  * Hook to fetch chats with last message info for the chat list
  */
-export function useChatsWithLastMessage() {
+export function useChatsWithLastMessage(options: { limit?: number; offset?: number } = {}) {
   return useQuery({
-    queryKey: chatKeys.listsWithLastMessage(),
-    queryFn: () => chatApi.getChatsWithLastMessage(),
+    queryKey: [...chatKeys.listsWithLastMessage(), options],
+    queryFn: () => chatApi.getChatsWithLastMessage(options),
     staleTime: 1000 * 5, // 5 seconds
+  });
+}
+
+/**
+ * Hook to load more chats for pagination
+ */
+export function useLoadMoreChats() {
+  return useMutation({
+    mutationFn: async ({ offset, limit }: { offset: number; limit: number }) => {
+      const chats = await chatApi.getChatsWithLastMessage({ offset, limit });
+      return chats;
+    },
   });
 }
 

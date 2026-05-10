@@ -7,8 +7,8 @@ export const chatApi = {
   /**
    * Get chats with last message info for the chat list
    */
-  async getChatsWithLastMessage(options: { limit?: number } = {}): Promise<ChatWithLastMessage[]> {
-    const { limit = 50 } = options;
+  async getChatsWithLastMessage(options: { limit?: number; offset?: number } = {}): Promise<ChatWithLastMessage[]> {
+    const { limit = 50, offset = 0 } = options;
 
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.user) throw new Error('Not authenticated');
@@ -29,8 +29,8 @@ export const chatApi = {
         receiver:public_users!receiver_id(id, username, emoji, bio, created_at, updated_at, is_online, user_blocks!user_id(blocked_id))
       `)
       .or(`and(sender_id.eq.${userId}),and(receiver_id.eq.${userId})`)
-      .order('updated_at', { ascending: false })
-      .limit(limit);
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
 
     if (chatsError) throw new Error(chatsError.message);
 
