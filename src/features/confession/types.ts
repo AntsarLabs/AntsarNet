@@ -41,6 +41,7 @@ export interface Post {
   tags: Tag[];
   user?: { emoji: string; username: string };
   reaction_count: number;
+  reaction_counts: Record<string, number>;
   comment_count: number;
   user_reaction: ReactionType | null;
   top_reactions: string[];

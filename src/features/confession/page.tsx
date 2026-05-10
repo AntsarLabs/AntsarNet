@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Flame, X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { PostCard, CreatePostModal } from './components';
 import { MainLayout } from '@/components/MainLayout';
-import { usePostsInfinite, useCreatePost, useToggleReaction, useAddComment } from './hooks';
+import { usePostsInfinite, useCreatePost, useToggleReaction, useAddComment, useDeletePost } from './hooks';
 import type { PostType, ReactionType } from './types';
 import { POST_TYPE_META } from './types';
 import { useAuthStore } from '@/features/auth/store';
@@ -29,6 +29,7 @@ export function ConfessionsPage() {
   const createPost = useCreatePost();
   const toggleReaction = useToggleReaction();
   const addComment = useAddComment();
+  const deletePost = useDeletePost();
 
   const allPosts = data?.pages.flat() ?? [];
 
@@ -55,6 +56,10 @@ export function ConfessionsPage() {
 
   const handleAddComment = (postId: string, content: string, parentCommentId?: string) => {
     addComment.mutate({ postId, content, parentCommentId });
+  };
+
+  const handleDeletePost = (postId: string) => {
+    deletePost.mutate(postId);
   };
 
   return (
@@ -169,6 +174,7 @@ export function ConfessionsPage() {
                         post={post}
                         onReact={handleReact}
                         onAddComment={handleAddComment}
+                        onDelete={handleDeletePost}
                         showDeleteButton={sort==='my'}
                       />
                     </motion.div>

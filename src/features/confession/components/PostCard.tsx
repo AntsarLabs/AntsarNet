@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, Flag, MoreVertical, Send, Share2, X, Loader2, Trash2 } from 'lucide-react';
-import { PostCardProps, ReactionType, POST_TYPE_META } from '../types';
+import { MessageCircle, Send, X, Loader2, Trash2 } from 'lucide-react';
+import { PostCardProps, POST_TYPE_META } from '../types';
 import { ReactionBar } from './ReactionBar';
 import { CommentThread } from './CommentThread';
 import { useComments } from '../hooks';
 import { useAuthStore } from '@/features/auth/store';
+import { ConfirmationModal } from '@/components/ConfirmationModal';
 
 function timeAgo(dateStr: string): string {
   const now = Date.now();
@@ -38,6 +39,7 @@ export function PostCard({
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const { data: fetchedComments = [], isLoading: isLoadingComments } = useComments(post.id);
 
@@ -61,9 +63,7 @@ export function PostCard({
     setReplyingTo(null);
   };
 
-  // Combine top reactions with user's own reaction if it's not already in the top ones
-  const topReactions = [...new Set([...(post.top_reactions || []), ...(userReaction ? [userReaction] : [])])];
-
+  
   const maxLength = 200;
   const isLong = post.content.length > maxLength;
   const displayText = isExpanded || !isLong ? post.content : post.content.slice(0, maxLength).trim();
@@ -101,9 +101,7 @@ export function PostCard({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                if (onDelete && confirm('Are you sure you want to delete this post?')) {
-                  onDelete(post.id);
-                }
+                setShowDeleteModal(true);
               }}
               className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors">
               <Trash2 size={18} />
@@ -256,7 +254,7 @@ export function PostCard({
                     <CommentThread
                       comments={fetchedComments}
                       onReply={(commentId) => setReplyingTo(commentId)}
-                      onReact={(commentId, emoji) => onReact(commentId, emoji, true)}
+                      onReact={(commentId, emoji) => onReact(commentId, emoji)}
                     />
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full text-slate-500 pt-10 pb-12">
@@ -311,6 +309,23 @@ export function PostCard({
         </AnimatePresence>,
         document.body
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={() => {
+          if (onDelete) {
+            onDelete(post.id);
+            setShowDeleteModal(false);
+          }
+        }}
+        title="Delete Post"
+        message="Are you sure you want to delete this post? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </>
   );
 }

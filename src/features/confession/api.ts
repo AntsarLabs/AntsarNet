@@ -187,21 +187,21 @@ export const postApi = {
   },
 
   /**
-   * Delete a post.
+   * Delete a post (soft delete - sets status to 'deleted').
    */
   async deletePost(postId: string): Promise<void> {
-    console.log('API: Deleting post', postId);
+    console.log('API: Soft deleting post', postId);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
     const { error } = await supabase
       .from('posts')
-      .delete()
+      .update({ status: 'deleted', updated_at: new Date().toISOString() })
       .eq('id', postId)
       .eq('user_id', user.id); // Extra safety, RLS handles this too
 
     if (error) {
-      console.error('API Error: deleting post:', error);
+      console.error('API Error: soft deleting post:', error);
       throw new Error(error.message);
     }
   },

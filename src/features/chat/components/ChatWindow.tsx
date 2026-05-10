@@ -7,6 +7,7 @@ import type { Chat, Message } from '../types';
 import { timeAgo } from '@/utils/date';
 import { accountApi } from '@/features/account/api';
 import { useDeleteChat } from '../hooks/use-chats';
+import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { Link } from 'react-router-dom';
 
 interface ChatWindowProps {
@@ -40,6 +41,7 @@ export function ChatWindow({
 }: ChatWindowProps) {
   const [inputText, setInputText] = useState('');
   const [showMenu, setShowMenu] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [allMessages, setAllMessages] = useState<Message[]>([]);
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
@@ -144,11 +146,12 @@ export function ChatWindow({
     try {
       await deleteChat.mutateAsync(chat.id);
       setShowMenu(false);
+      setShowDeleteModal(false);
       onDeleteChat?.();
     } catch (error) {
       console.error('Failed to delete chat:', error);
     }
-  }
+  };
 
   return (
     <div className="flex flex-col h-full w-full bg-white/60 backdrop-blur-md relative overflow-hidden">
@@ -221,12 +224,15 @@ export function ChatWindow({
                   </button>
                 )}
                 <button 
-                  onClick={handleDeleteChat} 
+                  onClick={() => {
+                    setShowMenu(false);
+                    setShowDeleteModal(true);
+                  }} 
                   className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
                   disabled={deleteChat.isPending}
                 >
                   <Trash2 size={16} className="text-red-400" /> 
-                  {deleteChat.isPending ? 'Deleting...' : 'Delete Chat'}
+                  Delete Chat
                 </button>
               </motion.div>
             )}
@@ -413,6 +419,19 @@ export function ChatWindow({
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteChat}
+        title="Delete Chat"
+        message="Are you sure you want to delete this chat? This will remove the chat from your list but the other person will still be able to see it."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+        isLoading={deleteChat.isPending}
+      />
     </div>
   );
 }
