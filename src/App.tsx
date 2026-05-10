@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AccountPage } from '@/features/account/page';
 import { InboxPage } from '@/features/inbox/page';
 import { LandingPage } from '@/pages/LandingPage';
-import { ConfessionsPage } from '@/features/confession/page';
+import { ConfessionsPage } from '@/features/post/page';
 import { ChatPage } from '@/features/chat/page';
 import { InboxReceivingPage } from '@/features/inbox/pages/InboxReceivingPage';
 import { AuthPage } from '@/features/auth/page';
