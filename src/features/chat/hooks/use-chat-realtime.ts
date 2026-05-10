@@ -14,6 +14,7 @@ export function useChatRealtime() {
   useEffect(() => {
     let chatsChannel: ReturnType<typeof supabase.channel>;
     let messagesChannel: ReturnType<typeof supabase.channel>;
+    let userBlocksChannel: ReturnType<typeof supabase.channel>;
 
     const setupRealtime = async () => {
       // Get current user
@@ -68,10 +69,7 @@ export function useChatRealtime() {
               });
             }
           }
-        )
-        .subscribe((status) => {
-          console.log('[Realtime] Chats channel status:', status);
-        });
+        );
 
       // 2. Subscribe to ALL message changes (messages where I'm sender or receiver)
       messagesChannel = supabase
@@ -111,10 +109,52 @@ export function useChatRealtime() {
             queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
             queryClient.invalidateQueries({ queryKey: chatKeys.listsWithLastMessage() });
           }
+        );
+
+      // 3. Subscribe to user blocks table changes
+      userBlocksChannel = supabase
+        .channel(`user_blocks_updates_${userId}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'user_blocks'
+          },
+          (payload) => {
+            console.log('[Realtime] User blocks INSERT:', payload);
+            // Invalidate relevant queries when a block is created
+            queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
+            queryClient.invalidateQueries({ queryKey: chatKeys.listsWithLastMessage() });
+          }
         )
-        .subscribe((status) => {
-          console.log('[Realtime] Messages channel status:', status);
-        });
+        .on(
+          'postgres_changes',
+          {
+            event: 'DELETE',
+            schema: 'public',
+            table: 'user_blocks'
+          },
+          (payload) => {
+            console.log('[Realtime] User blocks DELETE:', payload);
+            // Invalidate relevant queries when a block is removed
+            queryClient.invalidateQueries({ queryKey: chatKeys.lists() });
+            queryClient.invalidateQueries({ queryKey: chatKeys.listsWithLastMessage() });
+          }
+        );
+
+      // Subscribe to all channels
+      chatsChannel.subscribe((status) => {
+        console.log('[Realtime] Chats channel status:', status);
+      });
+
+      messagesChannel.subscribe((status) => {
+        console.log('[Realtime] Messages channel status:', status);
+      });
+
+      userBlocksChannel.subscribe((status) => {
+        console.log('[Realtime] User blocks channel status:', status);
+      });
     };
 
     setupRealtime();
@@ -126,6 +166,9 @@ export function useChatRealtime() {
       }
       if (messagesChannel) {
         supabase.removeChannel(messagesChannel);
+      }
+      if (userBlocksChannel) {
+        supabase.removeChannel(userBlocksChannel);
       }
     };
   }, [queryClient]);
