@@ -228,7 +228,7 @@ export const chatApi = {
       `
       )
       .eq('chat_id', chatId)
-      .order('created_at', { ascending: true })
+      .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
     if (error) throw new Error(error.message);

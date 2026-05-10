@@ -13,6 +13,7 @@ import {
   useMarkAsRead,
   useChatRealtime,
 } from './hooks';
+import { chatApi } from './api';
 import { ChatListItem, ChatRequestModal, ChatWindow } from './components';
 import type { PendingChatRequest } from './types';
 
@@ -72,7 +73,7 @@ export function ChatPage() {
     data: messages = [],
     isLoading: isLoadingMessages,
     error: messagesError,
-  } = useMessages(activeChatId || '');
+  } = useMessages(activeChatId || '', { limit: 10 });
 
   // Mark unread messages as read
   const { mutate: markAsRead } = useMarkAsRead();
@@ -230,6 +231,7 @@ export function ChatPage() {
                 onAccept={() => handleAcceptRequest(activeChatId)}
                 onDecline={() => handleDeclineRequest(activeChatId)}
                 isSending={isSendingMessage}
+                onLoadMoreMessages={(offset, limit) => chatApi.getMessages(activeChatId, { offset, limit })}
               />
             </div>
           ) : (
@@ -266,6 +268,7 @@ export function ChatPage() {
                     onAccept={() => handleAcceptRequest(activeChatId)}
                     onDecline={() => handleDeclineRequest(activeChatId)}
                     isSending={isSendingMessage}
+                    onLoadMoreMessages={(offset, limit) => chatApi.getMessages(activeChatId, { offset, limit })}
                   />
                 </motion.div>
               ) : (

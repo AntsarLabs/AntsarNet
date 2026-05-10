@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { chatApi } from '../api';
 import { chatKeys } from './use-chats';
+import type { Message } from '../types';
 
 /**
  * Hook to fetch messages for a specific chat
@@ -10,6 +11,18 @@ export function useMessages(chatId: string, options: { limit?: number; offset?: 
     queryKey: [...chatKeys.messages(chatId), options],
     queryFn: () => chatApi.getMessages(chatId, options),
     enabled: !!chatId,
+  });
+}
+
+/**
+ * Hook to load more messages for pagination
+ */
+export function useLoadMoreMessages() {
+  return useMutation<Message[], Error, { chatId: string; offset: number; limit: number }>({
+    mutationFn: async ({ chatId, offset, limit }) => {
+      const messages = await chatApi.getMessages(chatId, { offset, limit });
+      return messages;
+    },
   });
 }
 

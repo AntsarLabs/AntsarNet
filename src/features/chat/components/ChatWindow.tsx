@@ -21,7 +21,7 @@ interface ChatWindowProps {
   onAccept?: () => void;
   onDecline?: () => void;
   isSending: boolean;
-  onLoadMoreMessages?: (offset: number, limit: number) => void;
+  onLoadMoreMessages?: (offset: number, limit: number) => Promise<Message[]>;
   onDeleteChat?: () => void;
 }
 
@@ -48,9 +48,15 @@ export function ChatWindow({
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const MESSAGE_LIMIT = 50;
+  const MESSAGE_LIMIT = 10;
   const deleteChat = useDeleteChat();
 
+  // Reset state when chat changes
+  useEffect(() => {
+    setOffset(0);
+    setHasMore(true);
+    setAllMessages([]);
+  }, [chat.id]);
 
   // Determine the other participant
   const isSender = chat.senderId === currentUserId;
@@ -64,50 +70,40 @@ export function ChatWindow({
 
   // Initialize and update messages when new messages arrive
   useEffect(() => {
-    if (messages.length > 0) {
-      if (offset === 0) {
-        // Initial load or new message - replace all messages
-        setAllMessages(messages);
-      } else {
-        // Pagination load - prepend older messages
-        setAllMessages(prev => [...messages, ...prev]);
-      }
+    if (offset === 0) {
+      // Initial load or new message - replace all messages
+      setAllMessages(messages);
       // Check if there are more messages to load
       setHasMore(messages.length === MESSAGE_LIMIT);
     }
   }, [messages, offset]);
 
-  // Scroll to bottom when new messages arrive (but not during pagination)
+  // Scroll to bottom on initial load only
   useEffect(() => {
-    if (offset === 0) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (offset === 0 && messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
     }
-  }, [allMessages, optimisticMessages, offset]);
+  }, [allMessages.length === 0 ? 'initial' : '']);
 
-  // Infinite scroll handler
-  const handleScroll = () => {
-    if (!messagesContainerRef.current || isLoadingMore || !hasMore) return;
-
-    const { scrollTop } = messagesContainerRef.current;
-    // Load more messages when user scrolls near the top (100px from top)
-    if (scrollTop < 100 && hasMore && !isLoadingMore) {
-      loadMoreMessages();
-    }
-  };
+  // Note: Load more is now triggered by button click, not scroll
 
   const loadMoreMessages = async () => {
     if (isLoadingMore || !hasMore || !onLoadMoreMessages) return;
 
     setIsLoadingMore(true);
     const newOffset = offset + MESSAGE_LIMIT;
-    setOffset(newOffset);
 
     try {
-      await onLoadMoreMessages(newOffset, MESSAGE_LIMIT);
+      const newMessages = await onLoadMoreMessages(newOffset, MESSAGE_LIMIT);
+      if (newMessages.length > 0) {
+        setAllMessages(prev => [...newMessages, ...prev]);
+        setHasMore(newMessages.length === MESSAGE_LIMIT);
+      } else {
+        setHasMore(false);
+      }
+      setOffset(newOffset);
     } catch (error) {
       console.error('Failed to load more messages:', error);
-      // Reset offset on error
-      setOffset(offset);
     } finally {
       setIsLoadingMore(false);
     }
@@ -243,8 +239,7 @@ export function ChatWindow({
       {/* Messages Area */}
       <div
         ref={messagesContainerRef}
-        onScroll={handleScroll}
-        className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar"
+        className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar flex flex-col-reverse"
       >
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
@@ -330,25 +325,10 @@ export function ChatWindow({
             </p>
           </div>
         ) : (
-          /* Messages List */
+          /* Messages List - reversed for bottom-to-top layout */
           <>
-            {/* Loading indicator for older messages */}
-            {isLoadingMore && (
-              <div className="flex justify-center py-2">
-                <div className="flex items-center gap-2 text-slate-400 text-sm">
-                  <div className="w-4 h-4 rounded-full border-2 border-slate-300 border-t-transparent animate-spin"></div>
-                  Loading older messages...
-                </div>
-              </div>
-            )}
-            {allMessages.map((message) => (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                isMe={message.senderId === currentUserId}
-              />
-            ))}
-            {pendingOptimistic.map((message) => (
+            {/* Optimistic messages at bottom (visually) / end of array */}
+            {[...pendingOptimistic].reverse().map((message) => (
               <MessageBubble
                 key={message.id}
                 message={message}
@@ -356,6 +336,36 @@ export function ChatWindow({
                 isOptimistic={true}
               />
             ))}
+            {/* Real messages - reversed to show newest at bottom */}
+            {[...allMessages].reverse().map((message) => (
+              <MessageBubble
+                key={message.id}
+                message={message}
+                isMe={message.senderId === currentUserId}
+              />
+            ))}
+            {/* Load More Button - at end of DOM so it appears at top visually with flex-col-reverse */}
+            {hasMore && chat.status === 'accepted' && (
+              <div className="flex justify-center py-4">
+                <button
+                  onClick={loadMoreMessages}
+                  disabled={isLoadingMore}
+                  className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full text-sm font-medium transition-colors disabled:opacity-50"
+                >
+                  {isLoadingMore ? (
+                    <>
+                      <div className="w-4 h-4 rounded-full border-2 border-slate-400 border-t-transparent animate-spin"></div>
+                      Loading...
+                    </>
+                  ) : (
+                    <>
+                      <ChevronLeft size={16} className="rotate-90" />
+                      Load more messages
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </>
         )}
         <div ref={messagesEndRef} />
