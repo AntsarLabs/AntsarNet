@@ -8,6 +8,7 @@ import { CommentThread } from './CommentThread';
 import { useComments, useLoadMoreComments } from '../hooks';
 import { useAuthStore } from '@/features/auth/store';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
+import { Link } from 'react-router-dom';
 
 function timeAgo(dateStr: string): string {
   const now = Date.now();
@@ -33,7 +34,7 @@ export function PostCard({
 }: PostCardProps & { onDelete?: (id: string) => void; showDeleteButton?: boolean }) {
   const { user: currentUser } = useAuthStore();
   const isAuthor = currentUser?.id === post.user_id;
-    const userReaction = propReaction ?? post.user_reaction;
+  const userReaction = propReaction ?? post.user_reaction;
   const [showReactions, setShowReactions] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showComments, setShowComments] = useState(false);
@@ -45,12 +46,12 @@ export function PostCard({
   const [allComments, setAllComments] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMoreComments, setHasMoreComments] = useState(true);
-  
-  const { data: fetchedComments = [], isLoading: isLoadingComments } = useComments(post.id, { 
-    page: 0, 
-    limit: COMMENTS_PER_PAGE 
+
+  const { data: fetchedComments = [], isLoading: isLoadingComments } = useComments(post.id, {
+    page: 0,
+    limit: COMMENTS_PER_PAGE
   });
-  
+
   const loadMoreComments = useLoadMoreComments();
 
   // Initialize comments when first loaded
@@ -63,7 +64,7 @@ export function PostCard({
 
   const handleLoadMore = async () => {
     if (!hasMoreComments || loadMoreComments.isPending) return;
-    
+
     try {
       const nextPage = currentPage + 1;
       const newComments = await loadMoreComments.mutateAsync({
@@ -71,7 +72,7 @@ export function PostCard({
         page: nextPage,
         limit: COMMENTS_PER_PAGE
       });
-      
+
       setAllComments(prev => [...prev, ...newComments]);
       setCurrentPage(nextPage);
       setHasMoreComments(newComments.length === COMMENTS_PER_PAGE);
@@ -104,7 +105,7 @@ export function PostCard({
     setHasMoreComments(true);
   };
 
-  
+
   const maxLength = 200;
   const isLong = post.content.length > maxLength;
   const displayText = isExpanded || !isLong ? post.content : post.content.slice(0, maxLength).trim();
@@ -120,24 +121,27 @@ export function PostCard({
 
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-xl shadow-sm">
-              {post.user?.emoji || '😶'}
-            </div>
-            <div>
-              <div className="font-mono font-semibold text-slate-800 text-sm">
-                @{post.user?.username || 'Anonymous'}
+          <Link to={`/discover?q=${post.user?.username}`}>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-xl shadow-sm">
+                {post.user?.emoji || '😶'}
               </div>
-              <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-                <span>{timeAgo(post.created_at)}</span>
-                <span className="text-slate-300">.</span>
-                <span className="inline-flex items-center gap-1">
-                  <TypeIcon size={12} />
-                  {typeMeta.label}
-                </span>
+              <div>
+                <div className="font-mono font-semibold text-slate-800 text-sm">
+                  @{post.user?.username || 'Anonymous'}
+                </div>
+                <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                  <span>{timeAgo(post.created_at)}</span>
+                  <span className="text-slate-300">.</span>
+                  <span className="inline-flex items-center gap-1">
+                    <TypeIcon size={12} />
+                    {typeMeta.label}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
+          </Link>
+
           {isAuthor && showDeleteButton && (
             <button
               onClick={(e) => {
@@ -192,11 +196,10 @@ export function PostCard({
                     e.stopPropagation();
                     onReact(post.id, emoji, false);
                   }}
-                  className={`flex items-center gap-2 px-2.5 py-1 rounded-full border transition-all hover:scale-105 active:scale-95 shadow-sm text-[12px] font-bold ${
-                    isSelected   
-                      ? 'bg-pink-400 border-pink-400 text-white' 
+                  className={`flex items-center gap-2 px-2.5 py-1 rounded-full border transition-all hover:scale-105 active:scale-95 shadow-sm text-[12px] font-bold ${isSelected
+                      ? 'bg-pink-400 border-pink-400 text-white'
                       : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                  }`}
+                    }`}
                 >
                   <span className="text-[14px] leading-none">{emoji}</span>
                   <span className={`text-[11px] font-mono ${isSelected ? 'text-pink-100' : 'text-slate-400'}`}>
@@ -297,9 +300,9 @@ export function PostCard({
                       <CommentThread
                         comments={allComments}
                         onReply={(commentId) => setReplyingTo(commentId)}
-                        onReact={(commentId, emoji,isComment) => onReact(commentId, emoji,isComment)}
+                        onReact={(commentId, emoji, isComment) => onReact(commentId, emoji, isComment)}
                       />
-                      
+
                       {/* Load More Button */}
                       {hasMoreComments && (
                         <div className="flex justify-center mt-4">

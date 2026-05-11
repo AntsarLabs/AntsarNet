@@ -6,7 +6,8 @@ import { useUsersInfinite, useTotalOnlineUsers } from './hooks';
 
 
 export function DiscoverPage() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const query = new URLSearchParams(window.location.search);
+  const [searchQuery, setSearchQuery] = useState(query.get('q') || '');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [error, setError] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
@@ -16,7 +17,9 @@ export function DiscoverPage() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedQuery(searchQuery);
+      if (searchQuery !== '') {
+        setDebouncedQuery(searchQuery);
+      }
     }, 500);
     return () => clearTimeout(timer);
   }, [searchQuery]);

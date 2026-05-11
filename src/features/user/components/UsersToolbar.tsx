@@ -27,7 +27,7 @@ export function UsersToolbar({
             >
               <input
                 type="text"
-                placeholder="Find by username..."
+                placeholder="Find users by username without @ e.g: fox_Q4788"
                 value={searchQuery}
                 onChange={(e) => onSearchQueryChange(e.target.value)}
                 disabled={isSpinning}

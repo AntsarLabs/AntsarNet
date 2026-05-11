@@ -47,6 +47,7 @@ export const userApi = {
       )
     `)
             .neq('id', currentUserId)
+            .order('updated_at', { ascending: false })
             .range(from, to);
 
         if (username) {
