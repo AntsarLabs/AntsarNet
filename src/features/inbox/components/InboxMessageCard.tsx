@@ -40,7 +40,7 @@ export function InboxMessageCard({
         <div className="flex items-center gap-3">
           <div className="relative">
             <span className="text-[10px] font-black font-mono text-pink-500 bg-pink-50 px-2.5 py-1.5 rounded-lg border border-pink-100 uppercase tracking-widest shadow-sm">
-              #{msg.id.slice(-5).toUpperCase()}
+              #{msg.id.slice(-7).toUpperCase()}
             </span>
             {!msg.isRead && (
               <div className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-pink-500 border-2 border-white shadow-[0_0_8px_rgba(216,43,125,0.5)] z-10" />
