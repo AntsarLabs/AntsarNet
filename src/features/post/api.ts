@@ -280,16 +280,26 @@ export const postApi = {
   /**
    * Fetch comments for a post with engagement data.
    */
-  async getComments(postId: string): Promise<any[]> {
-    console.log('API: Fetching comments for post', postId);
+  async getComments(postId: string, options: { page?: number; limit?: number } = {}): Promise<any[]> {
+    const { page = 0, limit } = options;
+    console.log('API: Fetching comments for post', postId, 'with options', options);
     const { data: { user: authUser } } = await supabase.auth.getUser();
 
     // 1. Fetch comments with joined data
-    const { data: comments, error } = await supabase
+    let query = supabase
       .from('post_comments')
       .select('*, user:public_users ( emoji, username ), my_reaction:reactions!comment_id(emoji)')
       .eq('post_id', postId)
       .order('created_at', { ascending: true });
+
+    // Apply pagination if limit is specified
+    if (limit) {
+      const from = page * limit;
+      const to = from + limit - 1;
+      query = query.range(from, to);
+    }
+
+    const { data: comments, error } = await query;
 
     // Filter the joined reaction to only the current user
     if (authUser) {

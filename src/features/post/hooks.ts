@@ -5,7 +5,6 @@ import {
   useQueryClient,
   keepPreviousData,
 } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
 import { postApi } from './api';
 import type { PostType } from './types';
 
@@ -59,11 +58,23 @@ export function useCreatePost() {
 }
 
 // ── Comments ──────────────────────────────────────────
-export function useComments(postId: string) {
+export function useComments(postId: string, options: { page?: number; limit?: number } = {}) {
   return useQuery({
-    queryKey: postKeys.comments(postId),
-    queryFn: () => postApi.getComments(postId),
+    queryKey: [...postKeys.comments(postId), options],
+    queryFn: () => postApi.getComments(postId, options),
     enabled: !!postId,
+  });
+}
+
+/**
+ * Hook to load more comments for pagination
+ */
+export function useLoadMoreComments() {
+  return useMutation({
+    mutationFn: async ({ postId, page, limit }: { postId: string; page: number; limit: number }) => {
+      const comments = await postApi.getComments(postId, { page, limit });
+      return comments;
+    },
   });
 }
 
@@ -116,7 +127,7 @@ export function useUpdateComment() {
 
   return useMutation({
     mutationFn: postApi.updateComment,
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       // Invalidate all comment lists to show updated content
       queryClient.invalidateQueries({ queryKey: [...postKeys.all, 'comments'] });
     },

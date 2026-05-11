@@ -27,9 +27,9 @@ const CURATED_REACTIONS = [
   { id: "1f648", names: ["see_no_evil"], imgUrl: "https://cdn.jsdelivr.net/npm/emoji-datasource-apple/img/apple/64/1f648.png" },
 ];
 
-export function ReactionBar({ onReact, onClose }: ReactionBarProps) {
+export function ReactionBar({ onReact, onClose, position }: ReactionBarProps) {
   return (
-    <div className="absolute bottom-full left-0 mb-3 z-[1000]">
+    <div className={`absolute ${position}-full left-0 mb-3 z-[1000]`}>
       {/* Backdrop */}
       <div 
         className="fixed inset-0 z-[-1]" 

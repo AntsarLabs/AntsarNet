@@ -76,7 +76,7 @@ export interface PostCardProps {
   post: Post;
   comments?: Comment[];
   userReaction?: ReactionType | null;
-  onReact: (postId: string, type: ReactionType) => void;
+  onReact: (postId: string, type: ReactionType, isComment?: boolean) => void;
   onAddComment?: (postId: string, content: string, parentId?: string) => void;
 }
 
@@ -93,4 +93,5 @@ export interface CreatePostModalProps {
 export interface ReactionBarProps {
   onReact: (type: ReactionType) => void;
   onClose: () => void;
+  position?: 'top' | 'bottom';
 }

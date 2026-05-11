@@ -5,7 +5,7 @@ import { MessageCircle, Send, X, Loader2, Trash2 } from 'lucide-react';
 import { PostCardProps, POST_TYPE_META } from '../types';
 import { ReactionBar } from './ReactionBar';
 import { CommentThread } from './CommentThread';
-import { useComments } from '../hooks';
+import { useComments, useLoadMoreComments } from '../hooks';
 import { useAuthStore } from '@/features/auth/store';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 
@@ -41,7 +41,44 @@ export function PostCard({
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const { data: fetchedComments = [], isLoading: isLoadingComments } = useComments(post.id);
+  const COMMENTS_PER_PAGE = 10;
+  const [allComments, setAllComments] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [hasMoreComments, setHasMoreComments] = useState(true);
+  
+  const { data: fetchedComments = [], isLoading: isLoadingComments } = useComments(post.id, { 
+    page: 0, 
+    limit: COMMENTS_PER_PAGE 
+  });
+  
+  const loadMoreComments = useLoadMoreComments();
+
+  // Initialize comments when first loaded
+  useEffect(() => {
+    if (fetchedComments.length > 0 && currentPage === 0) {
+      setAllComments(fetchedComments);
+      setHasMoreComments(fetchedComments.length === COMMENTS_PER_PAGE);
+    }
+  }, [fetchedComments, currentPage]);
+
+  const handleLoadMore = async () => {
+    if (!hasMoreComments || loadMoreComments.isPending) return;
+    
+    try {
+      const nextPage = currentPage + 1;
+      const newComments = await loadMoreComments.mutateAsync({
+        postId: post.id,
+        page: nextPage,
+        limit: COMMENTS_PER_PAGE
+      });
+      
+      setAllComments(prev => [...prev, ...newComments]);
+      setCurrentPage(nextPage);
+      setHasMoreComments(newComments.length === COMMENTS_PER_PAGE);
+    } catch (error) {
+      console.error('Failed to load more comments:', error);
+    }
+  };
 
   // Prevent body scroll when popup is open
   useEffect(() => {
@@ -61,6 +98,10 @@ export function PostCard({
     onAddComment(post.id, newComment, replyingTo || undefined);
     setNewComment('');
     setReplyingTo(null);
+    // Reset pagination to fetch fresh comments including the new one
+    setCurrentPage(0);
+    setAllComments([]);
+    setHasMoreComments(true);
   };
 
   
@@ -149,11 +190,11 @@ export function PostCard({
                   key={emoji}
                   onClick={(e) => {
                     e.stopPropagation();
-                    onReact(post.id, emoji);
+                    onReact(post.id, emoji, false);
                   }}
                   className={`flex items-center gap-2 px-2.5 py-1 rounded-full border transition-all hover:scale-105 active:scale-95 shadow-sm text-[12px] font-bold ${
-                    isSelected 
-                      ? 'bg-pink-500 border-pink-400 text-white' 
+                    isSelected   
+                      ? 'bg-pink-400 border-pink-400 text-white' 
                       : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
                 >
@@ -187,10 +228,11 @@ export function PostCard({
                 {showReactions &&
                   <ReactionBar
                     onReact={(type) => {
-                      onReact(post.id, type);
+                      onReact(post.id, type, false);
                       setShowReactions(false);
                     }}
                     onClose={() => setShowReactions(false)}
+                    position='bottom'
                   />
                 }
               </AnimatePresence>
@@ -250,12 +292,36 @@ export function PostCard({
                     <div className="flex items-center justify-center h-40">
                       <Loader2 className="animate-spin text-pink-500" />
                     </div>
-                  ) : fetchedComments.length > 0 ? (
-                    <CommentThread
-                      comments={fetchedComments}
-                      onReply={(commentId) => setReplyingTo(commentId)}
-                      onReact={(commentId, emoji) => onReact(commentId, emoji)}
-                    />
+                  ) : allComments.length > 0 ? (
+                    <>
+                      <CommentThread
+                        comments={allComments}
+                        onReply={(commentId) => setReplyingTo(commentId)}
+                        onReact={(commentId, emoji,isComment) => onReact(commentId, emoji,isComment)}
+                      />
+                      
+                      {/* Load More Button */}
+                      {hasMoreComments && (
+                        <div className="flex justify-center mt-4">
+                          <button
+                            onClick={handleLoadMore}
+                            disabled={loadMoreComments.isPending}
+                            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-full text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-50 text-sm font-medium"
+                          >
+                            {loadMoreComments.isPending ? (
+                              <>
+                                <Loader2 size={16} className="animate-spin" />
+                                Loading...
+                              </>
+                            ) : (
+                              <>
+                                Load More Comments
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      )}
+                    </>
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full text-slate-500 pt-10 pb-12">
                       <MessageCircle size={40} className="mb-3 text-slate-300" strokeWidth={1.5} />
@@ -269,7 +335,7 @@ export function PostCard({
                 {onAddComment && (
                   <div className="bg-white border-t border-slate-200/80 p-3 shrink-0">
                     {replyingTo && (() => {
-                      const rc = fetchedComments?.find((c: any) => c.id === replyingTo);
+                      const rc = allComments?.find((c: any) => c.id === replyingTo);
                       if (rc) return (
                         <div className="flex items-center justify-between bg-blue-50/80 backdrop-blur-md border border-blue-200/50 border-b-0 rounded-t-2xl px-4 py-2.5 text-xs mb-[-1px] relative z-10 mx-1">
                           <div className="flex-1 truncate pr-2 flex items-center gap-2.5">

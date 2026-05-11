@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flag, Heart, Edit2, Check, X, Loader2 } from 'lucide-react';
+import { Flag, Check, X, Loader2 } from 'lucide-react';
 import { Comment, ReactionType } from '../types';
 import { ReactionBar } from './ReactionBar';
 import { useAuthStore } from '@/features/auth/store';
@@ -9,7 +9,7 @@ import { useUpdateComment } from '../hooks';
 interface CommentThreadProps {
   comments: Comment[];
   onReply: (commentId: string) => void;
-  onReact: (commentId: string, emoji: ReactionType) => void;
+  onReact: (commentId: string, emoji: ReactionType, isComment?: boolean) => void;
 }
 
 function timeAgo(dateStr: string): string {
@@ -36,10 +36,19 @@ export function CommentThread({
   const [editingCommentId, setEditingCommentId] = React.useState<string | null>(null);
   const [editContent, setEditContent] = React.useState('');
 
-  // Sort comments by time
-  const sortedComments = [...comments].sort((a, b) =>
-    new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-  );
+  // Sort comments to ensure parent comments appear before child comments
+  const sortedComments = [...comments].sort((a, b) => {
+    // First, sort by creation time
+    const timeA = new Date(a.created_at).getTime();
+    const timeB = new Date(b.created_at).getTime();
+    
+    // If one is a reply to the other, ensure parent comes first
+    if (a.parent_comment_id === b.id) return 1; // a is child of b, b comes first
+    if (b.parent_comment_id === a.id) return -1; // b is child of a, a comes first
+    
+    // Otherwise, sort by time (oldest first)
+    return timeA - timeB;
+  });
 
   const handleStartEdit = (comment: Comment) => {
     setEditingCommentId(comment.id);
@@ -73,7 +82,7 @@ export function CommentThread({
   };
 
   return (
-    <div className="space-y-4 pb-4">
+    <div className="space-y-4 pb-4 relative overflow-visible">
       {sortedComments.map((comment) => {
         const isAuthor = currentUser?.id === comment.user_id;
         const isEditing = editingCommentId === comment.id;
@@ -108,8 +117,8 @@ export function CommentThread({
               <div className={`bg-white border rounded-2xl rounded-tl-sm p-3.5 shadow-sm relative group transition-colors ${isHighlighted ? 'border-pink-200' : 'border-slate-100'}`}>
                 {/* Author & Time */}
                 <div className="flex items-center justify-between gap-2 mb-1.5">
-                  <span className="font-mono font-bold text-pink-600 text-[12px] truncate">
-                    {comment.user?.username || 'Anonymous'}
+                  <span className="font-mono font-semibold text-slate-800 text-[12px] truncate">
+                    {isAuthor ? "You" : "@"+comment.user?.username}
                   </span>
                   <div className="flex items-center gap-2">
                     {comment.updated_at !== comment.created_at && (
@@ -128,7 +137,7 @@ export function CommentThread({
                     className="mb-2.5 pl-2 border-l-2 border-blue-400 bg-blue-50/50 rounded-r py-1.5 px-2.5 cursor-pointer hover:bg-blue-100 transition-colors group/quote"
                   >
                     <span className="block text-[11px] font-bold text-blue-600 font-mono mb-0.5 truncate group-hover/quote:underline">
-                      {parentComment.user?.username || 'Anonymous'}
+                      @{parentComment.user?.username || 'Anonymous'}
                     </span>
                     <span className="block text-[13px] text-slate-600 truncate leading-snug">
                       {parentComment.content}
@@ -180,7 +189,7 @@ export function CommentThread({
                         key={emoji} 
                         onClick={(e) => {
                           e.stopPropagation();
-                          onReact(comment.id, emoji as string);
+                          onReact(comment.id, emoji as string, true);
                         }}
                         className={`flex items-center gap-2 px-2.5 py-1 rounded-full border transition-all hover:scale-105 active:scale-95 shadow-sm text-[12px] font-bold ${
                           isSelected 
@@ -208,13 +217,14 @@ export function CommentThread({
                     <span className="text-xs leading-none opacity-80">🤍</span>
                     <span>{userReaction ? 'Reacted' : 'React'}</span>
                   </button>
-
                   <AnimatePresence>
+
                     {activeReactionCommentId === comment.id && (
-                      <div className="absolute bottom-full left-0 mb-2 z-50">
+                      <div className="absolute top-full left-0 mb-2 z-50">
+                        
                         <ReactionBar
                           onReact={(emoji) => {
-                            onReact(comment.id, emoji);
+                            onReact(comment.id, emoji, true);
                             setActiveReactionCommentId(null);
                           }}
                           onClose={() => setActiveReactionCommentId(null)}
