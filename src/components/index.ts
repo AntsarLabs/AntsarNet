@@ -5,6 +5,3 @@ export { GlobalBackground } from './GlobalBackground';
 export { BottomNav } from './BottomNav';
 export { Footer } from './Footer';
 export { TopHeader } from './TopHeader';
-export { Sidebar } from './Sidebar';
-export { ReactionBar } from './ReactionBar';
-export { CreatePostModal } from './CreatePostModal';
