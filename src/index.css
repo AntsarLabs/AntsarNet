@@ -88,4 +88,13 @@
     background-size: 24px 24px;
     background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
   }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }

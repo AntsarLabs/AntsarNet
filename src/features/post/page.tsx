@@ -75,7 +75,7 @@ export function ConfessionsPage() {
                     {filterUserId ? 'User Posts' : 'Posts'}
                   </h2>
                   <p className="text-slate-500 text-sm">
-                    {filterUserId ? 'Showing posts from this user.' : 'Confess, vent, ask, or share advice — anonymously.'}
+                    {filterUserId ? 'Showing posts from this user.' : 'Confess, vent, ask, or share advice 100% anonymously.'}
                   </p>
                 </div>
 
@@ -119,7 +119,7 @@ export function ConfessionsPage() {
               </div>
 
               {/* Post type tabs */}
-              <div className="flex items-center gap-2 overflow-x-auto pb-1 -mb-1 scrollbar-hide">
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 -mb-1 no-scrollbar">
                 {POST_TYPES.map((type) => {
                   const isActive = activeType === type;
                   const meta = type === 'all' ? null : POST_TYPE_META[type];

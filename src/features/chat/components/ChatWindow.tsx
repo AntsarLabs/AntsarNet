@@ -360,7 +360,7 @@ export function ChatWindow({
                   ) : (
                     <>
                       <ChevronLeft size={16} className="rotate-90" />
-                      Load more messages
+                      Load more
                     </>
                   )}
                 </button>

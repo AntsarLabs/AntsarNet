@@ -1,4 +1,4 @@
-import { EyeOff, ShieldCheck, Users, MapPin } from 'lucide-react';
+import { EyeOff, ShieldCheck, Users, MapPin, Share2 } from 'lucide-react';
 
 export function SendInboxPromoCards() {
   return (
@@ -19,9 +19,9 @@ export function SendInboxPromoCards() {
           <p className="text-[9px] text-slate-500 mt-1 leading-tight">End-to-end encrypted delivery.</p>
         </div>
         <div className="shrink-0 w-[140px] bg-slate-50 border border-slate-100 p-4 rounded-2xl">
-          <Users size={18} className="text-emerald-500 mb-2" />
-          <h4 className="text-[10px] font-black text-slate-800 uppercase tracking-tight">10k+ Local</h4>
-          <p className="text-[9px] text-slate-500 mt-1 leading-tight">Join residents in your area.</p>
+          <Share2 size={18} className="text-green-500 mb-2" />
+          <h4 className="text-[10px] font-black text-slate-800 uppercase tracking-tight">Post</h4>
+          <p className="text-[9px] text-slate-500 mt-1 leading-tight">Share your thoughts anonymously</p>
         </div>
         <div className="shrink-0 w-[140px] bg-slate-50 border border-slate-100 p-4 rounded-2xl">
           <MapPin size={18} className="text-amber-500 mb-2" />

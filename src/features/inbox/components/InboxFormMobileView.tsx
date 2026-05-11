@@ -24,9 +24,9 @@ export function SendInboxMobileView({
         >
           <ChevronLeft size={20} />
         </button>
-        <div className="flex flex-col items-center">
-          <span className="text-[10px] font-black tracking-[0.3em] text-pink-500 uppercase">Whisper Portal</span>
-          <span className="text-slate-800 font-bold text-sm">#{inboxId?.toUpperCase()}</span>
+        <div className="flex flex-col items-center ml-4">
+          <span className="text-[10px] font-black tracking-[0.3em] text-pink-500 uppercase mb-1"> Annmouys Inbox </span>
+          <span className="text-slate-800 font-bold text-sm">#{inboxId?.toUpperCase().slice(0,19) + "..."}</span>
         </div>
         <div className="w-10" />
       </div>
@@ -56,9 +56,9 @@ export function SendInboxMobileView({
                     <div className="absolute top-0 right-0 p-2 opacity-10">
                       <MessageSquare size={40} className="text-pink-600" />
                     </div>
-                    <span className="text-[9px] font-black uppercase tracking-widest text-pink-500 mb-1 block">Inbox Title</span>
+                    <span className="text-[9px] font-black uppercase tracking-widest text-pink-500 mb-1 block">Inbox Title/Subject</span>
                     <p className="text-xs font-bold text-slate-700 leading-relaxed italic">
-                      "{title}"
+                      {title}
                     </p>
                   </motion.div>
                 )}

@@ -29,8 +29,10 @@ export function CreatePostModal({
     }
   };
 
+  const CONTENT_MAX_LENGTH = 5000;
   const handleSubmit = () => {
     if (!content.trim() || selectedTagIds.length === 0) return;
+    if(content.length > CONTENT_MAX_LENGTH) return;
     onSubmit(content, postType, selectedTagIds);
     setContent('');
     setSelectedTagIds([]);
@@ -88,7 +90,7 @@ export function CreatePostModal({
                   </button>
                 </div>
 
-                <div className="p-3 sm:p-5 overflow-y-auto flex-1">
+                <div className="p-3 sm:p-5 overflow-y-auto flex-1 no-scrollbar">
                   {/* User info */}
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-lg sm:text-xl shadow-inner flex-shrink-0">
@@ -136,7 +138,7 @@ export function CreatePostModal({
                   {/* Content textarea */}
                   <textarea
                   value={content}
-                  onChange={(e) => setContent(e.target.value.slice(0, 500))}
+                  onChange={(e) => setContent(e.target.value.slice(0, CONTENT_MAX_LENGTH))}
                   placeholder={
                     postType === 'confession' ? "What's your confession?" :
                     postType === 'vent' ? "Let it all out..." :
@@ -149,7 +151,7 @@ export function CreatePostModal({
 
                   <div className="flex items-center justify-between mt-1 mb-3">
                     <span className="text-xs font-medium text-slate-400">
-                      {content.length}/500
+                      {content.length}/{CONTENT_MAX_LENGTH}
                     </span>
                   </div>
 

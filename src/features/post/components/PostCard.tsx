@@ -318,7 +318,7 @@ export function PostCard({
                               </>
                             ) : (
                               <>
-                                Load More Comments
+                                Load More
                               </>
                             )}
                           </button>
