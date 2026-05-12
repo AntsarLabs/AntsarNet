@@ -86,6 +86,15 @@ For deeper dives into how AnstarNet works, check out our detailed guides:
 
 We welcome contributions! Please read our contributing guidelines before submitting a PR.
 
+## Support / Donation
+
+💸 **Crypto (USDT TRC20):**
+`TJNenCPqanhYQC1gPu194XvTxgdhihiGvX`
+
+🇪🇹 **Birr:**
+[GurshaPlus Donation Page](https://www.gurshaplus.com/thekassdag?utm_source=chatgpt.com)
+
+
 ## 📜 License
 
 This project is licensed under the MIT License.
