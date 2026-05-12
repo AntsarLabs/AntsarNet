@@ -2,7 +2,8 @@
 
 AnstarNet is an open-source, privacy-first social platform designed for honest, authentic communication without revealing your identity. Built with a zero-knowledge architecture, it features end-to-end encrypted messaging, anonymous posting, and a unique cryptographic identity system.
 
-![AnstarNet Landing](https://cdn.magicpatterns.com/uploads/buFFB14RxN7rp2dVxCiLRi/64b6005b9b1c73650c503c0f921982ab.2-1-super.1.jpg)
+<img width="1909" height="886" alt="Screenshot from 2026-05-12 14-35-21" src="https://github.com/user-attachments/assets/0e11e082-c7e3-4bec-ae63-b47010dc9fb6" />
+
 
 ## 🚀 Key Features
 
