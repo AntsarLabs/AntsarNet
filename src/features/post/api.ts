@@ -7,15 +7,13 @@ export const postApi = {
    * Optionally filter by post_type.
    */
   async getPosts(options: {
-    page?: number;
+    before?: string;
     limit?: number;
     postType?: PostType | 'all';
     userId?: string;
     sort?: 'latest' | 'hot' | 'my';
   } = {}): Promise<Post[]> {
-    const { page = 0, limit = 10, postType = 'all', userId, sort = 'latest' } = options;
-    const from = page * limit;
-    const to = from + limit - 1;
+    const { before, limit = 10, postType = 'all', userId, sort = 'latest' } = options;
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -29,13 +27,15 @@ export const postApi = {
           *,
           user:public_users!user_id ( emoji, username ),
           post_tags ( tag:tags ( id, name, count ) ),
-          my_reaction:reactions!post_id(emoji)
+          my_reaction:reactions!post_id(emoji),
+          my_report:post_reports!post_id(id)
         `)
         .eq('status', 'published');
 
       // Filter the joined reaction to only the current user
       if (authUser) {
         query = query.eq('my_reaction.user_id', authUser.id);
+        query = query.eq('my_report.user_id', authUser.id);
       }
 
       // Apply filters FIRST
@@ -47,7 +47,12 @@ export const postApi = {
         query = query.eq('user_id', userId);
       }
 
-      // Apply ordering and range LAST
+      // Apply cursor filter if provided
+      if (before) {
+        query = query.lt('created_at', before);
+      }
+
+      // Apply ordering and limit LAST
       if (sort === 'hot') {
         query = query
           .order('reaction_count', { ascending: false })
@@ -57,7 +62,7 @@ export const postApi = {
         query = query.order('created_at', { ascending: false });
       }
 
-      query = query.range(from, to);
+      query = query.limit(limit);
 
       const { data, error } = await query;
 
@@ -96,9 +101,12 @@ export const postApi = {
         const totalReactions = Object.values(counts).reduce((sum, count) => sum + count, 0);
 
         // Extract user reaction from joined data
-        const userReaction = row.my_reaction && row.my_reaction.length > 0 
-          ? row.my_reaction[0].emoji 
+        const userReaction = row.my_reaction && row.my_reaction.length > 0
+          ? row.my_reaction[0].emoji
           : null;
+
+        // Check if user has reported this post
+        const isReported = row.my_report && row.my_report.length > 0;
 
         return {
           id: row.id,
@@ -115,6 +123,7 @@ export const postApi = {
           comment_count: row.comment_count || 0,
           user_reaction: userReaction,
           top_reactions: topEmojis,
+          is_reported: isReported,
         };
       });
     } catch (err: any) {
@@ -202,6 +211,28 @@ export const postApi = {
 
     if (error) {
       console.error('API Error: soft deleting post:', error);
+      throw new Error(error.message);
+    }
+  },
+
+  /**
+   * Report a post (inserts into post_reports table).
+   */
+  async reportPost(params: { postId: string; reason: string }): Promise<void> {
+    console.log('API: Reporting post', params);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { error } = await supabase
+      .from('post_reports')
+      .insert({
+        post_id: params.postId,
+        user_id: user.id,
+        reason: params.reason,
+      });
+
+    if (error) {
+      console.error('API Error: reporting post:', error);
       throw new Error(error.message);
     }
   },

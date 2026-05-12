@@ -25,11 +25,12 @@ export function usePostsInfinite(options: { postType?: PostType | 'all', userId?
   const { postType = 'all', userId, sort = 'latest' } = options;
   return useInfiniteQuery({
     queryKey: postKeys.list({ postType, userId, sort }),
-    queryFn: ({ pageParam }) => postApi.getPosts({ page: pageParam as number, limit: PAGE_SIZE, postType, userId, sort }),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, allPages) => {
+    queryFn: ({ pageParam }: { pageParam: string | undefined }) => postApi.getPosts({ before: pageParam, limit: PAGE_SIZE, postType, userId, sort }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => {
       if (!lastPage || lastPage.length < PAGE_SIZE) return undefined;
-      return allPages.length;
+      // Return the created_at of the last post as the cursor for the next page
+      return lastPage[lastPage.length - 1].created_at;
     },
     placeholderData: keepPreviousData,
   });
@@ -116,6 +117,17 @@ export function useDeletePost() {
 
   return useMutation({
     mutationFn: postApi.deletePost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: postKeys.lists() });
+    },
+  });
+}
+
+export function useReportPost() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: postApi.reportPost,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: postKeys.lists() });
     },

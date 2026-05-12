@@ -45,6 +45,7 @@ export interface Post {
   comment_count: number;
   user_reaction: ReactionType | null;
   top_reactions: string[];
+  is_reported?: boolean;
 }
 
 export interface Comment {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, Send, X, Loader2, Trash2 } from 'lucide-react';
+import { MessageCircle, Send, X, Loader2, Trash2, AlertTriangle } from 'lucide-react';
 import { PostCardProps, POST_TYPE_META } from '../types';
 import { ReactionBar } from './ReactionBar';
 import { CommentThread } from './CommentThread';
@@ -30,8 +30,9 @@ export function PostCard({
   onReact,
   onAddComment,
   onDelete,
+  onReport,
   showDeleteButton = false
-}: PostCardProps & { onDelete?: (id: string) => void; showDeleteButton?: boolean }) {
+}: PostCardProps & { onDelete?: (id: string) => void; onReport?: (id: string, reason: string) => void; showDeleteButton?: boolean }) {
   const { user: currentUser } = useAuthStore();
   const isAuthor = currentUser?.id === post.user_id;
   const userReaction = propReaction ?? post.user_reaction;
@@ -41,6 +42,8 @@ export function PostCard({
   const [newComment, setNewComment] = useState('');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState('');
 
   const COMMENTS_PER_PAGE = 10;
   const [allComments, setAllComments] = useState<any[]>([]);
@@ -151,6 +154,26 @@ export function PostCard({
               className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors">
               <Trash2 size={18} />
             </button>
+          )}
+
+          {!isAuthor && onReport && (
+            post.is_reported ? (
+              <button
+                disabled
+                className="p-2 text-slate-300 cursor-not-allowed flex items-center gap-1 transition-colors">
+                <AlertTriangle size={18} /> Reported
+              </button>
+            ) : (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowReportModal(true);
+                  setReportReason('');
+                }}
+                className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 flex items-center gap-1 transition-colors">
+                <AlertTriangle size={18} /> Report
+              </button>
+            )
           )}
         </div>
 
@@ -395,6 +418,81 @@ export function PostCard({
         cancelText="Cancel"
         type="danger"
       />
+
+      {/* Report Modal */}
+      {createPortal(
+        <AnimatePresence>
+          {showReportModal && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                onClick={() => setShowReportModal(false)}
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden"
+              >
+                <div className="flex items-center justify-between p-6 border-b border-slate-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center">
+                      <AlertTriangle size={24} className="text-red-500" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900">Report Post</h3>
+                  </div>
+                  <button
+                    onClick={() => setShowReportModal(false)}
+                    className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+                <div className="p-6">
+                  <p className="text-slate-600 mb-4">Why are you reporting this post?</p>
+                  <textarea
+                    value={reportReason}
+                    onChange={(e) => setReportReason(e.target.value)}
+                    placeholder="Please provide a reason for reporting this post..."
+                    className="w-full p-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
+                    rows={4}
+                    maxLength={500}
+                  />
+                  <p className="text-xs text-slate-400 mt-2 text-right">
+                    {reportReason.length}/500
+                  </p>
+                </div>
+                <div className="flex items-center gap-3 p-6 pt-0">
+                  <button
+                    onClick={() => setShowReportModal(false)}
+                    className="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-colors shadow-sm"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (onReport && reportReason.trim()) {
+                        onReport(post.id, reportReason.trim());
+                        setShowReportModal(false);
+                        setReportReason('');
+                      }
+                    }}
+                    disabled={!reportReason.trim()}
+                    className="flex-1 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Report
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </>
   );
 }

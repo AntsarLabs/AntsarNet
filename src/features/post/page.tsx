@@ -4,8 +4,8 @@ import { Plus, X } from 'lucide-react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { PostCard, CreatePostModal } from './components';
 import { MainLayout } from '@/components/MainLayout';
-import { usePostsInfinite, useCreatePost, useToggleReaction, useAddComment, useDeletePost } from './hooks';
-import type { PostType, ReactionType } from './types';
+import { usePostsInfinite, useCreatePost, useToggleReaction, useAddComment, useDeletePost, useReportPost } from './hooks';
+import type { PostType, ReactionType, Post } from './types';
 import { POST_TYPE_META } from './types';
 import { useAuthStore } from '@/features/auth/store';
 
@@ -30,8 +30,9 @@ export function ConfessionsPage() {
   const toggleReaction = useToggleReaction();
   const addComment = useAddComment();
   const deletePost = useDeletePost();
+  const reportPost = useReportPost();
 
-  const allPosts = data?.pages.flat() ?? [];
+  const allPosts = data?.pages.flat() as Post[] ?? [];
 
   const sortedPosts = [...allPosts].sort((a, b) => {
     if (sort === 'hot') {
@@ -60,6 +61,10 @@ export function ConfessionsPage() {
 
   const handleDeletePost = (postId: string) => {
     deletePost.mutate(postId);
+  };
+
+  const handleReportPost = (postId: string, reason: string) => {
+    reportPost.mutate({ postId, reason });
   };
 
   return (
@@ -175,6 +180,7 @@ export function ConfessionsPage() {
                         onReact={handleReact}
                         onAddComment={handleAddComment}
                         onDelete={handleDeletePost}
+                        onReport={handleReportPost}
                         showDeleteButton={sort==='my'}
                       />
                     </motion.div>
