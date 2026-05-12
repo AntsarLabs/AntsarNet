@@ -47,7 +47,7 @@ export function ChatWindow({
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const MESSAGE_LIMIT = 10;
+  const MESSAGE_LIMIT = 50;
   const deleteChat = useDeleteChat();
 
   // Reset state when chat changes
@@ -69,14 +69,9 @@ export function ChatWindow({
   // Initialize and update messages when new messages arrive
   useEffect(() => {
     setAllMessages(messages);
+    console.log('messages length:', messages.length);
     setHasMore(messages.length === MESSAGE_LIMIT);
   }, [messages]);
-
-  const scrollToBottom = () => {
-    if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
-    }
-  };
 
   const loadMoreMessages = async () => {
     if (isLoadingMore || !hasMore || !onLoadMoreMessages || allMessages.length === 0) return;
@@ -106,10 +101,18 @@ export function ChatWindow({
     }
   };
 
+  const scrollToEnd = () => {
+    messagesContainerRef.current?.scrollTo({
+      top: messagesContainerRef.current.scrollHeight + 100,
+      behavior: 'smooth'
+    });
+  };
+
   const handleSend = () => {
     if (!inputText.trim() || chat.status !== 'accepted') return;
     onSendMessage(inputText.trim());
     setInputText('');
+    scrollToEnd();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

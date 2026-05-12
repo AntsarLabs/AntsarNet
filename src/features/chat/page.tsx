@@ -17,17 +17,9 @@ import { chatApi } from './api';
 import { ChatListItem, ChatWindow } from './components';
 import type { PendingChatRequest, ChatWithLastMessage } from './types';
 
-// --- Global Styles to hide scrollbars ---
-const HideScrollbarGlobal = () => (
-  <style dangerouslySetInnerHTML={{
-    __html: `
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  `}} />
-);
+
 
 // --- Main Page Component ---
-
 export function ChatPage() {
   const navigate = useNavigate();
   const { id: chatIdFromUrl } = useParams<{ id: string }>();
@@ -45,7 +37,7 @@ export function ChatPage() {
   const [hasMoreChats, setHasMoreChats] = useState(true);
   const [isLoadingMoreChats, setIsLoadingMoreChats] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const CHAT_LIMIT = 10;
+  const CHAT_LIMIT = 30;
 
   // Ref for chat list scroll container
   const chatListRef = useRef<HTMLDivElement>(null);
@@ -127,7 +119,7 @@ export function ChatPage() {
     data: messages = [],
     isLoading: isLoadingMessages,
     error: messagesError,
-  } = useMessages(activeChatId || '', { limit: 10 });
+  } = useMessages(activeChatId || '', { limit: 50 });
 
   // Mark unread messages as read
   const { mutate: markAsRead } = useMarkAsRead();
@@ -279,7 +271,6 @@ export function ChatPage() {
 
   return (
     <MainLayout showFooter={false}>
-      <HideScrollbarGlobal />
       <div className="flex-1 flex w-full h-full bg-transparent overflow-hidden no-scrollbar">
         {/* Mobile View */}
         <div className="md:hidden w-full h-[calc(100vh-57px)]">
@@ -296,7 +287,7 @@ export function ChatPage() {
                 onAccept={() => handleAcceptRequest(activeChatId)}
                 onDecline={() => handleDeclineRequest(activeChatId)}
                 isSending={isSendingMessage}
-                onLoadMoreMessages={(before, limit) => chatApi.getMessages(activeChatId, { before, limit })}
+                onLoadMoreMessages={(before, limit) => chatApi.getMessages(activeChatId, { before, f })}
               />
             </div>
           ) : (
