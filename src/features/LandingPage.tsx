@@ -85,7 +85,7 @@ export function LandingPage() {
           className="absolute inset-0 bg-cover bg-center bg-no-repeat bg-fixed z-0"
           style={{
             backgroundImage:
-              'url("https://cdn.magicpatterns.com/uploads/buFFB14RxN7rp2dVxCiLRi/64b6005b9b1c73650c503c0f921982ab.2-1-super.1.jpg")',
+              'url("/hero-bg.jpg")',
           }}
         />
         <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-[2px] z-0" />

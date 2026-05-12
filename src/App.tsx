@@ -10,10 +10,12 @@ import { AuthPage } from '@/features/auth/page';
 import { DiscoverPage } from '@/features/user/page';
 import { PrivacyPolicy } from '@/features/PrivacyPolicy';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
 
 function AppContent() {
   return (
     <>
+      <PWAInstallPrompt />
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<LandingPage />} />

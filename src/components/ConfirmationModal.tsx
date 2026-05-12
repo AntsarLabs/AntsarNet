@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, X } from 'lucide-react';
+import { Trash2, X, Info } from 'lucide-react';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -11,6 +11,7 @@ interface ConfirmationModalProps {
   cancelText?: string;
   type?: 'danger' | 'warning' | 'info';
   isLoading?: boolean;
+  showButtons?: boolean;
 }
 
 export function ConfirmationModal({
@@ -23,6 +24,7 @@ export function ConfirmationModal({
   cancelText = 'Cancel',
   type = 'danger',
   isLoading = false,
+  showButtons = true,
 }: ConfirmationModalProps) {
   const handleConfirm = () => {
     if (!isLoading) {
@@ -48,7 +50,7 @@ export function ConfirmationModal({
         };
       default:
         return {
-          icon: <Trash2 size={24} className="text-[#D82B7D]" />,
+          icon: <Info size={24} className="text-[#D82B7D]" />,
           confirmBg: 'bg-[#D82B7D] hover:bg-[#C0266F] active:bg-[#A82161] text-white',
           border: 'border-pink-200',
           bg: 'bg-pink-50'
@@ -106,25 +108,27 @@ export function ConfirmationModal({
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-3 p-6 pt-0">
-              <button
-                onClick={onClose}
-                disabled={isLoading}
-                className="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {cancelText}
-              </button>
-              <button
-                onClick={handleConfirm}
-                disabled={isLoading}
-                className={`flex-1 px-4 py-2.5 ${styles.confirmBg} rounded-xl text-sm font-semibold transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2`}
-              >
-                {isLoading && (
-                  <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                )}
-                {confirmText}
-              </button>
-            </div>
+            {showButtons && (
+              <div className="flex items-center gap-3 p-6 pt-0">
+                <button
+                  onClick={onClose}
+                  disabled={isLoading}
+                  className="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {cancelText}
+                </button>
+                <button
+                  onClick={handleConfirm}
+                  disabled={isLoading}
+                  className={`flex-1 px-4 py-2.5 ${styles.confirmBg} rounded-xl text-sm font-semibold transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2`}
+                >
+                  {isLoading && (
+                    <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                  )}
+                  {confirmText}
+                </button>
+              </div>
+            )}
           </motion.div>
         </div>
       )}
