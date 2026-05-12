@@ -6,7 +6,7 @@ import type { Message } from '../types';
 /**
  * Hook to fetch messages for a specific chat
  */
-export function useMessages(chatId: string, options: { limit?: number; offset?: number } = {}) {
+export function useMessages(chatId: string, options: { limit?: number; before?: string } = {}) {
   return useQuery({
     queryKey: [...chatKeys.messages(chatId), options],
     queryFn: () => chatApi.getMessages(chatId, options),
@@ -15,12 +15,12 @@ export function useMessages(chatId: string, options: { limit?: number; offset?: 
 }
 
 /**
- * Hook to load more messages for pagination
+ * Hook to load more messages for cursor-based pagination
  */
 export function useLoadMoreMessages() {
-  return useMutation<Message[], Error, { chatId: string; offset: number; limit: number }>({
-    mutationFn: async ({ chatId, offset, limit }) => {
-      const messages = await chatApi.getMessages(chatId, { offset, limit });
+  return useMutation<Message[], Error, { chatId: string; before: string; limit: number }>({
+    mutationFn: async ({ chatId, before, limit }) => {
+      const messages = await chatApi.getMessages(chatId, { before, limit });
       return messages;
     },
   });

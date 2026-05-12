@@ -296,7 +296,7 @@ export function ChatPage() {
                 onAccept={() => handleAcceptRequest(activeChatId)}
                 onDecline={() => handleDeclineRequest(activeChatId)}
                 isSending={isSendingMessage}
-                onLoadMoreMessages={(offset, limit) => chatApi.getMessages(activeChatId, { offset, limit })}
+                onLoadMoreMessages={(before, limit) => chatApi.getMessages(activeChatId, { before, limit })}
               />
             </div>
           ) : (
@@ -333,7 +333,7 @@ export function ChatPage() {
                     onAccept={() => handleAcceptRequest(activeChatId)}
                     onDecline={() => handleDeclineRequest(activeChatId)}
                     isSending={isSendingMessage}
-                    onLoadMoreMessages={(offset, limit) => chatApi.getMessages(activeChatId, { offset, limit })}
+                    onLoadMoreMessages={(before, limit) => chatApi.getMessages(activeChatId, { before, limit })}
                   />
                 </motion.div>
               ) : (

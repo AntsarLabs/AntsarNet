@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { CheckCheck, Check } from 'lucide-react';
 import type { Message } from '../types';
+import { timeAgo } from '@/utils/date';
 
 interface MessageBubbleProps {
   message: Message;
@@ -10,10 +11,10 @@ interface MessageBubbleProps {
 
 export function MessageBubble({ message, isMe, isOptimistic }: MessageBubbleProps) {
   // Format timestamp
-  const formatTime = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
+  // const formatTime = (dateStr: string) => {
+  //   const date = new Date(dateStr);
+  //   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  // };
 
   return (
     <motion.div
@@ -36,7 +37,7 @@ export function MessageBubble({ message, isMe, isOptimistic }: MessageBubbleProp
               isMe ? 'text-pink-100/80' : 'text-slate-400'
             }`}
           >
-            {formatTime(message.createdAt)}
+            {timeAgo(message.createdAt)}
           </span>
           {isMe && (
             <>

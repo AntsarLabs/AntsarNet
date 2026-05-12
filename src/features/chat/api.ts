@@ -207,14 +207,14 @@ export const chatApi = {
    */
   async getMessages(
     chatId: string,
-    options: { limit?: number; offset?: number } = {}
+    options: { limit?: number; before?: string } = {}
   ): Promise<Message[]> {
-    const { limit = 50, offset = 0 } = options;
+    const { limit = 50, before } = options;
 
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.user) throw new Error('Not authenticated');
 
-    const { data, error } = await supabase
+    let query = supabase
       .from('messages')
       .select(
         `
@@ -227,9 +227,16 @@ export const chatApi = {
         updated_at
       `
       )
-      .eq('chat_id', chatId)
+      .eq('chat_id', chatId);
+
+    // Cursor-based pagination: get messages before the given timestamp
+    if (before) {
+      query = query.lt('created_at', before);
+    }
+
+    const { data, error } = await query
       .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+      .limit(limit);
 
     if (error) throw new Error(error.message);
 
@@ -258,7 +265,7 @@ export const chatApi = {
       publicKeyMap.set(user.id, user.public_key);
     });
 
-    return (data || []).map((msg: any) => {
+    const results = (data || []).map((msg: any) => {
       try {
         // Get the encrypted data for current user (sender or receiver entry)
         const encryptedData = msg.encrypted_texts?.[myUserId];
@@ -313,6 +320,9 @@ export const chatApi = {
         };
       }
     });
+    // return sorted one newest first and old last for our bottom to top scrolling
+    const sortedResults = results.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    return sortedResults;
   },
 
   /**

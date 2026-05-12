@@ -21,7 +21,7 @@ interface ChatWindowProps {
   onAccept?: () => void;
   onDecline?: () => void;
   isSending: boolean;
-  onLoadMoreMessages?: (offset: number, limit: number) => Promise<Message[]>;
+  onLoadMoreMessages?: (before: string, limit: number) => Promise<Message[]>;
   onDeleteChat?: () => void;
 }
 
@@ -43,7 +43,6 @@ export function ChatWindow({
   const [showMenu, setShowMenu] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [allMessages, setAllMessages] = useState<Message[]>([]);
-  const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -53,7 +52,6 @@ export function ChatWindow({
 
   // Reset state when chat changes
   useEffect(() => {
-    setOffset(0);
     setHasMore(true);
     setAllMessages([]);
   }, [chat.id]);
@@ -70,38 +68,37 @@ export function ChatWindow({
 
   // Initialize and update messages when new messages arrive
   useEffect(() => {
-    if (offset === 0) {
-      // Initial load or new message - replace all messages
-      setAllMessages(messages);
-      // Check if there are more messages to load
-      setHasMore(messages.length === MESSAGE_LIMIT);
-    }
-  }, [messages, offset]);
+    setAllMessages(messages);
+    setHasMore(messages.length === MESSAGE_LIMIT);
+  }, [messages]);
 
-  // Scroll to bottom on initial load only
-  useEffect(() => {
-    if (offset === 0 && messagesContainerRef.current) {
+  const scrollToBottom = () => {
+    if (messagesContainerRef.current) {
       messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
     }
-  }, [allMessages.length === 0 ? 'initial' : '']);
-
-  // Note: Load more is now triggered by button click, not scroll
+  };
 
   const loadMoreMessages = async () => {
-    if (isLoadingMore || !hasMore || !onLoadMoreMessages) return;
+    if (isLoadingMore || !hasMore || !onLoadMoreMessages || allMessages.length === 0) return;
 
     setIsLoadingMore(true);
-    const newOffset = offset + MESSAGE_LIMIT;
+
+    // Use the oldest message's created_at as the cursor
+    const oldestMessage = allMessages[0];
+    const before = oldestMessage.createdAt;
 
     try {
-      const newMessages = await onLoadMoreMessages(newOffset, MESSAGE_LIMIT);
+      const newMessages = await onLoadMoreMessages(before, MESSAGE_LIMIT);
       if (newMessages.length > 0) {
-        setAllMessages(prev => [...newMessages, ...prev]);
+        setAllMessages(prev => {
+          // prevent dublicate by any case if it happens
+          const existingIds = new Set(prev.map(m => m.id));
+          return [...newMessages.filter(m => !existingIds.has(m.id)), ...prev];
+        });
         setHasMore(newMessages.length === MESSAGE_LIMIT);
       } else {
         setHasMore(false);
       }
-      setOffset(newOffset);
     } catch (error) {
       console.error('Failed to load more messages:', error);
     } finally {
@@ -148,6 +145,7 @@ export function ChatWindow({
       console.error('Failed to delete chat:', error);
     }
   };
+  
 
   return (
     <div className="flex flex-col h-full w-full bg-white/60 backdrop-blur-md relative overflow-hidden">
@@ -239,7 +237,7 @@ export function ChatWindow({
       {/* Messages Area */}
       <div
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar flex flex-col-reverse"
+        className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar flex flex-col"
       >
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
@@ -325,26 +323,9 @@ export function ChatWindow({
             </p>
           </div>
         ) : (
-          /* Messages List - reversed for bottom-to-top layout */
+          /* Messages List - in ascending order from API */
           <>
-            {/* Optimistic messages at bottom (visually) / end of array */}
-            {[...pendingOptimistic].reverse().map((message) => (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                isMe={true}
-                isOptimistic={true}
-              />
-            ))}
-            {/* Real messages - reversed to show newest at bottom */}
-            {[...allMessages].reverse().map((message) => (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                isMe={message.senderId === currentUserId}
-              />
-            ))}
-            {/* Load More Button - at end of DOM so it appears at top visually with flex-col-reverse */}
+            {/* Load More Button - at top of message list */}
             {hasMore && chat.status === 'accepted' && (
               <div className="flex justify-center py-4">
                 <button
@@ -366,6 +347,23 @@ export function ChatWindow({
                 </button>
               </div>
             )}
+            {/* Real messages - in ascending order (oldest to newest) */}
+            {allMessages.map((message) => (
+              <MessageBubble
+                key={message.id}
+                message={message}
+                isMe={message.senderId === currentUserId}
+              />
+            ))}
+            {/* Optimistic messages at the end (newest) */}
+            {pendingOptimistic.map((message) => (
+              <MessageBubble
+                key={message.id}
+                message={message}
+                isMe={true}
+                isOptimistic={true}
+              />
+            ))}
           </>
         )}
         <div ref={messagesEndRef} />
