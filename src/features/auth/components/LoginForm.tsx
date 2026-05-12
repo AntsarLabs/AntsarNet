@@ -71,7 +71,7 @@ export const LoginForm = ({ switchToAuthType }: AuthFormProps) => {
             {isLoading ? 'Logging in...' : 'Login in with PassCard'}
           </h3>
           <p className="text-slate-500 text-xs md:text-sm font-light leading-relaxed">
-            Provide your previously downloaded <span className='font-semibold text-slate-900'>addisnet-passcard.txt</span> to login.
+            Provide your previously downloaded <span className='font-semibold text-slate-900'>Anstarnet-passcard.txt</span> to login.
           </p>
         </div>
       </button>

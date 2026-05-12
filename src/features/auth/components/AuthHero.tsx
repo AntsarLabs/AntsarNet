@@ -5,14 +5,14 @@ export const AuthHero = () => {
     <div className="flex-1 flex flex-col justify-between relative z-10 mt-10">
       <div>
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 tracking-tighter mb-4 md:mb-6 leading-[1.05] uppercase">
-          AddiNet <br className="hidden md:block" />
+          AnstarNet <br className="hidden md:block" />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-rose-400 to-rose-600">
             PassCard
           </span>
         </h1>
 
         <p className="text-slate-500 font-mono text-xs md:text-sm leading-relaxed max-w-sm tracking-wide">
-          AddisNet utilizes zero-knowledge architecture. No passwords. No emails. Your identity is a singular cryptographic footprint stored offline, exclusively on your device.
+          AnstarNet utilizes zero-knowledge architecture. No passwords. No emails. Your identity is a singular cryptographic footprint stored offline, exclusively on your device.
         </p>
       </div>
 

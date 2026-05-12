@@ -2,12 +2,13 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import { AccountPage } from '@/features/account/page';
 import { InboxPage } from '@/features/inbox/page';
-import { LandingPage } from '@/pages/LandingPage';
+import { LandingPage } from '@/features/LandingPage';
 import { ConfessionsPage } from '@/features/post/page';
 import { ChatPage } from '@/features/chat/page';
 import { InboxReceivingPage } from '@/features/inbox/pages/InboxReceivingPage';
 import { AuthPage } from '@/features/auth/page';
 import { DiscoverPage } from '@/features/user/page';
+import { PrivacyPolicy } from '@/features/PrivacyPolicy';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 function AppContent() {
@@ -17,6 +18,7 @@ function AppContent() {
         {/* Public routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/inbox/:inboxId" element={<InboxReceivingPage />} />
 
         {/* Protected routes — layout route pattern for React Router v6 */}

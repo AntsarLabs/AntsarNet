@@ -34,7 +34,7 @@ export function TopHeader() {
         <div className="flex items-center w-32 md:w-auto">
           <Link to="/discover" className="hidden md:flex items-center gap-2 group">
             <span className="text-slate-900 font-black text-xl tracking-tighter uppercase italic">
-              Addis<span className="text-pink-500">Net</span>
+              Anstar<span className="text-pink-500">Net</span>
             </span>
           </Link>
         </div>
@@ -42,7 +42,7 @@ export function TopHeader() {
         {/* MOBILE: CENTERED LOGO */}
         <div className="md:hidden absolute left-1/2 -translate-x-1/2 pointer-events-none">
           <span className="text-slate-900 font-black text-lg tracking-tight uppercase italic flex items-center gap-1.5 translate-y-0.5">
-            Addis<span className="text-pink-500">Net</span>
+            Anstar<span className="text-pink-500">Net</span>
           </span>
         </div>
 

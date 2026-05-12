@@ -37,7 +37,7 @@ export const RegisterForm = ({ switchToAuthType }: AuthFormProps) => {
           </div>
           <div className="flex-1">
             <h3 className="text-slate-900 font-black text-lg md:text-xl mb-1 md:mb-1.5 tracking-tight uppercase">Create New PassCard</h3>
-            <p className="text-slate-500 text-xs md:text-sm font-light leading-relaxed">System will generate and download your encrypted footprint as a addisnet-passcard.txt file.</p>
+            <p className="text-slate-500 text-xs md:text-sm font-light leading-relaxed">System will generate and download your encrypted footprint as a Anstarnet-passcard.txt file.</p>
           </div>
           <div className="absolute left-0 top-0 w-1 h-full bg-pink-500 opacity-0 group-hover/btn:opacity-100 transition-opacity"></div>
         </button>
@@ -50,7 +50,7 @@ export const RegisterForm = ({ switchToAuthType }: AuthFormProps) => {
         <div className="flex flex-col gap-1">
           <span className="font-bold text-xs tracking-wide uppercase">Important Security Notice</span>
           <p className="text-xs leading-relaxed opacity-90">
-            Do not share your AddisNet PassCard with anybody. Please save it securely on Telegram, Google Drive, or another cloud storage to log back in later.
+            Do not share your AnstarNet PassCard with anybody. Please save it securely on Telegram, Google Drive, or another cloud storage to log back in later.
           </p>
         </div>
       </div>

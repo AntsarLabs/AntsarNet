@@ -68,7 +68,7 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: "addisnet-auth-storage",
+      name: "Anstarnet-auth-storage",
       partialize: (state) => ({
         user: state.user,
         session: state.session,

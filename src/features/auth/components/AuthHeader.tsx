@@ -15,7 +15,7 @@ export const AuthHeader = () => {
         <div className="flex flex-col items-center group">
           <div className="flex items-center gap-1.5 align-baseline">
             <Lock size={24} className="text-slate-800" />
-            <span className="text-slate-800 font-bold text-[24px] tracking-tighter ">ADDIS<span className="text-pink-500">NET</span></span>
+            <span className="text-slate-800 font-bold text-[24px] tracking-tighter ">Anstar<span className="text-pink-500">NET</span></span>
           </div>
         </div>
         <div className="w-10" />
@@ -33,7 +33,7 @@ export const AuthHeader = () => {
         </div>
         <div className="flex flex-col">
           <span className="text-3xl font-black tracking-tighter text-slate-900 uppercase leading-none">
-            ADDIS<span className="text-pink-500">NET</span>
+            Anstar<span className="text-pink-500">NET</span>
           </span>
           <span className="text-[10px] text-slate-400 font-mono uppercase tracking-[0.3em] mt-1">
             Self-governing and anonymous network

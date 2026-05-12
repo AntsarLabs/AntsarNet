@@ -9,20 +9,8 @@ import { useComments, useLoadMoreComments } from '../hooks';
 import { useAuthStore } from '@/features/auth/store';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
 import { Link } from 'react-router-dom';
+import {timeAgo} from '@/utils/date';
 
-function timeAgo(dateStr: string): string {
-  const now = Date.now();
-  const then = new Date(dateStr).getTime();
-  const diff = now - then;
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'Just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d ago`;
-  return new Date(dateStr).toLocaleDateString();
-}
 
 export function PostCard({
   post,

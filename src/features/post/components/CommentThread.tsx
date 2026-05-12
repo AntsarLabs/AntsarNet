@@ -5,23 +5,12 @@ import { Comment, ReactionType } from '../types';
 import { ReactionBar } from './ReactionBar';
 import { useAuthStore } from '@/features/auth/store';
 import { useUpdateComment } from '../hooks';
+import { timeAgo } from '@/utils/date';
 
 interface CommentThreadProps {
   comments: Comment[];
   onReply: (commentId: string) => void;
   onReact: (commentId: string, emoji: ReactionType, isComment?: boolean) => void;
-}
-
-function timeAgo(dateStr: string): string {
-  const now = Date.now();
-  const then = new Date(dateStr).getTime();
-  const diff = now - then;
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'Just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return new Date(dateStr).toLocaleDateString();
 }
 
 export function CommentThread({

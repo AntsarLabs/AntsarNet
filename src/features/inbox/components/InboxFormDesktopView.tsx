@@ -92,7 +92,7 @@ export function SendInboxDesktopView({
           <div className="bg-white/85 backdrop-blur-md border border-white/60 rounded-3xl p-8 shadow-sm transition-all hover:bg-white hover:shadow-md">
             <Users size={28} className="text-emerald-500 mb-4" />
             <h3 className="text-slate-900 font-bold mb-2">Join the Club</h3>
-            <p className="text-slate-500 text-sm leading-relaxed">Join 10k+ users in Addis sharing thoughts freely.</p>
+            <p className="text-slate-500 text-sm leading-relaxed">Join 10k+ users in Anstar sharing thoughts freely.</p>
           </div>
           <div className="bg-white/85 backdrop-blur-md border border-white/60 rounded-3xl p-8 shadow-sm transition-all hover:bg-white hover:shadow-md">
             <MapPin size={28} className="text-amber-500 mb-4" />
