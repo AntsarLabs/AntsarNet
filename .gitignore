@@ -12,6 +12,9 @@ node_modules
 dist
 dist-ssr
 
+# Deployment
+deploy.sh
+
 # Environment
 .env
 *.local
