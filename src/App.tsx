@@ -21,7 +21,7 @@ function AppContent() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-        <Route path="/inbox/:inboxId" element={<InboxReceivingPage />} />
+        <Route path="/ib/:inboxId" element={<InboxReceivingPage />} />
 
         {/* Protected routes — layout route pattern for React Router v6 */}
         <Route element={<ProtectedRoute />}>

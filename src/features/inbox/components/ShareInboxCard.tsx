@@ -13,7 +13,7 @@ export function ShareInboxCard() {
   const MAX_TITLE_LENGTH = 70;
 
   const generateInboxUrl = (title?: string) => {
-    const baseInboxUrl = `${import.meta.env.VITE_FRONTEND_URL}/inbox/${user?.inbox_id}`;
+    const baseInboxUrl = `${import.meta.env.VITE_FRONTEND_URL}/ib/${user?.inbox_id}`;
     const queryParams = new URLSearchParams();
     if (title) {
       // Obfuscate the title so it's not human-readable but reversible
