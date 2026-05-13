@@ -112,7 +112,8 @@ export function InboxMessageCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
-      className={`group relative flex flex-col gap-4 p-5 rounded-2xl transition-all duration-300 ${!msg.isRead
+      className={`group relative overflow-visible flex flex-col gap-4 p-5 rounded-2xl transition-all duration-300 ${isMenuOpen ? 'z-50' : 'z-0'
+        } ${!msg.isRead
           ? 'bg-white shadow-[0_8px_30px_rgba(216,43,125,0.1)] border-l-4 border-l-pink-500 border-y border-r border-white/60'
           : 'bg-white/85 backdrop-blur-md border border-white/60 hover:bg-white transition-all shadow-sm'
         }`}

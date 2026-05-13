@@ -24,12 +24,12 @@ export function CreatePostModal({
   const toggleTag = (tagId: string) => {
     if (selectedTagIds.includes(tagId)) {
       setSelectedTagIds(selectedTagIds.filter((id) => id !== tagId));
-    } else if (selectedTagIds.length < 3) {
+    } else if (selectedTagIds.length < 7) {
       setSelectedTagIds([...selectedTagIds, tagId]);
     }
   };
 
-  const CONTENT_MAX_LENGTH = 5000;
+  const CONTENT_MAX_LENGTH = 3000;
   const handleSubmit = () => {
     if (!content.trim() || selectedTagIds.length === 0) return;
     if(content.length > CONTENT_MAX_LENGTH) return;
@@ -162,7 +162,7 @@ export function CreatePostModal({
                         <Tag size={14} />
                         <span>Tags</span>
                         <span className="text-slate-400 font-normal">
-                          ({selectedTagIds.length}/3)
+                          ({selectedTagIds.length}/7)
                         </span>
                       </div>
                       {selectedTagIds.length === 0 &&
@@ -175,7 +175,7 @@ export function CreatePostModal({
                       {tags.map((tag) => {
                       const isSelected = selectedTagIds.includes(tag.id);
                       const isDisabled =
-                      !isSelected && selectedTagIds.length >= 3;
+                      !isSelected && selectedTagIds.length >= 7;
                       return (
                         <button
                           key={tag.id}
